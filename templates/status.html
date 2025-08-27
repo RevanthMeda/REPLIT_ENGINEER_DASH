@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAT Report Status - {{ document_title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"/>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .status-pending {
+      background-color: #ffeeba;
+      color: #856404;
+    }
+    .status-approved {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .status-rejected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .status-partially-approved {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+    .progress-tracker {
+      margin: 30px 0;
+    }
+    .progress-step {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+    .step-content {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      width: 100%;
+      position: relative;
+    }
+    .step-content:before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: -15px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 15px solid white;
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .step-title {
+      font-weight: 600;
+    }
+    .step-status {
+      margin-top: 5px;
+    }
+    .document-info {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .actions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .version-display {
+      font-size: 0.9em;
+      color: #6c757d;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-header">
+      <img src="{{ url_for('static', filename='img/cully.png') }}" alt="Company Logo"/>
+    </div>
+
+    <h1>SAT Report Status</h1>
+
+    <div class="document-info">
+      <h3>{{ document_title }} <span class="version-display">{{ submission_data.get('REVISION', 'R0') }}</span></h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Project Reference:</label>
+          <span>{{ project_reference or 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Client:</label>
+          <span>{{ client_name or 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Prepared By:</label>
+          <span>{{ prepared_by or 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Version:</label>
+          <span class="version-display">{{ submission_data.get('REVISION', 'R0') }}</span>
+        </div>
+      </div>
+      <p><strong>Submitted:</strong> {{ created_at.split('T')[0] if created_at else 'N/A' }}</p>
+      <p><strong>Last Updated:</strong> {{ updated_at.split('T')[0] if updated_at else 'N/A' }}</p>
+      <p><strong>Submission ID:</strong> {{ submission_id }}</p>
+
+      <div class="status-badge status-{{ overall_status }}">
+        {% if overall_status == 'pending' %}
+          <i class="fa fa-clock"></i> Pending Approval
+        {% elif overall_status == 'partially_approved' %}
+          <i class="fa fa-check-circle"></i> Partially Approved
+        {% elif overall_status == 'approved' %}
+          <i class="fa fa-check-circle"></i> Fully Approved
+        {% elif overall_status == 'rejected' %}
+          <i class="fa fa-times-circle"></i> Rejected
+        {% elif overall_status == 'incomplete' %}
+          <i class="fa fa-exclamation-triangle"></i> Incomplete (Session Interrupted)
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Approval Progress</div>
+      <div class="card-body">
+        <div class="progress-tracker">
+          {% for approval in approvals %}
+          <div class="progress-step">
+            <div class="step-number">{{ approval.stage }}</div>
+            <div class="step-title">{{ approval.title }}</div>
+            <div class="step-content">
+              <p><strong>Approver:</strong> {{ approval.approver_email }}</p>
+              <p><strong>Status:</strong> 
+                <span class="status-badge status-{{ approval.status }}">
+                  {% if approval.status == 'pending' %}
+                    <i class="fa fa-clock"></i> Pending
+                  {% elif approval.status == 'approved' %}
+                    <i class="fa fa-check-circle"></i> Approved
+                  {% elif approval.status == 'rejected' %}
+                    <i class="fa fa-times-circle"></i> Rejected
+                  {% elif approval.status == 'incomplete' %}
+                    <i class="fa fa-exclamation-triangle"></i> Incomplete
+                  {% endif %}
+                </span>
+              </p>
+              {% if approval.timestamp %}
+              <p><strong>Date:</strong> {{ approval.timestamp.split('T')[0] if 'T' in approval.timestamp else approval.timestamp }}</p>
+              {% endif %}
+              {% if approval.approver_name %}
+              <p><strong>Approved By:</strong> {{ approval.approver_name }}</p>
+              {% endif %}
+              {% if approval.comment %}
+              <p><strong>Comments:</strong> {{ approval.comment }}</p>
+              {% endif %}
+              {% if approval.signature %}
+              <p><strong>Signature:</strong></p>
+              <img src="{{ url_for('static', filename='signatures/' + approval.signature) }}" alt="Signature" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">
+              {% else %}
+              <p><strong>Signature:</strong> <span style="color: #6c757d; font-style: italic;">Pending</span></p>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-container">
+      {% if not locked %}
+      <a href="{{ url_for('main.edit_submission', submission_id=submission_id) }}" class="btn-secondary">
+        <i class="fa fa-edit"></i> Edit Submission
+      </a>
+      {% endif %}
+
+      <a href="{{ url_for('status.download_report', submission_id=submission_id) }}" class="btn-primary">
+        <i class="fa fa-download"></i> Download DOCX
+      </a>
+
+      {% if has_pdf %}
+      <a href="{{ url_for('status.download_pdf', submission_id=submission_id) }}" class="btn-secondary">
+        <i class="fa fa-file-pdf"></i> Download PDF
+      </a>
+      {% endif %}
+
+      <a href="{{ url_for('main.index') }}" class="btn-secondary">
+        <i class="fa fa-plus"></i> New Submission
+      </a>
+    </div>
+  </div>
+</body>
+</html>

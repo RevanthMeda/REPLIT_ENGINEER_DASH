@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Report Type - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .modern-dashboard {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            min-height: 100vh;
+        }
+
+        .modern-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .brand-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #424242;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .logout-button {
+            padding: 8px 12px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .logout-button:hover {
+            background: #c53030;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+
+        .modern-sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+        }
+
+        .sidebar-header h3 {
+            color: #1a202c;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #4a5568;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav .nav-item:hover,
+        .sidebar-nav .nav-item.active {
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            color: white;
+        }
+
+        .main-dashboard {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .breadcrumb-current {
+            color: white;
+            font-weight: 500;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .dashboard-header h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+        }
+
+        .report-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .report-type-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-type-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .report-type-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+        }
+
+        .report-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: white;
+            font-size: 36px;
+        }
+
+        .report-type-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 12px;
+        }
+
+        .report-type-card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .report-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px;
+        }
+
+        .report-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .report-features li i {
+            color: #48bb78;
+        }
+
+        .report-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .report-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(77, 208, 225, 0.3);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: rgba(72, 187, 120, 0.1);
+            color: #22543d;
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        .status-coming-soon {
+            background: rgba(237, 137, 54, 0.1);
+            color: #744210;
+            border: 1px solid rgba(237, 137, 54, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+
+            .modern-sidebar {
+                width: 100%;
+            }
+
+            .report-types-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modern-dashboard">
+        <!-- Top Navigation -->
+        <nav class="modern-nav">
+            <div class="nav-brand">
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="brand-logo">
+                <span class="brand-text">Cully Report Generator</span>
+            </div>
+            <div class="nav-actions">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-hard-hat"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">{{ current_user.full_name }}</span>
+                        <span class="user-role">{{ current_user.role }}</span>
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-button" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-layout">
+            <!-- Sidebar -->
+            <aside class="modern-sidebar">
+                <div class="sidebar-header">
+                    <h3>My Workspace</h3>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard.engineer') }}" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Create Report</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span>My Reports</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-dashboard">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb">
+                    <a href="{{ url_for('dashboard.engineer') }}">Dashboard</a>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-current">Choose Report Type</span>
+                </nav>
+
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Choose Report Type</h1>
+                        <p>Select the type of report you want to create</p>
+                    </div>
+                </div>
+
+                <!-- Report Types Grid -->
+                <div class="report-types-grid">
+                    <!-- SAT Report -->
+                    <div class="report-type-card" onclick="window.location.href='{{ url_for('reports.new_sat_full') }}'">
+                        <div class="status-badge status-available">Available</div>
+                        <div class="report-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>System Acceptance Testing (SAT)</h3>
+                        <p>Comprehensive testing documentation for system acceptance and validation procedures</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Digital signatures</li>
+                            <li><i class="fas fa-check"></i> Approval workflow</li>
+                            <li><i class="fas fa-check"></i> Automated formatting</li>
+                            <li><i class="fas fa-check"></i> Testing procedures</li>
+                        </ul>
+                        <a href="{{ url_for('reports.new_sat_full') }}" class="report-action">
+                            <i class="fas fa-rocket"></i>
+                            <span>Generate</span>
+                        </a>
+                    </div>
+
+                    <!-- FDS Report -->
+                    <div class="report-type-card">
+                        <div class="status-badge status-coming-soon">Coming Soon</div>
+                        <div class="report-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Functional Design Specification (FDS)</h3>
+                        <p>Detailed functional requirements and design specifications for system components</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Template creation</li>
+                            <li><i class="fas fa-check"></i> Version control</li>
+                            <li><i class="fas fa-check"></i> Review workflow</li>
+                            <li><i class="fas fa-check"></i> API documentation</li>
+                        </ul>
+                        <a href="#" class="report-action" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-clock"></i>
+                            <span>Coming Soon</span>
+                        </a>
+                    </div>
+
+                    <!-- HDS Report -->
+                    <div class="report-type-card">
+                        <div class="status-badge status-coming-soon">Coming Soon</div>
+                        <div class="report-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <h3>Hardware Design Specification (HDS)</h3>
+                        <p>Comprehensive hardware design documentation and specifications</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Component specs</li>
+                            <li><i class="fas fa-check"></i> Wiring diagrams</li>
+                            <li><i class="fas fa-check"></i> Test procedures</li>
+                            <li><i class="fas fa-check"></i> BOM generation</li>
+                        </ul>
+                        <a href="#" class="report-action" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-clock"></i>
+                            <span>Coming Soon</span>
+                        </a>
+                    </div>
+
+                    <!-- Site Survey -->
+                    <div class="report-type-card">
+                        <div class="status-badge status-coming-soon">Coming Soon</div>
+                        <div class="report-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3>Site Survey</h3>
+                        <p>Detailed site assessment and survey documentation for project planning</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Photo mapping</li>
+                            <li><i class="fas fa-check"></i> Asset assessment</li>
+                            <li><i class="fas fa-check"></i> Risk analysis</li>
+                            <li><i class="fas fa-check"></i> GPS integration</li>
+                        </ul>
+                        <a href="#" class="report-action" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-clock"></i>
+                            <span>Coming Soon</span>
+                        </a>
+                    </div>
+
+                    <!-- SDS Report -->
+                    <div class="report-type-card">
+                        <div class="status-badge status-coming-soon">Coming Soon</div>
+                        <div class="report-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>Software Design Specification (SDS)</h3>
+                        <p>Software architecture and design documentation with detailed specifications</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Code structure</li>
+                            <li><i class="fas fa-check"></i> API documentation</li>
+                            <li><i class="fas fa-check"></i> Testing strategy</li>
+                            <li><i class="fas fa-check"></i> Architecture details</li>
+                        </ul>
+                        <a href="#" class="report-action" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-clock"></i>
+                            <span>Coming Soon</span>
+                        </a>
+                    </div>
+
+                    <!-- Custom Report -->
+                    <div class="report-type-card">
+                        <div class="status-badge status-coming-soon">Coming Soon</div>
+                        <div class="report-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3>Custom Report (CER)</h3>
+                        <p>Build your own custom report template with flexible formatting options</p>
+                        <ul class="report-features">
+                            <li><i class="fas fa-check"></i> Template creation</li>
+                            <li><i class="fas fa-check"></i> Custom workflows</li>
+                            <li><i class="fas fa-check"></i> Field mapping</li>
+                            <li><i class="fas fa-check"></i> Export options</li>
+                        </ul>
+                        <a href="#" class="report-action" style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-clock"></i>
+                            <span>Coming Soon</span>
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // All navigation is now handled by the href attributes and onclick handlers
+            // No additional JavaScript needed for SAT report navigation
+        });
+    </script>
+</body>
+</html>

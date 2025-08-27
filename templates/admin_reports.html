@@ -1,0 +1,779 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>All Reports - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-primary: #4DD0E1;
+            --admin-primary-dark: #26C6DA;
+            --admin-primary-light: #80DEEA;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+            --admin-danger: #ef4444;
+            --admin-neutral: #6b7280;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header Section - Exact same as Dashboard */
+        .admin-header {
+            background: linear-gradient(135deg, #4DD0E1 0%, #26C6DA 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .header-logo {
+            height: 80px;
+            filter: brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        /* Navigation - Exact same as Dashboard */
+        .admin-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #e2e8f0;
+            color: var(--admin-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.25);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
+        }
+
+        .nav-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 24px;
+        }
+
+        .flash-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #d1fae5;
+            border: 1px solid #059669;
+            border-radius: 12px;
+            color: #065f46;
+            font-weight: 500;
+            box-shadow: var(--card-shadow);
+        }
+
+        .flash-message i {
+            font-size: 18px;
+        }
+
+        /* Stats Grid - Exact same as Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--admin-primary);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px 0 0 0;
+        }
+
+        /* Dashboard Widgets - Exact same as Dashboard */
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .widget-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-action {
+            padding: 8px 16px;
+            background: var(--admin-primary);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .widget-action:hover {
+            background: var(--admin-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .widget-content {
+            padding: 24px;
+        }
+
+        .widget-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            color: #374151;
+            font-size: 18px;
+            margin: 0 0 8px 0;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-connected {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Reports Table */
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .reports-table th {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #374151;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .reports-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .reports-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .report-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .report-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .report-info {
+            min-width: 0;
+        }
+
+        .report-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .report-type {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-text {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-view {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+        }
+
+        .action-edit {
+            background: linear-gradient(135deg, var(--admin-warning), #f59e0b);
+            color: white;
+        }
+
+        .action-delete {
+            background: linear-gradient(135deg, var(--admin-danger), #dc2626);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-info h1 {
+                font-size: 2rem;
+                justify-content: center;
+            }
+
+            .admin-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-item {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widgets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widget-actions {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .widget-action {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message">
+                            <i class="fa fa-check-circle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Header Section -->
+        <div class="admin-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1><i class="fa fa-chart-bar"></i> System Reports</h1>
+                    <p>View and analyze all reports across the platform</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="header-logo">
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard.admin') }}" class="nav-item">
+                <i class="fa fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('dashboard.user_management') }}" class="nav-item">
+                <i class="fa fa-users"></i>
+                User Management
+            </a>
+            <a href="{{ url_for('dashboard.admin_reports') }}" class="nav-item active">
+                <i class="fa fa-chart-bar"></i>
+                All Reports
+            </a>
+            <a href="{{ url_for('dashboard.system_settings') }}" class="nav-item">
+                <i class="fa fa-cogs"></i>
+                System Settings
+            </a>
+            <a href="{{ url_for('reports.new') }}" class="nav-item">
+                <i class="fa fa-plus"></i>
+                Create Report
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="margin-left: auto;">
+                <i class="fa fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-value">0</div>
+                <p class="stat-label">Total Reports</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value">0</div>
+                <p class="stat-label">Pending Review</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value">0</div>
+                <p class="stat-label">Approved Reports</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-calendar-day"></i>
+                    </div>
+                </div>
+                <div class="stat-value">0</div>
+                <p class="stat-label">This Month</p>
+            </div>
+        </div>
+
+        <!-- Reports Management Widget -->
+        <div class="widgets-grid">
+            <div class="widget-card" style="grid-column: 1 / -1;">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fa fa-file-alt"></i>
+                        All System Reports
+                    </h3>
+                    <div class="widget-actions">
+                        <button class="widget-action" id="createReportBtn">
+                            <i class="fa fa-plus"></i>
+                            Create Report
+                        </button>
+                        <button class="widget-action" id="exportReportsBtn">
+                            <i class="fa fa-download"></i>
+                            Export Data
+                        </button>
+                        <button class="widget-action" id="refreshReportsBtn">
+                            <i class="fa fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    <!-- Filter Tabs Inside Widget -->
+                    <div class="admin-nav" style="margin-bottom: 24px;">
+                        <a href="{{ url_for('dashboard.admin_reports') }}" class="nav-item active">
+                            <i class="fa fa-file-alt"></i>
+                            All Reports
+                            <span class="nav-badge">0</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.admin_reports', type='SAT') }}" class="nav-item">
+                            <i class="fa fa-clipboard-check"></i>
+                            SAT Reports
+                            <span class="nav-badge">0</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.admin_reports', status='Pending') }}" class="nav-item">
+                            <i class="fa fa-clock"></i>
+                            Pending Review
+                            <span class="nav-badge nav-badge-pending">0</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.admin_reports', status='Approved') }}" class="nav-item">
+                            <i class="fa fa-check-circle"></i>
+                            Approved
+                            <span class="nav-badge nav-badge-active">0</span>
+                        </a>
+                    </div>
+
+                    <!-- Reports Content -->
+                    <div class="empty-state">
+                        <i class="fa fa-chart-bar"></i>
+                        <h4>No Reports Available</h4>
+                        <p>System reports and analytics will appear here once reports are created and processed.</p>
+                        <div style="margin-top: 20px;">
+                            <a href="{{ url_for('reports.new') }}" class="widget-action">
+                                <i class="fa fa-plus"></i>
+                                Create Your First Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Widget -->
+        <div class="widgets-grid">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fa fa-rocket"></i>
+                        Quick Actions
+                    </h3>
+                </div>
+                <div class="widget-content">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <a href="{{ url_for('reports.new') }}" class="widget-action" style="width: 100%; justify-content: center;">
+                            <i class="fa fa-plus"></i>
+                            Create New SAT Report
+                        </a>
+                        <a href="{{ url_for('dashboard.user_management') }}" class="widget-action" style="width: 100%; justify-content: center;">
+                            <i class="fa fa-users"></i>
+                            Manage Users
+                        </a>
+                        <a href="{{ url_for('dashboard.system_settings') }}" class="widget-action" style="width: 100%; justify-content: center;">
+                            <i class="fa fa-cogs"></i>
+                            System Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fa fa-info-circle"></i>
+                        Report Analytics
+                    </h3>
+                </div>
+                <div class="widget-content">
+                    <div class="empty-state">
+                        <i class="fa fa-chart-pie"></i>
+                        <h4>Analytics Coming Soon</h4>
+                        <p>Detailed report analytics and insights will be displayed here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Button functionality
+        document.getElementById('createReportBtn').addEventListener('click', function() {
+            window.location.href = "{{ url_for('reports.new') }}";
+        });
+
+        document.getElementById('exportReportsBtn').addEventListener('click', function() {
+            showNotification('Report export functionality coming soon', 'success');
+        });
+
+        document.getElementById('refreshReportsBtn').addEventListener('click', function() {
+            showNotification('Refreshing reports...', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        });
+
+        // Notification helper function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Database status check function for consistency
+        async function checkDatabaseStatus() {
+            try {
+                const response = await fetch('/dashboard/db-status');
+                const data = await response.json();
+                console.log('Database status:', data.connected ? 'Connected' : 'Disconnected');
+            } catch (error) {
+                console.log('Database status check failed:', error);
+            }
+        }
+
+        // Initialize
+        checkDatabaseStatus();
+        setInterval(checkDatabaseStatus, 30000);
+    </script>
+</body>
+</html>

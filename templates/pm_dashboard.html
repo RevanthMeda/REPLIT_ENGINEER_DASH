@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Manager Dashboard - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1><i class="fa fa-project-diagram"></i> Project Manager Dashboard</h1>
+                    <p class="subtitle">Oversee project deliverables, track progress, and manage stakeholder communications</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" style="height: 60px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Navigation -->
+            <div class="dashboard-nav">
+                <div class="nav-links">
+                    <a href="{{ url_for('dashboard.pm') }}" class="nav-link active">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('dashboard.my_reports') }}" class="nav-link">
+                        <i class="fa fa-file-alt"></i> My Reports
+                    </a>
+                    <a href="{{ url_for('reports.new_sat') }}" class="nav-link">
+                        <i class="fa fa-plus"></i> Create Report
+                    </a>
+                    <a href="{{ url_for('io_builder.index') }}" class="nav-link">
+                        <i class="fa fa-sitemap"></i> I/O Builder
+                    </a>
+                    <a href="{{ url_for('notifications.notification_center') }}" class="nav-link">
+                        <i class="fa fa-bell"></i> Notifications
+                        {% if unread_count > 0 %}
+                            <span class="notification-badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('auth.change_password') }}" class="nav-link">
+                        <i class="fa fa-key"></i> Change Password
+                    </a>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ current_user.full_name[0] if current_user.full_name else 'U' }}
+                    </div>
+                    <div class="user-details">
+                        <h4>{{ current_user.full_name or 'User' }}</h4>
+                        <p>{{ current_user.role }}</p>
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link" style="color: #ef4444;">
+                        <i class="fa fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">
+                        <i class="fa fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number">{{ project_count }}</div>
+                    <div class="stat-label">Active Projects</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-arrow-up"></i> Projects managed
+                    </div>
+                </div>
+
+                <div class="stat-card accent">
+                    <div class="stat-icon">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-number">{{ pending_deliverables }}</div>
+                    <div class="stat-label">Pending Deliverables</div>
+                    <div class="stat-change">
+                        <i class="fa fa-clock"></i> Require attention
+                    </div>
+                </div>
+
+                <div class="stat-card secondary">
+                    <div class="stat-icon">
+                        <i class="fa fa-check-double"></i>
+                    </div>
+                    <div class="stat-number">{{ completed_reports }}</div>
+                    <div class="stat-label">Completed Reports</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-check"></i> This month
+                    </div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-icon">
+                        <i class="fa fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-number">{{ on_time_percentage }}%</div>
+                    <div class="stat-label">On-Time Delivery</div>
+                    <div class="stat-change positive">
+                        <i class="fa fa-thumbs-up"></i> Performance
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa fa-rocket"></i> Project Management</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="{{ url_for('reports.new_sat') }}" class="action-card">
+                        <div class="action-icon">
+                            <i class="fa fa-plus-circle"></i>
+                        </div>
+                        <h3>New Project Report</h3>
+                        <p>Initialize a new SAT report for project milestone tracking</p>
+                    </a>
+
+                    <a href="{{ url_for('dashboard.my_reports') }}" class="action-card">
+                        <div class="action-icon">
+                            <i class="fa fa-tasks"></i>
+                        </div>
+                        <h3>Track Deliverables</h3>
+                        <p>Monitor project deliverables and milestone completion status</p>
+                    </a>
+
+                    <a href="{{ url_for('notifications.notification_center') }}" class="action-card">
+                        <div class="action-icon">
+                            <i class="fa fa-bell"></i>
+                        </div>
+                        <h3>Notifications</h3>
+                        <p>Check pending approvals and team updates</p>
+                    </a>
+
+                    <a href="{{ url_for('io_builder.index') }}" class="action-card">
+                        <div class="action-icon">
+                            <i class="fa fa-chart-bar"></i>
+                        </div>
+                        <h3>Project Analytics</h3>
+                        <p>Generate reports and analytics for project performance</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project Overview -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa fa-folder-open"></i> Recent Projects</h2>
+                </div>
+                {% if recent_reports %}
+                    <div class="table-responsive">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Client</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in recent_reports %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ report.document_title or 'Untitled Project' }}</strong><br>
+                                        <small>{{ report.project_reference or 'No reference' }}</small>
+                                    </td>
+                                    <td>{{ report.client_name or 'N/A' }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ report.status.lower() }}">
+                                            {{ report.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: {% if report.status == 'APPROVED' %}100{% elif report.status == 'PENDING' %}75{% else %}25{% endif %}%;"></div>
+                                        </div>
+                                        <small>{% if report.status == 'APPROVED' %}100{% elif report.status == 'PENDING' %}75{% else %}25{% endif %}% Complete</small>
+                                    </td>
+                                    <td>{{ report.updated_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('status.view_status', submission_id=report.id) }}" class="btn-view">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No Active Projects</h3>
+                        <p>No projects are currently active. Create a new project report to get started.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        :root {
+            --pm-primary: #4DD0E1;
+            --pm-primary-dark: #26C6DA;
+            --pm-primary-light: #80DEEA;
+            --pm-success: #10b981;
+            --pm-warning: #f59e0b;
+            --pm-danger: #ef4444;
+            --pm-neutral: #6b7280;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+            /* Consistent with other dashboards */
+            --primary: #4DD0E1;
+            --primary-dark: #26C6DA;
+            --primary-light: #80DEEA;
+            --secondary: #00BCD4;
+            --secondary-light: #4FC3F7;
+            --accent: #00ACC1;
+            --accent-light: #40C4FF;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            margin: 0;
+            padding: 0;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-draft {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--secondary-light));
+            transition: width 0.3s ease;
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .btn-view:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+    </style>
+</body>
+</html>

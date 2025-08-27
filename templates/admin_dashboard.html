@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Admin Dashboard - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-primary: #4DD0E1;
+            --admin-primary-dark: #26C6DA;
+            --admin-primary-light: #80DEEA;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+            --admin-danger: #ef4444;
+            --admin-neutral: #6b7280;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header Section */
+        .admin-header {
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .header-logo {
+            height: 80px;
+            filter: brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        /* Navigation */
+        .admin-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #e2e8f0;
+            color: var(--admin-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.25);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
+        }
+
+        .nav-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 24px;
+        }
+
+        .flash-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #d1fae5;
+            border: 1px solid #059669;
+            border-radius: 12px;
+            color: #065f46;
+            font-weight: 500;
+            box-shadow: var(--card-shadow);
+        }
+
+        .flash-message i {
+            font-size: 18px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--admin-primary);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px 0 0 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-connected {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Dashboard Widgets */
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .widget-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-action {
+            padding: 8px 16px;
+            background: var(--admin-primary);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .widget-action:hover {
+            background: var(--admin-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .widget-content {
+            padding: 24px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            color: #374151;
+            font-size: 18px;
+            margin: 0 0 8px 0;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* System Overview */
+        .system-overview {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .system-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .system-item:hover {
+            background: #f1f5f9;
+            border-color: var(--admin-primary);
+        }
+
+        .system-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .system-details h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .system-value {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Pending Approvals */
+        .approval-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .approval-item:hover {
+            background: #f1f5f9;
+            border-color: var(--admin-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h5 {
+            margin: 0 0 2px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-details span {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .approve-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--admin-success), #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .approve-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+        }
+
+        /* Navigation badges */
+        .nav-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-item.active .nav-badge {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-badge-pending {
+            background: #fef3c7 !important;
+            color: #92400e !important;
+        }
+
+        .nav-badge-active {
+            background: #d1fae5 !important;
+            color: #065f46 !important;
+        }
+
+        .nav-badge-disabled {
+            background: #fee2e2 !important;
+            color: #991b1b !important;
+        }
+
+        /* Widget actions */
+        .widget-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .widget-action {
+            padding: 8px 12px;
+            background: var(--admin-primary);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .widget-action:hover {
+            background: var(--admin-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Search container */
+        .search-container {
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            color: #9ca3af;
+            z-index: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px rgba(77, 208, 225, 0.1);
+        }
+
+        /* User table styles */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .users-table th {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #374151;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .users-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .users-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info {
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .requested-role {
+            color: #f59e0b;
+            font-size: 12px;
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .role-select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            background: white;
+            margin-right: 8px;
+        }
+
+        .date-text {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-info h1 {
+                font-size: 2rem;
+                justify-content: center;
+            }
+
+            .admin-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-item {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widgets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .system-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widget-actions {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .widget-action {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1><i class="fa fa-tachometer-alt"></i> Dashboard</h1>
+                    <p>Monitor system performance and manage user activities</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="header-logo">
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message">
+                            <i class="fa fa-check-circle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard.admin') }}" class="nav-item active">
+                <i class="fa fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('dashboard.user_management') }}" class="nav-item">
+                <i class="fa fa-users"></i>
+                User Management
+            </a>
+            <a href="{{ url_for('dashboard.admin_reports') }}" class="nav-item">
+                <i class="fa fa-chart-bar"></i>
+                All Reports
+            </a>
+            <a href="{{ url_for('dashboard.system_settings') }}" class="nav-item">
+                <i class="fa fa-cogs"></i>
+                System Settings
+            </a>
+            <a href="{{ url_for('reports.new') }}" class="nav-item">
+                <i class="fa fa-plus"></i>
+                Create Report
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="margin-left: auto;">
+                <i class="fa fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="total-users-count">{{ total_users }}</div>
+                <p class="stat-label">Total Users</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="pending-users-count">{{ pending_users }}</div>
+                <p class="stat-label">Pending Approval</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="total-reports-count">{{ total_reports }}</div>
+                <p class="stat-label">Total Reports</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fa fa-database"></i>
+                    </div>
+                </div>
+                <div class="stat-value">
+                    <span class="status-badge {{ 'status-connected' if db_status else 'status-disconnected' }}" id="db-status-badge">
+                        <div class="status-indicator" style="background: {{ '#059669' if db_status else '#dc2626' }};"></div>
+                        {{ 'Connected' if db_status else 'Disconnected' }}
+                    </span>
+                </div>
+                <p class="stat-label">Database Status</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Widgets -->
+        <div class="widgets-grid">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        Pending Approvals
+                    </h3>
+                    <a href="{{ url_for('dashboard.user_management') }}" class="widget-action">Manage All</a>
+                </div>
+                <div class="widget-content" id="pending-approvals-content">
+                    {% if pending_users_list %}
+                        {% for user in pending_users_list %}
+                            <div class="approval-item">
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        {{ user.full_name[0] if user.full_name else 'U' }}
+                                    </div>
+                                    <div class="user-details">
+                                        <h5>{{ user.full_name }}</h5>
+                                        <span>{{ user.requested_role or 'No role specified' }}</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="approve-btn" onclick="approveUser({{ user.id }})">
+                                    <i class="fa fa-check"></i> Approve
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fa fa-check-circle"></i>
+                            <h4>All caught up!</h4>
+                            <p>No pending user approvals at this time</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fa fa-clock"></i>
+                        Recent Activity
+                    </h3>
+                    <a href="{{ url_for('dashboard.user_management') }}" class="widget-action">View All</a>
+                </div>
+                <div class="widget-content">
+                    <div class="empty-state">
+                        <i class="fa fa-history"></i>
+                        <h4>No recent activity</h4>
+                        <p>User activities and system events will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Overview -->
+        <div class="system-overview">
+            <h2 class="section-title">
+                <i class="fa fa-cogs"></i>
+                System Overview
+            </h2>
+            <div class="system-grid">
+                <div class="system-item">
+                    <div class="system-icon">
+                        <i class="fa fa-database"></i>
+                    </div>
+                    <div class="system-details">
+                        <h4>Database Connection</h4>
+                        <div class="system-value">
+                            <span class="status-badge {{ 'status-connected' if db_status else 'status-disconnected' }}">
+                                <div class="status-indicator" style="background: {{ '#059669' if db_status else '#dc2626' }};"></div>
+                                {{ 'Operational' if db_status else 'Connection Failed' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-item">
+                    <div class="system-icon">
+                        <i class="fa fa-folder"></i>
+                    </div>
+                    <div class="system-details">
+                        <h4>Storage Location</h4>
+                        <div class="system-value">{{ storage_location or 'Not configured' }}</div>
+                    </div>
+                </div>
+
+                <div class="system-item">
+                    <div class="system-icon">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="system-details">
+                        <h4>Company Branding</h4>
+                        <div class="system-value">
+                            <span class="status-badge status-connected">
+                                <div class="status-indicator" style="background: #059669;"></div>
+                                Configured
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-item">
+                    <div class="system-icon">
+                        <i class="fa fa-shield-alt"></i>
+                    </div>
+                    <div class="system-details">
+                        <h4>Security Status</h4>
+                        <div class="system-value">
+                            <span class="status-badge status-connected">
+                                <div class="status-indicator" style="background: #059669;"></div>
+                                Protected
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database status check
+        async function checkDatabaseStatus() {
+            try {
+                const response = await fetch('/dashboard/db-status');
+                const data = await response.json();
+
+                const badge = document.getElementById('db-status-badge');
+                const indicators = document.querySelectorAll('.status-indicator');
+
+                if (data.connected) {
+                    badge.className = 'status-badge status-connected';
+                    badge.innerHTML = '<div class="status-indicator" style="background: #059669;"></div> Connected';
+                } else {
+                    badge.className = 'status-badge status-disconnected';
+                    badge.innerHTML = '<div class="status-indicator" style="background: #dc2626;"></div> Disconnected';
+                }
+            } catch (error) {
+                console.log('Database status check failed:', error);
+            }
+        }
+
+        // User approval function
+        async function approveUser(userId) {
+            if (!confirm('Are you sure you want to approve this user?')) {
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('role', 'Engineer');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                const response = await fetch(`/dashboard/approve-user/${userId}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+
+                if (response.ok) {
+                    // Show success and reload page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert('Error approving user. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error approving user:', error);
+                alert('Network error. Please check your connection.');
+            }
+        }
+
+        // Initialize
+        checkDatabaseStatus();
+        setInterval(checkDatabaseStatus, 30000);
+    </script>
+</body>
+</html>

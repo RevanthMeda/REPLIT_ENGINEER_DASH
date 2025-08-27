@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAT Report Generator – Classy Edition</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"/>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <!-- Welcome -->
+  <div
+    id="welcomePage"
+    class="welcome-page"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="welcomeTitle"
+  >
+    <div class="logo-header">
+      <img src="{{ url_for('static', filename='cully.png') }}" alt="Company Logo"/>
+    </div>
+	
+	<!-- Recovery notification component -->
+	<div id="recovery-notification" class="recovery-notification" style="display: none;">
+	  <div class="recovery-content">
+		<div class="recovery-icon">
+		  <i class="fa fa-exclamation-circle"></i>
+		</div>
+		<div class="recovery-message">
+		  <h4>Unsaved Progress Found</h4>
+		  <p>We found a previous session that wasn't submitted. Would you like to restore your progress?</p>
+		</div>
+		<div class="recovery-actions">
+		  <button type="button" class="btn-secondary dismiss-btn">
+			<i class="fa fa-times"></i> Discard
+		  </button>
+		  <button type="button" class="btn-primary recover-btn">
+			<i class="fa fa-check"></i> Restore
+		  </button>
+		</div>
+	  </div>
+	</div>
+    <h2 id="welcomeTitle">Welcome to the SAT Report Generator</h2>
+    <p>Click below to start generating your SAT report.</p>
+    <button class="btn-primary" onclick="startProcess()">
+      <i class="fa fa-play" aria-hidden="true"></i> Start
+    </button>
+  </div>
+
+  <!-- Main Form -->
+  <div id="formContainer" class="container" style="display:none;">
+    <div class="logo-header">
+      <img src="{{ url_for('static', filename='cully.png') }}" alt="Company Logo"/>
+    </div>
+    <h1>Report Generator</h1>
+	
+	<!-- Flash messages section -->
+	  {% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+		  <div class="flash-messages">
+			{% for category, message in messages %}
+			  <div class="alert alert-{{ category }}">{{ message }}</div>
+			{% endfor %}
+		  </div>
+		{% endif %}
+	  {% endwith %}
+
+    <!-- Progress -->
+    <nav class="progress" aria-label="Form steps">
+      {% for i,label in [
+          (1,'Basic Info'),(2,'Approvals'),(3,'Purpose & Scope'),
+          (4,'Related Docs'),(5,'Pre‑Test'),(6,'Key & IPs'),
+          (7,'Signals'),(8,'Process & Alarms'),(9,'Verify & Submit')
+        ] %}
+      <div
+        id="prog-{{i}}"
+        class="progress-step {{ 'active' if i==1 else 'disabled' }}"
+        role="tab"
+        tabindex="{{ 0 if i==1 else -1 }}"
+        aria-controls="step-{{i}}"
+        aria-selected="{{ 'true' if i==1 else 'false' }}"
+      >
+        <div class="circle">{{i}}</div>
+        <span>{{label}}</span>
+      </div>
+      {% endfor %}
+    </nav>
+
+    <form id="satForm" method="POST" action="/generate" enctype="multipart/form-data" novalidate>
+	  <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+	  <input type="hidden" name="submission_id" value="{{ submission_id }}"/>
+
+      <!-- Step 1 — Basic Info -->
+      <fieldset
+        class="form-step active"
+        id="step-1"
+        role="tabpanel"
+        aria-labelledby="prog-1"
+      >
+        <legend class="step-legend">Step 1 — Basic Info</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+
+        <label for="document_title">Document Title <span class="required">*</span></label>
+        <input
+          id="document_title"
+          name="document_title"
+          type="text"
+          required
+          placeholder="e.g. SAT Report v1.2"
+          value="{{ submission_data.DOCUMENT_TITLE }}"
+        />
+        <span class="error">Required</span>
+
+        <label for="project_reference">Project Reference <span class="required">*</span></label>
+        <input
+          id="project_reference"
+          name="project_reference"
+          type="text"
+          required
+          placeholder="e.g. PROJ‑1234"
+          value="{{ submission_data.PROJECT_REFERENCE }}"
+        />
+        <span class="error">Required</span>
+
+        <label for="document_reference">Document Reference</label>
+        <input
+          id="document_reference"
+          name="document_reference"
+          type="text"
+          value="{{ submission_data.DOCUMENT_REFERENCE }}"
+        />
+
+        <label for="date">Date <span class="required">*</span></label>
+        <input
+          id="date"
+          name="date"
+          type="date"
+          required
+          value="{{ submission_data.DATE }}"
+        />
+        <span class="error">Select a date</span>
+
+        <label for="client_name">Client Name</label>
+        <input
+          id="client_name"
+          name="client_name"
+          type="text"
+          value="{{ submission_data.CLIENT_NAME }}"
+        />
+
+        <label for="revision">Revision</label>
+        <input
+          id="revision"
+          name="revision"
+          type="text"
+          value="{{ submission_data.REVISION }}"
+        />
+
+        <label for="revision_details">Revision Details</label>
+        <input
+          id="revision_details"
+          name="revision_details"
+          type="text"
+          value="{{ submission_data.REVISION_DETAILS }}"
+        />
+
+        <label for="revision_date">Revision Date</label>
+        <input
+          id="revision_date"
+          name="revision_date"
+          type="date"
+          value="{{ submission_data.REVISION_DATE }}"
+        />
+
+        <label for="user_email">Your Email <span class="required">*</span></label>
+        <input
+          id="user_email"
+          name="user_email"
+          type="email"
+          required
+          placeholder="you@company.com"
+          value="{{ submission_data.USER_EMAIL }}"
+        />
+        <span class="error">Valid email required</span>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-next-step="2">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 2 — Approvals -->
+      <fieldset class="form-step" id="step-2" role="tabpanel" aria-labelledby="prog-2">
+        <legend class="step-legend">Step 2 — Approvals</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+        <label for="prepared_by">Prepared By</label>
+        <input id="prepared_by" name="prepared_by" type="text"
+               value="{{ submission_data.PREPARED_BY }}"/>
+
+        <label for="reviewed_by_tech_lead">Reviewed By Tech Lead</label>
+        <input id="reviewed_by_tech_lead" name="reviewed_by_tech_lead" type="text"
+               value="{{ submission_data.REVIEWED_BY_TECH_LEAD }}"/>
+
+        <label for="reviewed_by_pm">Reviewed By PM</label>
+        <input id="reviewed_by_pm" name="reviewed_by_pm" type="text"
+               value="{{ submission_data.REVIEWED_BY_PM }}"/>
+
+        <label for="approved_by_client">Approved By Client</label>
+        <input id="approved_by_client" name="approved_by_client" type="text"
+               value="{{ submission_data.APPROVED_BY_CLIENT }}"/>
+			   
+		<h4>Approval Workflow Emails</h4>
+		<p class="help-text">Enter the email addresses of the people who will approve this report.</p>
+
+		<label for="approver_1_email">Technical Lead Email <span class="required">*</span></label>
+		<input
+		  id="approver_1_email"
+		  name="approver_1_email"
+		  type="email"
+		  required
+		  placeholder="techlead@example.com"
+		  value="{{ submission_data.approver_1_email }}"
+		/>
+		<span class="error">Valid email required</span>
+
+		<label for="approver_2_email">Project Manager Email <span class="required">*</span></label>
+		<input
+		  id="approver_2_email"
+		  name="approver_2_email"
+		  type="email"
+		  required
+		  placeholder="projectmanager@example.com"
+		  value="{{ submission_data.approver_2_email }}"
+		/>
+		<span class="error">Valid email required</span>
+
+		<label for="approver_3_email">Client Representative Email <span class="required">*</span></label>
+		<input
+		  id="approver_3_email"
+		  name="approver_3_email"
+		  type="email"
+		  required
+		  placeholder="client@example.com"
+		  value="{{ submission_data.approver_3_email }}"
+		/>
+		<span class="error">Valid email required</span>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="1">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="3">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 3 — Purpose & Scope -->
+      <fieldset class="form-step" id="step-3" role="tabpanel" aria-labelledby="prog-3">
+	    <button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+        <legend class="step-legend">Step 3 — Purpose & Scope</legend>
+
+        <label for="purpose">Purpose</label>
+        <textarea id="purpose" name="purpose">{{ submission_data.PURPOSE }}</textarea>
+
+        <label for="scope">Scope</label>
+        <textarea id="scope" name="scope">{{ submission_data.SCOPE }}</textarea>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="2">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="4">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 4 — Related Docs & Approvals -->
+      <fieldset class="form-step" id="step-4" role="tabpanel" aria-labelledby="prog-4">
+        <legend class="step-legend">Step 4 — Related Docs & Approvals</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+        <!-- Related Documents -->
+        <div class="card">
+          <div class="card-header">Related Documents</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Title</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="related-documents-body">
+                  {% for d in submission_data.RELATED_DOCUMENTS %}
+                  <tr>
+                    <td><input name="doc_ref[]" value="{{ d.Document_Reference }}"/></td>
+                    <td><input name="doc_title[]" value="{{ d.Document_Title }}"/></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove document"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-related-doc-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addRelatedDoc()"
+              aria-label="Add document"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Document
+            </button>
+          </div>
+        </div>
+
+        <!-- Pre- & Post-Execution Approval Cards -->
+        <div class="card">
+          <div class="card-header">Pre-Execution Approval</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Print Name</th><th>Signature</th><th>Date</th>
+                    <th>Initial</th><th>Company</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="pre-approvals-body">
+                  {% for a in submission_data.PRE_APPROVALS %}
+                  <tr>
+                    <td><input name="pre_approval_print_name[]" value="{{a.Print_Name}}"/></td>
+                    <td><input name="pre_approval_signature[]" value="{{a.Signature}}"/></td>
+                    <td><input name="pre_approval_date[]" type="date" value="{{a.Date}}"/></td>
+                    <td><input name="pre_approval_initial[]" value="{{a.Initial}}"/></td>
+                    <td><input name="pre_approval_company[]" value="{{a.Company}}"/></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove pre-approval"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-pre-approval-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addPreApprovalRow()"
+              aria-label="Add pre-approval"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Approval
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Post-Execution Approval</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Print Name</th><th>Signature</th><th>Date</th>
+                    <th>Initial</th><th>Company</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="post-approvals-body">
+                  {% for a in submission_data.POST_APPROVALS %}
+                  <tr>
+                    <td><input name="post_approval_print_name[]" value="{{a.Print_Name}}"/></td>
+                    <td><input name="post_approval_signature[]" value="{{a.Signature}}"/></td>
+                    <td><input name="post_approval_date[]" type="date" value="{{a.Date}}"/></td>
+                    <td><input name="post_approval_initial[]" value="{{a.Initial}}"/></td>
+                    <td><input name="post_approval_company[]" value="{{a.Company}}"/></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove post-approval"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-post-approval-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addPostApprovalRow()"
+              aria-label="Add post-approval"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Approval
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="3">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="5">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 5 — Pre-Test Requirements -->
+      <fieldset class="form-step" id="step-5" role="tabpanel" aria-labelledby="prog-5">
+        <legend class="step-legend">Step 5 — Pre-Test Requirements</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+        <div class="card">
+          <div class="card-header">Pre-Test Requirements</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th><th>Test</th><th>Method/Test</th>
+                    <th>Acceptance</th><th>Result</th><th>Punch</th>
+                    <th>Verified</th><th>Comment</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="pretest-body">
+                  {% for p in submission_data.PRE_TEST_REQUIREMENTS %}
+                  <tr>
+                    <td><input name="pretest_item[]" value="{{p.Item}}"/></td>
+                    <td><input name="pretest_test[]" value="{{p.Test}}"/></td>
+                    <td><input name="pretest_method[]" value="{{p.Method_Test_Steps}}"/></td>
+                    <td><input name="pretest_acceptance[]" value="{{p.Acceptance_Criteria}}"/></td>
+                    <td>
+                      <select name="pretest_result[]">
+                        <option value=""></option>
+                        <option {{ 'selected' if p.Result=='Pass' }}>Pass</option>
+                        <option {{ 'selected' if p.Result=='Fail' }}>Fail</option>
+                        <option {{ 'selected' if p.Result=='N/A' }}>N/A</option>
+                      </select>
+                    </td>
+                    <td><input name="pretest_punch[]" value="{{p.Punch_Item}}"/></td>
+                    <td><input name="pretest_verified_by[]" value="{{p.Verified_by}}"/></td>
+                    <td><input name="pretest_comment[]" value="{{p.Comment}}"/></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove pre-test"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-pretest-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addPretestRow()"
+              aria-label="Add pre-test requirement"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Requirement
+            </button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="4">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="6">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 6 — Key Components & IP Records -->
+      <fieldset class="form-step" id="step-6" role="tabpanel" aria-labelledby="prog-6">
+        <legend class="step-legend">Step 6 — Key Components & IP Records</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+        <!-- Key Components -->
+        <div class="card">
+          <div class="card-header">Key Components</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>S. No.</th><th>Model</th><th>Description</th><th>Remarks</th><th>Action</th></tr>
+                </thead>
+                <tbody id="key-components-body">
+                  {% for c in submission_data.KEY_COMPONENTS %}
+                  <tr>
+                    <td><input name="keycomp_s_no[]" value="{{ c.S_no }}"/></td>
+                    <td><input name="keycomp_model[]" value="{{ c.Model }}"/></td>
+                    <td><input name="keycomp_description[]" value="{{ c.Description }}"/></td>
+                    <td><input name="keycomp_remarks[]" value="{{ c.Remarks }}"/></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove component"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-keycomp-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addKeyComponentRow()"
+              aria-label="Add key component"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Component
+            </button>
+          </div>
+        </div>
+
+        <!-- IP Address Records -->
+        <div class="card">
+          <div class="card-header">IP Address Records</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Device Name</th><th>IP Address</th><th>Comment</th><th>Action</th></tr>
+                </thead>
+                <tbody id="ip-records-body">
+                  {% for r in submission_data.IP_RECORDS %}
+                  <tr>
+                    <td><input name="ip_device[]" value="{{ r.Device_Name }}"/></td>
+                    <td><input name="ip_address[]" value="{{ r.IP_Address }}"/></td>
+                    <td><textarea name="ip_comment[]">{{ r.Comment }}</textarea></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-remove remove-row-btn"
+                        aria-label="Remove IP record"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="add-iprecord-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addIPRecordRow()"
+              aria-label="Add IP record"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add IP Record
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="5">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="7">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 7 — Signals -->
+      <fieldset class="form-step" id="step-7" role="tabpanel" aria-labelledby="prog-7">
+        <legend class="step-legend">Step 7 — Signals</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+        <!-- Digital Signals -->
+        <div class="card">
+          <div class="card-header">Digital Signals</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>S. No.</th><th>Rack No.</th><th>Module Position</th>
+                <th>Signal TAG</th><th>Description</th><th>Result</th>
+                <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+              </tr></thead>
+              <tbody id="digital-signals-body">
+                {% for s in submission_data.SIGNAL_LISTS %}
+                <tr>
+                  <td><input name="S. No.[]" value="{{ s['S. No.'] }}"/></td>
+                  <td><input name="Rack No.[]" value="{{ s['Rack No.'] }}"/></td>
+                  <td><input name="Module Position[]" value="{{ s['Module Position'] }}"/></td>
+                  <td><input name="Signal TAG[]" value="{{ s['Signal TAG'] }}"/></td>
+                  <td><input name="Signal Description[]" value="{{ s['Signal Description'] }}"/></td>
+                  <td><input name="Result[]" value="{{ s['Result'] }}"/></td>
+                  <td><input name="Punch Item[]" value="{{ s['Punch Item'] }}"/></td>
+                  <td><input name="Verified By[]" value="{{ s['Verified By'] }}"/></td>
+                  <td><textarea name="Comment[]">{{ s['Comment'] }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove digital signal"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-digital-signal-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addSignalListRow()"
+              aria-label="Add digital signal"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Digital Signal
+            </button>
+          </div>
+        </div>
+
+        <!-- Analogue Signals -->
+        <div class="card">
+          <div class="card-header">Analogue Signals</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>S. No.</th><th>Rack No.</th><th>Module Position</th>
+                <th>Signal TAG</th><th>Description</th><th>Result</th>
+                <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+              </tr></thead>
+              <tbody id="analogue-signals-body">
+                {% for s in submission_data.ANALOGUE_LISTS %}
+                <tr>
+                  <td><input name="S. No. Analogue[]" value="{{ s['S. No.'] }}"/></td>
+                  <td><input name="Rack No. Analogue[]" value="{{ s['Rack No.'] }}"/></td>
+                  <td><input name="Module Position Analogue[]" value="{{ s['Module Position'] }}"/></td>
+                  <td><input name="Signal TAG Analogue[]" value="{{ s['Signal TAG'] }}"/></td>
+                  <td><input name="Signal Description Analogue[]" value="{{ s['Signal Description'] }}"/></td>
+                  <td><input name="Result Analogue[]" value="{{ s['Result'] }}"/></td>
+                  <td><input name="Punch Item Analogue[]" value="{{ s['Punch Item'] }}"/></td>
+                  <td><input name="Verified By Analogue[]" value="{{ s['Verified By'] }}"/></td>
+                  <td><textarea name="Comment Analogue[]">{{ s['Comment'] }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove analogue signal"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-analogue-signal-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addAnalogueListRow()"
+              aria-label="Add analogue signal"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Analogue Signal
+            </button>
+          </div>
+        </div>
+
+        <!-- Modbus Digital Signals -->
+        <div class="card">
+          <div class="card-header">Modbus Digital Signals</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Address</th><th>Description</th><th>Remarks</th>
+                <th>Result</th><th>Punch Item</th><th>Verified By</th>
+                <th>Comment</th><th>Action</th>
+              </tr></thead>
+              <tbody id="modbus-digital-body">
+                {% for m in submission_data.MODBUS_DIGITAL_LISTS %}
+                <tr>
+                  <td><input name="Address[]" value="{{ m.Address }}"/></td>
+                  <td><input name="Description[]" value="{{ m.Description }}"/></td>
+                  <td><input name="Remarks[]" value="{{ m.Remarks }}"/></td>
+                  <td><input name="Digital_Result[]" value="{{ m.Result }}"/></td>
+                  <td><input name="Digital_Punch Item[]" value="{{ m['Punch Item'] }}"/></td>
+                  <td><input name="Digital_Verified By[]" value="{{ m['Verified By'] }}"/></td>
+                  <td><textarea name="Digital_Comment[]">{{ m.Comment }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove modbus digital"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-modbus-digital-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addModbusDigitalRow()"
+              aria-label="Add modbus digital"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Modbus Digital
+            </button>
+          </div>
+        </div>
+
+        <!-- Modbus Analogue Signals -->
+        <div class="card">
+          <div class="card-header">Modbus Analogue Signals</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Address</th><th>Description</th><th>Range</th>
+                <th>Result</th><th>Punch Item</th><th>Verified By</th>
+                <th>Comment</th><th>Action</th>
+              </tr></thead>
+              <tbody id="modbus-analogue-body">
+                {% for m in submission_data.MODBUS_ANALOGUE_LISTS %}
+                <tr>
+                  <td><input name="Address Analogue[]" value="{{ m[' Address'] }}"/></td>
+                  <td><input name="Description Analogue[]" value="{{ m.Description }}"/></td>
+                  <td><input name="Range Analogue[]" value="{{ m.Range }}"/></td>
+                  <td><input name="Result Analogue[]" value="{{ m.Result }}"/></td>
+                  <td><input name="Punch Item Analogue[]" value="{{ m['Punch Item'] }}"/></td>
+                  <td><input name="Verified By Analogue[]" value="{{ m['Verified By'] }}"/></td>
+                  <td><textarea name="Comment Analogue[]">{{ m.Comment }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove modbus analogue"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-modbus-analogue-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addModbusAnalogueRow()"
+              aria-label="Add modbus analogue"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Modbus Analogue
+            </button>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="6">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="8">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 8 — Process, Alarms & Images -->
+      <fieldset class="form-step" id="step-8" role="tabpanel" aria-labelledby="prog-8">
+        <legend class="step-legend">Step 8 — Process, Alarms & Images</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+
+        <!-- Process Tests -->
+        <div class="card">
+          <div class="card-header">Process Tests</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Item</th><th>Action</th><th>Expected Result</th>
+                <th>Pass/Fail</th><th>Comments</th><th>Action</th>
+              </tr></thead>
+              <tbody id="process-test-body">
+                {% for p in submission_data.PROCESS_TEST %}
+                <tr>
+                  <td><input name="Process_Item[]" value="{{ p.Item }}"/></td>
+                  <td><input name="Process_Action[]" value="{{ p.Action }}"/></td>
+                  <td><input name="Process_Expected / Required Result[]" value="{{ p['Expected / Required Result'] }}"/></td>
+                  <td>
+                    <select name="Process_Pass/Fail[]">
+                      <option value=""></option>
+                      <option {{ 'selected' if p[' Pass/Fail ']=='Pass' }}>Pass</option>
+                      <option {{ 'selected' if p[' Pass/Fail ']=='Fail' }}>Fail</option>
+                      <option {{ 'selected' if p[' Pass/Fail ']=='N/A' }}>N/A</option>
+                    </select>
+                  </td>
+                  <td><textarea name="Process_Comments[]">{{ p[' Comments '] }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove process test"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-process-test-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addProcessTestRow()"
+              aria-label="Add process test"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Process Test
+            </button>
+          </div>
+        </div>
+
+        <!-- SCADA Verification -->
+        <div class="card">
+          <div class="card-header">SCADA Verification</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Task</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
+              </tr></thead>
+              <tbody id="scada-verification-body">
+                {% for v in submission_data.SCADA_VERIFICATION %}
+                <tr>
+                  <td><input name="SCADA_Task[]" value="{{ v.Task }}"/></td>
+                  <td><input name="SCADA_Expected_Result[]" value="{{ v['Expected Result'] }}"/></td>
+                  <td>
+                    <select name="SCADA_Pass/Fail[]">
+                      <option value=""></option>
+                      <option {{ 'selected' if v['Pass/Fail']=='Pass' }}>Pass</option>
+                      <option {{ 'selected' if v['Pass/Fail']=='Fail' }}>Fail</option>
+                      <option {{ 'selected' if v['Pass/Fail']=='N/A' }}>N/A</option>
+                    </select>
+                  </td>
+                  <td><textarea name="SCADA_Comments[]">{{ v.Comments }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove SCADA verification"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-scada-ver-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addScadaVerificationRow()"
+              aria-label="Add SCADA verification"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Verification
+            </button>
+          </div>
+        </div>
+
+        <!-- Trends Testing -->
+        <div class="card">
+          <div class="card-header">Trends Testing</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Trend</th><th>Expected Behavior</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
+              </tr></thead>
+              <tbody id="trends-testing-body">
+                {% for t in submission_data.TRENDS_TESTING %}
+                <tr>
+                  <td><input name="Trend[]" value="{{ t.Trend }}"/></td>
+                  <td><input name="Expected Behavior[]" value="{{ t['Expected Behavior'] }}"/></td>
+                  <td>
+                    <select name="Pass/Fail Trend[]">
+                      <option value=""></option>
+                      <option {{ 'selected' if t['Pass/Fail']=='Pass' }}>Pass</option>
+                      <option {{ 'selected' if t['Pass/Fail']=='Fail' }}>Fail</option>
+                      <option {{ 'selected' if t['Pass/Fail']=='N/A' }}>N/A</option>
+                    </select>
+                  </td>
+                  <td><textarea name="Comments Trend[]">{{ t.Comments }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove trend test"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-trends-testing-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addTrendsTestingRow()"
+              aria-label="Add trend test"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Trend
+            </button>
+          </div>
+        </div>
+
+        <!-- Alarm Signals -->
+        <div class="card">
+          <div class="card-header">Alarm Signals</div>
+          <div class="card-body">
+            <div class="table-responsive"><table>
+              <thead><tr>
+                <th>Alarm Type</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
+              </tr></thead>
+              <tbody id="alarm-body">
+                {% for a in submission_data.ALARM_LIST %}
+                <tr>
+                  <td><input name="Alarm_Type[]" value="{{ a['Alarm Type'] }}"/></td>
+                  <td><input name="Expected / Required Result[]" value="{{ a[' Expected / Required Result'] }}"/></td>
+                  <td>
+                    <select name="Pass/Fail []">
+                      <option value=""></option>
+                      <option {{ 'selected' if a[' Pass/Fail ']=='Pass' }}>Pass</option>
+                      <option {{ 'selected' if a[' Pass/Fail ']=='Fail' }}>Fail</option>
+                      <option {{ 'selected' if a[' Pass/Fail ']=='N/A' }}>N/A</option>
+                    </select>
+                  </td>
+                  <td><textarea name="Comments []">{{ a[' Comments '] }}</textarea></td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-remove remove-row-btn"
+                      aria-label="Remove alarm signal"
+                    >
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table></div>
+            <button
+              id="add-alarm-list-btn"
+              type="button"
+              class="btn-secondary"
+			  onclick="addAlarmListRow()"
+              aria-label="Add alarm"
+            >
+              <i class="fa fa-plus" aria-hidden="true"></i> Add Alarm
+            </button>
+          </div>
+        </div>
+
+        <!-- File Uploads + Removal UI -->
+        <div class="card">
+          <div class="card-header">Upload SCADA Screenshots</div>
+          <div class="card-body">
+            <input id="scada-input" type="file" name="SCADA_IMAGES" multiple accept="image/*"/>
+            <ul id="scada-file-list" class="file-list"></ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Upload Trend Screenshots</div>
+          <div class="card-body">
+            <input id="trends-input" type="file" name="TRENDS_IMAGES" multiple accept="image/*"/>
+            <ul id="trends-file-list" class="file-list"></ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Upload Alarm Screenshots</div>
+          <div class="card-body">
+            <input id="alarm-input" type="file" name="ALARM_IMAGES" multiple accept="image/*"/>
+            <ul id="alarm-file-list" class="file-list"></ul>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" data-prev-step="7">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+          </button>
+          <button type="button" class="btn-primary" data-next-step="9">
+            Next <i class="fa fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Step 9 — Verify & Submit -->
+      <fieldset class="form-step" id="step-9" role="tabpanel" aria-labelledby="prog-9">
+	    <legend class="step-legend">Step 9 — Verify & Submit</legend>
+		<button type="button" id="save-progress-btn" class="btn-secondary">
+		  <i class="fa fa-save"></i> Save Progress
+		</button>
+	    <h3>Verify Your Details</h3> 
+		<!-- Signature pad container -->
+		<label>Prepared By Signature <span class="required">*</span></label>
+		<div style="border: 1px solid #ccc; margin-bottom: 20px; background-color: #fff;">
+		  <canvas id="fixed_signature_canvas" width="800" height="200" style="width: 100%; height: 200px;"></canvas>
+		</div>
+		<button type="button" id="fixed_clear_btn" class="btn-secondary">Clear</button>
+		<input type="hidden" name="sig_prepared_data" id="sig_prepared_data">
+		 
+		<ul>
+		 <li>Review all entries</li>
+		 <li>Ensure images are uploaded</li>
+		</ul>
+		<div class="button-group">
+		 <button type="button" class="btn-secondary" data-prev-step="8">
+		  <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+		 </button>
+		 <input class="btn-primary" type="submit" value="Generate Report"/>
+		</div>
+	  </fieldset>
+    </form>
+  </div>
+<!-- Templates for dynamic rows -->
+
+<template id="tmpl-related-doc">
+  <tr>
+    <td><input name="doc_ref[]" placeholder="Reference" /></td>
+    <td><input name="doc_title[]" placeholder="Title" /></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove document">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-pre-approval">
+  <tr>
+    <td><input name="pre_approval_print_name[]" placeholder="Print Name" /></td>
+    <td><input name="pre_approval_signature[]" placeholder="Signature" /></td>
+    <td><input name="pre_approval_date[]" type="date" /></td>
+    <td><input name="pre_approval_initial[]" placeholder="Initial" /></td>
+    <td><input name="pre_approval_company[]" placeholder="Company" /></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove pre-approval">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-post-approval">
+  <tr>
+    <td><input name="post_approval_print_name[]" placeholder="Print Name" /></td>
+    <td><input name="post_approval_signature[]" placeholder="Signature" /></td>
+    <td><input name="post_approval_date[]" type="date" /></td>
+    <td><input name="post_approval_initial[]" placeholder="Initial" /></td>
+    <td><input name="post_approval_company[]" placeholder="Company" /></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove post-approval">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-pretest">
+  <tr>
+    <td><input name="pretest_item[]" placeholder="Item" /></td>
+    <td><input name="pretest_test[]" placeholder="Test" /></td>
+    <td><input name="pretest_method[]" placeholder="Method/Test Steps" /></td>
+    <td><input name="pretest_acceptance[]" placeholder="Acceptance Criteria" /></td>
+    <td>
+      <select name="pretest_result[]">
+        <option value="">—</option>
+        <option>Pass</option>
+        <option>Fail</option>
+        <option>N/A</option>
+      </select>
+    </td>
+    <td><input name="pretest_punch[]" placeholder="Punch Item" /></td>
+    <td><input name="pretest_verified_by[]" placeholder="Verified by" /></td>
+    <td><input name="pretest_comment[]" placeholder="Comment" /></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove pre-test">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-keycomp">
+  <tr>
+    <td><input name="keycomp_s_no[]" placeholder="S. No." /></td>
+    <td><input name="keycomp_model[]" placeholder="Model" /></td>
+    <td><input name="keycomp_description[]" placeholder="Description" /></td>
+    <td><input name="keycomp_remarks[]" placeholder="Remarks" /></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove component">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-iprecord">
+  <tr>
+    <td><input name="ip_device[]" placeholder="Device Name" /></td>
+    <td><input name="ip_address[]" placeholder="IP Address" /></td>
+    <td><textarea name="ip_comment[]" placeholder="Comment"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove IP record">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-digital-signal">
+  <tr>
+    <td><input name="S. No.[]" placeholder="S. No." /></td>
+    <td><input name="Rack No.[]" placeholder="Rack No." /></td>
+    <td><input name="Module Position[]" placeholder="Module Position" /></td>
+    <td><input name="Signal TAG[]" placeholder="Signal TAG" /></td>
+    <td><input name="Signal Description[]" placeholder="Description" /></td>
+    <td><input name="Result[]" placeholder="Result" /></td>
+    <td><input name="Punch Item[]" placeholder="Punch Item" /></td>
+    <td><input name="Verified By[]" placeholder="Verified By" /></td>
+    <td><textarea name="Comment[]" placeholder="Comment"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove digital signal">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-analogue-signal">
+  <tr>
+    <td><input name="S. No. Analogue[]" placeholder="S. No." /></td>
+    <td><input name="Rack No. Analogue[]" placeholder="Rack No." /></td>
+    <td><input name="Module Position Analogue[]" placeholder="Module Position" /></td>
+    <td><input name="Signal TAG Analogue[]" placeholder="Signal TAG" /></td>
+    <td><input name="Signal Description Analogue[]" placeholder="Description" /></td>
+    <td><input name="Result Analogue[]" placeholder="Result" /></td>
+    <td><input name="Punch Item Analogue[]" placeholder="Punch Item" /></td>
+    <td><input name="Verified By Analogue[]" placeholder="Verified By" /></td>
+    <td><textarea name="Comment Analogue[]" placeholder="Comment"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove analogue signal">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-modbus-digital">
+  <tr>
+    <td><input name="Address[]" placeholder="Address" /></td>
+    <td><input name="Description[]" placeholder="Description" /></td>
+    <td><input name="Remarks[]" placeholder="Remarks" /></td>
+    <td><input name="Digital_Result[]" placeholder="Result" /></td>
+    <td><input name="Digital_Punch Item[]" placeholder="Punch Item" /></td>
+    <td><input name="Digital_Verified By[]" placeholder="Verified By" /></td>
+    <td><textarea name="Digital_Comment[]" placeholder="Comment"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove modbus digital">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-modbus-analogue">
+  <tr>
+    <td><input name="Address Analogue[]" placeholder="Address" /></td>
+    <td><input name="Description Analogue[]" placeholder="Description" /></td>
+    <td><input name="Range Analogue[]" placeholder="Range" /></td>
+    <td><input name="Result Analogue[]" placeholder="Result" /></td>
+    <td><input name="Punch Item Analogue[]" placeholder="Punch Item" /></td>
+    <td><input name="Verified By Analogue[]" placeholder="Verified By" /></td>
+    <td><textarea name="Comment Analogue[]" placeholder="Comment"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove modbus analogue">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-process-test">
+  <tr>
+    <td><input name="Process_Item[]" placeholder="Item" /></td>
+    <td><input name="Process_Action[]" placeholder="Action" /></td>
+    <td><input name="Process_Expected / Required Result[]" placeholder="Expected Result" /></td>
+    <td>
+      <select name="Process_Pass/Fail[]">
+        <option value="">—</option>
+        <option>Pass</option>
+        <option>Fail</option>
+        <option>N/A</option>
+      </select>
+    </td>
+    <td><textarea name="Process_Comments[]" placeholder="Comments"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove process test">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-scada-verification">
+  <tr>
+    <td><input name="SCADA_Task[]" placeholder="Task" /></td>
+    <td><input name="SCADA_Expected_Result[]" placeholder="Expected Result" /></td>
+    <td>
+      <select name="SCADA_Pass/Fail[]">
+        <option value="">—</option>
+        <option>Pass</option>
+        <option>Fail</option>
+        <option>N/A</option>
+      </select>
+    </td>
+    <td><textarea name="SCADA_Comments[]" placeholder="Comments"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove SCADA verification">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-trends-testing">
+  <tr>
+    <td><input name="Trend[]" placeholder="Trend" /></td>
+    <td><input name="Expected Behavior[]" placeholder="Expected Behavior" /></td>
+    <td>
+      <select name="Pass/Fail Trend[]">
+        <option value="">—</option>
+        <option>Pass</option>
+        <option>Fail</option>
+        <option>N/A</option>
+      </select>
+    </td>
+    <td><textarea name="Comments Trend[]" placeholder="Comments"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove trend test">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tmpl-alarm-list">
+  <tr>
+    <td><input name="Alarm_Type[]" placeholder="Alarm Type" /></td>
+    <td><input name="Expected / Required Result[]" placeholder="Expected Result" /></td>
+    <td>
+      <select name="Pass/Fail []">
+        <option value="">—</option>
+        <option>Pass</option>
+        <option>Fail</option>
+        <option>N/A</option>
+      </select>
+    </td>
+    <td><textarea name="Comments []" placeholder="Comments"></textarea></td>
+    <td>
+      <button type="button" class="btn-remove remove-row-btn" aria-label="Remove alarm">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+<script>
+(function() {
+  // Wait for the page to load
+  window.addEventListener('load', function() {
+    // Get the canvas element
+    var canvas = document.getElementById('fixed_signature_canvas');
+    var clearButton = document.getElementById('fixed_clear_btn');
+    var hiddenInput = document.getElementById('sig_prepared_data');
+    var form = document.getElementById('satForm');
+    
+    if (!canvas || !clearButton || !hiddenInput || !form) {
+      console.error('Required elements not found');
+      return;
+    }
+    
+    // Hard-code the canvas dimensions
+    canvas.width = 800;
+    canvas.height = 200;
+    
+    // Get the context
+    var ctx = canvas.getContext('2d');
+    
+    // Variables to track drawing state
+    var isDrawing = false;
+    var lastX = 0;
+    var lastY = 0;
+    
+    // Set up drawing style
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#000';
+    
+    // Start drawing
+    function startDrawing(e) {
+      isDrawing = true;
+      var rect = canvas.getBoundingClientRect();
+      lastX = (e.clientX || e.touches[0].clientX) - rect.left;
+      lastY = (e.clientY || e.touches[0].clientY) - rect.top;
+    }
+    
+    // Draw
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      
+      var rect = canvas.getBoundingClientRect();
+      var currentX = (e.clientX || e.touches[0].clientX) - rect.left;
+      var currentY = (e.clientY || e.touches[0].clientY) - rect.top;
+      
+      // Account for canvas scaling
+      currentX = currentX * (canvas.width / rect.width);
+      currentY = currentY * (canvas.height / rect.height);
+      lastX = lastX * (canvas.width / rect.width);
+      lastY = lastY * (canvas.height / rect.height);
+      
+      // Draw the line
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      
+      // Update the last position
+      lastX = currentX;
+      lastY = currentY;
+    }
+    
+    // Stop drawing
+    function stopDrawing() {
+      isDrawing = false;
+    }
+    
+    // Clear the canvas
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // Add event listeners for mouse
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+    
+    // Add event listeners for touch
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      startDrawing(e);
+    });
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      draw(e);
+    });
+    canvas.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      stopDrawing();
+    });
+    
+    // Clear button
+    clearButton.addEventListener('click', clearCanvas);
+    
+    // Form submission - save the signature
+    form.addEventListener('submit', function() {
+      hiddenInput.value = canvas.toDataURL('image/png');
+    });
+    
+    // Initial clear
+    clearCanvas();
+    
+    // Draw a small indicator to show it's working
+    ctx.beginPath();
+    ctx.moveTo(50, 50);
+    ctx.lineTo(100, 50);
+    ctx.stroke();
+    setTimeout(clearCanvas, 500);
+  });
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <!-- load your form logic -->
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/form.js') }}"></script>
+</body>
+</html>

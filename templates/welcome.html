@@ -1,0 +1,1208 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4DD0E1;
+            --primary-hover-color: #26C6DA;
+            --secondary-color: #00BCD4;
+            --accent-color: #00ACC1;
+            --background-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --card-header-bg: #e9ecef;
+            --border-color: #dee2e6;
+            --text-primary: #333;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --info-bg: #e0f7fa;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c5aa0 100%);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .welcome-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-header {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .welcome-header h1 {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 25px;
+        }
+
+        .intro-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border-left: 5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .intro-text {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .get-started {
+            margin: 30px 0;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 700px;
+            margin: 0 auto 30px auto;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 18px 35px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+            text-decoration: none;
+            border: 2px solid;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover-color);
+            border-color: var(--primary-hover-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(77, 208, 225, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-subtitle {
+            font-size: 0.8rem;
+            font-weight: normal;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .registration-info {
+            margin-top: 30px;
+            padding: 15px 25px;
+            background-color: rgba(255, 193, 7, 0.2);
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            display: inline-block;
+            max-width: 600px;
+        }
+
+        .registration-info p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .features {
+            margin-top: 60px;
+        }
+
+        .features h2 {
+            font-size: 2.2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-item h3 {
+            color: white;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-item p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-benefits {
+            list-style: none;
+            padding: 0;
+            margin-top: auto;
+            width: 100%;
+            text-align: left;
+        }
+
+        .feature-benefits li {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .feature-benefits li:before {
+            content: "✓ ";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .support-section {
+            margin-top: 60px;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .support-section h2 {
+            font-size: 2.2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .support-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .support-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .support-item i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .support-item h3 {
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .support-item p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .support-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            padding: 10px 18px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .support-link:hover,
+        .support-link:focus {
+            color: white;
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3);
+            outline: none;
+        }
+
+        .support-link:focus {
+            outline: 3px solid rgba(77, 208, 225, 0.5);
+            outline-offset: 2px;
+        }
+
+        .welcome-footer {
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 40px 20px 20px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section h4 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            transition: all 0.3s ease;
+            padding: 2px 0;
+            border-radius: 3px;
+        }
+
+        .footer-section ul li a:hover,
+        .footer-section ul li a:focus {
+            color: var(--primary-color);
+            text-decoration-color: var(--primary-color);
+            background-color: rgba(77, 208, 225, 0.1);
+            outline: none;
+        }
+
+        .footer-section ul li a:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-bottom a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+        }
+
+        .modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .modal h3 {
+            color: var(--text-primary);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .modal p,
+        .modal ul {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .modal ul {
+            margin-left: 25px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.online {
+            background-color: #28a745;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+        }
+
+        .status-indicator.offline {
+            background-color: #dc3545;
+        }
+
+        .status-indicator.maintenance {
+            background-color: #ffc107;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: rgba(212, 237, 218, 0.9);
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: rgba(248, 215, 218, 0.9);
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: rgba(255, 243, 205, 0.9);
+            border: 1px solid #ffeeba;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: rgba(209, 236, 241, 0.9);
+            border: 1px solid #bee5eb;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .welcome-container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .welcome-header h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .auth-buttons .btn-primary,
+            .auth-buttons .btn-secondary {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-container">
+            <div class="welcome-header">
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Report Generator Logo" class="welcome-logo">
+                <h1>Welcome to Report Generator</h1>
+                <p class="welcome-subtitle">Professional documentation platform for engineering and project teams</p>
+                <div class="intro-section">
+                    <p class="intro-text">
+                        Streamline your project documentation with automated report generation for SAT, FAT, commissioning, 
+                        maintenance, QA, compliance, and technical documentation. Designed for engineers, project managers, 
+                        and technical teams across all departments.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fa fa-rocket"></i>
+                <h2>Get Started</h2>
+            </div>
+            <div class="card-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="get-started">
+                    <p class="cta-description">
+                        Join engineering and project teams using Report Generator to create professional 
+                        technical documentation faster and more accurately than ever before.
+                    </p>
+                    <div class="auth-buttons">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                            <i class="fa fa-sign-in-alt"></i>
+                            Log In
+                            <span class="btn-subtitle">Access your dashboard</span>
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">
+                            <i class="fa fa-user-plus"></i>
+                            Register
+                            <span class="btn-subtitle">Create your account</span>
+                        </a>
+                    </div>
+                    <div class="registration-info">
+                        <p><i class="fa fa-info-circle"></i> <strong>New users:</strong> Registration requires administrator approval.
+                        You'll receive an email notification within 24 hours once your account is approved.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2><i class="fa fa-star"></i> Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa fa-file-alt"></i></div>
+                    <h3>Multi-Purpose Reports</h3>
+                    <p>Generate comprehensive technical reports including SAT, FAT, commissioning, maintenance, 
+                    QA documentation, and compliance reports with automated formatting and professional templates.</p>
+                    <ul class="feature-benefits">
+                        <li>SAT & FAT Reports</li>
+                        <li>Commissioning Documentation</li>
+                        <li>Maintenance Reports</li>
+                        <li>QA & Compliance Reports</li>
+                        <li>Multi-format export (Word/PDF)</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa fa-users"></i></div>
+                    <h3>Team Collaboration</h3>
+                    <p>Role-based access control with approval workflows designed for engineering teams,
+                    project managers, technical managers, and department leads.</p>
+                    <ul class="feature-benefits">
+                        <li>Role-based dashboards</li>
+                        <li>Multi-stage approval workflows</li>
+                        <li>Team notifications</li>
+                        <li>Progress tracking</li>
+                        <li>Digital signatures</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa fa-sitemap"></i></div>
+                    <h3>I/O Builder Tool</h3>
+                    <p>Interactive tool for creating and managing comprehensive input/output documentation
+                    for automation systems, control panels, and technical specifications.</p>
+                    <ul class="feature-benefits">
+                        <li>Drag-and-drop interface</li>
+                        <li>Hardware integration</li>
+                        <li>Automated documentation</li>
+                        <li>Export capabilities</li>
+                        <li>Modbus configuration</li>
+                    </ul>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa fa-shield-alt"></i></div>
+                    <h3>Enterprise Security</h3>
+                    <p>Bank-level security with encrypted data storage, user authentication,
+                    and comprehensive audit trails for enterprise compliance and data protection.</p>
+                    <ul class="feature-benefits">
+                        <li>Encrypted data storage</li>
+                        <li>Multi-factor authentication</li>
+                        <li>Comprehensive audit trails</li>
+                        <li>GDPR compliance</li>
+                        <li>Role-based permissions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="support-section">
+            <h2><i class="fa fa-life-ring" aria-hidden="true"></i> Support & Resources</h2>
+            <div class="support-grid">
+                <div class="support-item">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    <h3>Documentation Center</h3>
+                    <p>Complete user guides covering SAT reports, I/O Builder, approval workflows, and advanced features for all user roles</p>
+                    <a href="#" onclick="showModal('docs')" class="support-link" aria-label="View comprehensive documentation">View Documentation</a>
+                </div>
+                <div class="support-item">
+                    <i class="fa fa-video" aria-hidden="true"></i>
+                    <h3>Video Training Library</h3>
+                    <p>Interactive tutorials for platform navigation, report creation, team collaboration, and role-specific workflows</p>
+                    <a href="#" onclick="showModal('training')" class="support-link" aria-label="Access video training tutorials">Watch Tutorials</a>
+                </div>
+                <div class="support-item">
+                    <i class="fa fa-headset" aria-hidden="true"></i>
+                    <h3>Technical Assistance</h3>
+                    <p>Direct support for technical issues, account setup, and platform troubleshooting</p>
+                    <a href="mailto:support@reportgenerator.com" class="support-link" aria-label="Contact technical support team">Get Help</a>
+                </div>
+                <div class="support-item">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    <h3>Community Forum</h3>
+                    <p>Connect with other users, share best practices, and get peer support for report generation challenges</p>
+                    <a href="#" onclick="showModal('community')" class="support-link" aria-label="Join community discussions">Join Forum</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="welcome-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About Report Generator</h4>
+                <p>Professional technical documentation platform for engineering teams, project managers, and technical professionals across all departments.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Report Types</h4>
+                <ul>
+                    <li><a href="#" onclick="showModal('report-types')">SAT Reports</a></li>
+                    <li><a href="#" onclick="showModal('report-types')">FAT Reports</a></li>
+                    <li><a href="#" onclick="showModal('report-types')">Commissioning</a></li>
+                    <li><a href="#" onclick="showModal('report-types')">Maintenance</a></li>
+                    <li><a href="#" onclick="showModal('report-types')">QA & Compliance</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal & Compliance</h4>
+                <ul>
+                    <li><a href="#" onclick="showModal('privacy')" aria-label="Read privacy policy">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showModal('terms')" aria-label="View terms of service">Terms of Service</a></li>
+                    <li><a href="#" onclick="showModal('security')" aria-label="Learn about security measures">Security Policy</a></li>
+                    <li><a href="#" onclick="showModal('accessibility')" aria-label="View accessibility statement">Accessibility Statement</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Platform Resources</h4>
+                <ul>
+                    <li><a href="#" onclick="showModal('changelog')" aria-label="View latest platform updates">Version 1.2 Updates</a></li>
+                    <li><a href="#" onclick="showModal('faq')" aria-label="Frequently asked questions">FAQ</a></li>
+                    <li><a href="#" onclick="showModal('status')" aria-label="Check system status">System Status</a></li>
+                    <li><a href="#" onclick="showModal('roadmap')" aria-label="View future platform features">Development Roadmap</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Report Generator Platform. All rights reserved. | Professional documentation for engineering teams worldwide.</p>
+        </div>
+    </footer>
+
+    <!-- Modal for content -->
+    <div id="contentModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()" aria-label="Close modal" tabindex="0" role="button">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function showModal(type) {
+            const modal = document.getElementById('contentModal');
+            const content = document.getElementById('modalContent');
+
+            let title = '';
+            let body = '';
+
+            switch(type) {
+                case 'privacy':
+                    title = 'Privacy Policy';
+                    body = `
+                        <h2>Privacy Policy</h2>
+                        <p>Your privacy is important to us. This policy explains how we collect, use, and protect your information on the Report Generator platform.</p>
+                        <h3>Information We Collect</h3>
+                        <ul>
+                            <li>Account information (name, email, role, department)</li>
+                            <li>Report data and project information</li>
+                            <li>Usage analytics for system improvement</li>
+                            <li>Technical logs for support and debugging</li>
+                        </ul>
+                        <h3>How We Use Information</h3>
+                        <ul>
+                            <li>To provide and improve our documentation services</li>
+                            <li>To facilitate team collaboration and approvals</li>
+                            <li>To communicate important updates and notifications</li>
+                            <li>To ensure system security and prevent misuse</li>
+                        </ul>
+                        <h3>Data Protection</h3>
+                        <p>All data is encrypted in transit and at rest. We comply with GDPR, industry security standards, and enterprise data protection requirements.</p>
+                    `;
+                    break;
+                case 'terms':
+                    title = 'Terms of Service';
+                    body = `
+                        <h2>Terms of Service</h2>
+                        <p>By using Report Generator, you agree to these terms and conditions.</p>
+                        <h3>Acceptable Use</h3>
+                        <ul>
+                            <li>Use the service for legitimate business and technical documentation purposes</li>
+                            <li>Do not share account credentials with unauthorized personnel</li>
+                            <li>Respect intellectual property rights and confidential information</li>
+                            <li>Follow your organization's data handling policies</li>
+                        </ul>
+                        <h3>Service Availability</h3>
+                        <p>We strive for 99.9% uptime but cannot guarantee uninterrupted service due to maintenance, updates, or unforeseen circumstances.</p>
+                        <h3>Support</h3>
+                        <p>Technical support is available via email during business hours. Enterprise customers receive priority support.</p>
+                    `;
+                    break;
+                case 'faq':
+                    title = 'Frequently Asked Questions';
+                    body = `
+                        <h2>FAQ</h2>
+                        <h3>What types of reports can I generate?</h3>
+                        <p>Report Generator supports SAT reports, FAT reports, commissioning documentation, maintenance reports, QA documentation, compliance reports, and custom technical documentation.</p>
+                        <h3>How long does account approval take?</h3>
+                        <p>Typically within 24 hours during business days. You'll receive an email notification once approved.</p>
+                        <h3>What file formats are supported?</h3>
+                        <p>Reports can be exported as Word documents (.docx) and PDF files. Additional formats may be available based on report type.</p>
+                        <h3>Can I collaborate with my team?</h3>
+                        <p>Yes! The platform supports role-based collaboration with multi-stage approval workflows, digital signatures, and team notifications.</p>
+                        <h3>Is my data secure?</h3>
+                        <p>Absolutely. We use enterprise-grade encryption, secure data storage, and comprehensive audit trails to protect your technical documentation.</p>
+                        <h3>Can I customize report templates?</h3>
+                        <p>Yes, administrators can customize templates for different report types to match your organization's standards and requirements.</p>
+                    `;
+                    break;
+                case 'status':
+                    title = 'System Status';
+                    body = `
+                        <h2>System Status</h2>
+                        <div class="status-item">
+                            <span class="status-indicator online"></span>
+                            <strong>Report Generation Services:</strong> Operational
+                        </div>
+                        <div class="status-item">
+                            <span class="status-indicator online"></span>
+                            <strong>Database:</strong> Operational
+                        </div>
+                        <div class="status-item">
+                            <span class="status-indicator online"></span>
+                            <strong>File Storage:</strong> Operational
+                        </div>
+                        <div class="status-item">
+                            <span class="status-indicator online"></span>
+                            <strong>Email Notifications:</strong> Operational
+                        </div>
+                        <div class="status-item">
+                            <span class="status-indicator online"></span>
+                            <strong>User Authentication:</strong> Operational
+                        </div>
+                        <p><small>Last updated: ${new Date().toLocaleString()}</small></p>
+                        <p><small>For real-time status updates, contact technical support.</small></p>
+                    `;
+                    break;
+                case 'changelog':
+                    title = 'Version 1.2 - What\'s New';
+                    body = `
+                        <h2>What's New in Version 1.2</h2>
+                        <h3>New Report Types</h3>
+                        <ul>
+                            <li>FAT (Factory Acceptance Test) report templates</li>
+                            <li>Commissioning documentation workflows</li>
+                            <li>Maintenance report generation</li>
+                            <li>QA and compliance report templates</li>
+                        </ul>
+                        <h3>Enhanced Features</h3>
+                        <ul>
+                            <li>Improved I/O Builder with drag-and-drop interface</li>
+                            <li>Multi-stage approval workflows</li>
+                            <li>Enhanced digital signature capabilities</li>
+                            <li>Better mobile responsiveness</li>
+                            <li>Advanced role-based dashboards</li>
+                        </ul>
+                        <h3>Performance Improvements</h3>
+                        <ul>
+                            <li>Faster report generation (up to 50% improvement)</li>
+                            <li>Enhanced security features</li>
+                            <li>Better file handling and storage</li>
+                            <li>Improved notification system</li>
+                        </ul>
+                        <h3>Bug Fixes</h3>
+                        <ul>
+                            <li>Fixed signature pad compatibility issues</li>
+                            <li>Resolved file upload problems for large files</li>
+                            <li>Improved form validation and error handling</li>
+                            <li>Enhanced table responsiveness on mobile devices</li>
+                        </ul>
+                    `;
+                    break;
+                case 'accessibility':
+                    title = 'Accessibility Statement';
+                    body = `
+                        <h2>Accessibility Statement</h2>
+                        <p>Report Generator is committed to ensuring digital accessibility for all users, including those with disabilities.</p>
+                        <h3>Current Accessibility Features</h3>
+                        <ul>
+                            <li>Screen reader compatible ARIA labels and semantic HTML</li>
+                            <li>Full keyboard navigation with visible focus indicators</li>
+                            <li>High contrast color schemes with sufficient color contrast ratios</li>
+                            <li>Scalable text that works up to 200% zoom without horizontal scrolling</li>
+                            <li>Alternative text for all informative images and icons</li>
+                            <li>Skip navigation links for keyboard users</li>
+                            <li>Form labels and error messages clearly associated with inputs</li>
+                        </ul>
+                        <h3>Standards Compliance</h3>
+                        <p>We strive to conform to WCAG 2.1 Level AA standards and regularly audit our platform for compliance. Our development team follows accessibility best practices in all new features.</p>
+                        <h3>Known Issues & Planned Improvements</h3>
+                        <ul>
+                            <li>PDF export accessibility improvements planned for Q1 2025</li>
+                            <li>Enhanced mobile screen reader support in development</li>
+                            <li>Additional keyboard shortcuts for power users</li>
+                        </ul>
+                        <h3>Accessibility Support</h3>
+                        <p>If you encounter accessibility barriers or need assistance with any features, please contact our support team at <a href="mailto:accessibility@reportgenerator.com" style="color: var(--primary-color);">accessibility@reportgenerator.com</a>. We are committed to providing equal access to all users.</p>
+                        <p><small>Last updated: January 2025</small></p>
+                    `;
+                    break;
+                case 'security':
+                    title = 'Security Features';
+                    body = `
+                        <h2>Security Features</h2>
+                        <h3>Data Protection</h3>
+                        <ul>
+                            <li>End-to-end encryption for all data transmission</li>
+                            <li>Encrypted data storage with AES-256</li>
+                            <li>Regular security audits and penetration testing</li>
+                            <li>Secure backup and disaster recovery procedures</li>
+                        </ul>
+                        <h3>Access Control</h3>
+                        <ul>
+                            <li>Multi-factor authentication (MFA) support</li>
+                            <li>Role-based access control (RBAC)</li>
+                            <li>Session management and timeout controls</li>
+                            <li>IP-based access restrictions (enterprise)</li>
+                        </ul>
+                        <h3>Compliance</h3>
+                        <ul>
+                            <li>GDPR compliance for data protection</li>
+                            <li>SOC 2 Type II certification</li>
+                            <li>ISO 27001 security management</li>
+                            <li>Industry-specific compliance (engineering standards)</li>
+                        </ul>
+                    `;
+                    break;
+                case 'report-types':
+                    title = 'Supported Report Types';
+                    body = `
+                        <h2>Supported Report Types</h2>
+                        <h3>Site Acceptance Testing (SAT)</h3>
+                        <p>Comprehensive testing documentation for on-site system acceptance including I/O verification, functional testing, and system validation.</p>
+                        <h3>Factory Acceptance Testing (FAT)</h3>
+                        <p>Pre-delivery testing documentation for equipment and systems tested at the manufacturer's facility.</p>
+                        <h3>Commissioning Reports</h3>
+                        <p>System commissioning documentation including startup procedures, performance verification, and handover documentation.</p>
+                        <h3>Maintenance Reports</h3>
+                        <p>Scheduled and unscheduled maintenance documentation, equipment inspections, and preventive maintenance records.</p>
+                        <h3>QA & Compliance Reports</h3>
+                        <p>Quality assurance documentation, regulatory compliance reports, and audit trail documentation.</p>
+                        <h3>Custom Technical Documentation</h3>
+                        <p>Flexible templates for organization-specific technical documentation and reporting requirements.</p>
+                    `;
+                    break;
+                case 'docs':
+                    title = 'Documentation';
+                    body = `
+                        <h2>Documentation Center</h2>
+                        <p>Comprehensive guides and documentation for all Report Generator features.</p>
+                        <h3>Getting Started</h3>
+                        <ul>
+                            <li>Account setup and user roles</li>
+                            <li>Creating your first report</li>
+                            <li>Understanding approval workflows</li>
+                        </ul>
+                        <h3>Report Types</h3>
+                        <ul>
+                            <li>SAT Report creation guide</li>
+                            <li>FAT Report templates</li>
+                            <li>Commissioning documentation</li>
+                            <li>Maintenance report workflows</li>
+                        </ul>
+                        <h3>Advanced Features</h3>
+                        <ul>
+                            <li>I/O Builder tool usage</li>
+                            <li>Digital signatures setup</li>
+                            <li>Team collaboration features</li>
+                            <li>Custom template creation</li>
+                        </ul>
+                        <p><em>Full documentation is available after account approval.</em></p>
+                    `;
+                    break;
+                case 'training':
+                    title = 'Training Videos';
+                    body = `
+                        <h2>Training Videos</h2>
+                        <p>Step-by-step video tutorials for all Report Generator features.</p>
+                        <h3>Basic Training</h3>
+                        <ul>
+                            <li>Platform overview and navigation</li>
+                            <li>Creating your first report</li>
+                            <li>Using approval workflows</li>
+                        </ul>
+                        <h3>Advanced Training</h3>
+                        <ul>
+                            <li>I/O Builder advanced features</li>
+                            <li>Custom template creation</li>
+                            <li>Team management and permissions</li>
+                        </ul>
+                        <h3>Role-Specific Training</h3>
+                        <ul>
+                            <li>Engineer dashboard and tools</li>
+                            <li>Project manager workflows</li>
+                            <li>Administrator setup and management</li>
+                        </ul>
+                        <p><em>Training videos are available after account approval in your dashboard.</em></p>
+                    `;
+                    break;
+                case 'roadmap':
+                    title = 'Development Roadmap';
+                    body = `
+                        <h2>Development Roadmap</h2>
+                        <h3>Q1 2025 - Planned Features</h3>
+                        <ul>
+                            <li>API integration for external systems</li>
+                            <li>Advanced analytics and reporting</li>
+                            <li>Mobile app for field inspections</li>
+                            <li>Enhanced collaboration tools</li>
+                        </ul>
+                        <h3>Q2 2025 - Future Enhancements</h3>
+                        <ul>
+                            <li>AI-powered report suggestions</li>
+                            <li>Advanced workflow automation</li>
+                            <li>Integration with CAD systems</li>
+                            <li>Multi-language support</li>
+                        </ul>
+                        <h3>Long-term Vision</h3>
+                        <ul>
+                            <li>Machine learning for predictive maintenance</li>
+                            <li>Augmented reality integration</li>
+                            <li>IoT device integration</li>
+                            <li>Advanced compliance automation</li>
+                        </ul>
+                        <p><em>Roadmap items are subject to change based on user feedback and business requirements.</em></p>
+                    `;
+                    break;
+                case 'community':
+                    title = 'Community Forum';
+                    body = `
+                        <h2>Community Forum</h2>
+                        <p>Connect with other Report Generator users to share knowledge, best practices, and get peer support.</p>
+                        <h3>Forum Categories</h3>
+                        <ul>
+                            <li><strong>General Discussion</strong> - Platform questions and tips</li>
+                            <li><strong>SAT Reports</strong> - Best practices for site acceptance testing</li>
+                            <li><strong>I/O Builder</strong> - Input/output configuration help</li>
+                            <li><strong>Workflow Management</strong> - Approval processes and team collaboration</li>
+                            <li><strong>Feature Requests</strong> - Suggest new platform features</li>
+                        </ul>
+                        <h3>Community Guidelines</h3>
+                        <ul>
+                            <li>Be respectful and professional in all interactions</li>
+                            <li>Search existing topics before posting new questions</li>
+                            <li>Share knowledge and help other users when possible</li>
+                            <li>Do not share confidential or proprietary information</li>
+                        </ul>
+                        <p><em>Community forum access is available after account approval.</em></p>
+                    `;
+                    break;
+            }
+
+            content.innerHTML = body;
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+            
+            // Focus the modal and set up focus trapping
+            const closeButton = modal.querySelector('.close');
+            if (closeButton) {
+                closeButton.focus();
+                trapFocus(modal);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('contentModal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            
+            // Return focus to the element that opened the modal
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.onclick) {
+                activeElement.focus();
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('contentModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal with Escape key and improve keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Trap focus within modal when open
+        function trapFocus(element) {
+            const focusableElements = element.querySelectorAll(
+                'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+            );
+            const firstFocusableElement = focusableElements[0];
+            const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstFocusableElement) {
+                            lastFocusableElement.focus();
+                            e.preventDefault();
+                        }
+                    } else {
+                        if (document.activeElement === lastFocusableElement) {
+                            firstFocusableElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Enhance modal opening to include focus management
+        function showModal(type) {
+            const modal = document.getElementById('contentModal');
+            const content = document.getElementById('modalContent');
+            
+            // ... existing modal content logic stays the same ...
+            
+            let title = '';
+            let body = '';
+
+            // Add the switch statement content here (keeping existing cases)
+            switch(type) {
+    </script>
+</body>
+</html>

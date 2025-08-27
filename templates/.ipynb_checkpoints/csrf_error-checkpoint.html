@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Error</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"/>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-header">
+            <img src="{{ url_for('static', filename='cully.png') }}" alt="Company Logo"/>
+        </div>
+        
+        <h1>Security Error</h1>
+        
+        <div class="card">
+            <div class="card-header">CSRF Protection Error</div>
+            <div class="card-body">
+                <p>A security validation has failed. This could be due to:</p>
+                <ul>
+                    <li>Your session has expired</li>
+                    <li>You're using multiple browser tabs</li>
+                    <li>You've disabled cookies</li>
+                </ul>
+                <p>Reason: {{ reason }}</p>
+                
+                <div class="button-group">
+                    <a href="{{ url_for('main.index') }}" class="btn-primary">
+                        <i class="fa fa-home"></i> Return to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

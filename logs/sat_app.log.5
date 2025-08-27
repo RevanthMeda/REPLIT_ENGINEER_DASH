@@ -1,0 +1,81 @@
+2025-04-23 09:43:34,927 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 09:44:40,288 ERROR: Error in generate: Package not found at 'C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\templates\SAT_Template.docx' [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+Traceback (most recent call last):
+  File "C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py", line 405, in generate
+    doc.render(context)
+    ~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 359, in render
+    self.render_init()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 52, in render_init
+    self.init_docx()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 48, in init_docx
+    self.docx = Document(self.template_file)
+                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docx\api.py", line 27, in Document
+    document_part = cast("DocumentPart", Package.open(docx).main_document_part)
+                                         ~~~~~~~~~~~~^^^^^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docx\opc\package.py", line 127, in open
+    pkg_reader = PackageReader.from_file(pkg_file)
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docx\opc\pkgreader.py", line 22, in from_file
+    phys_reader = PhysPkgReader(pkg_file)
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docx\opc\phys_pkg.py", line 21, in __new__
+    raise PackageNotFoundError("Package not found at '%s'" % pkg_file)
+docx.opc.exceptions.PackageNotFoundError: Package not found at 'C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\templates\SAT_Template.docx'
+2025-04-23 09:58:50,472 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:01:19,856 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:02:02,516 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:02:21,119 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:02:21,127 INFO: Generated report for submission efc03d7e-6fc0-4e81-8367-b5b14e8023c1 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:08:40,538 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:08:57,754 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:08:57,762 INFO: Generated report for submission c7734ba3-5fb5-41ef-9382-0c025b46f7d0 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:12:12,783 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:12:30,034 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:12:30,043 INFO: Generated report for submission fa9334eb-1b4e-4a1a-b508-67d61e121606 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:19:01,248 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:19:19,732 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:19:31,482 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:19:31,493 INFO: Generated report for submission 5f1b01b9-71dd-4c68-bc2e-99fdc33f6375 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:20:33,314 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:20:48,025 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:20:48,038 INFO: Generated report for submission ad80b198-341f-4dbd-a9a3-3272233fbe66 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:21:15,209 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:21:32,854 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:421]
+2025-04-23 10:21:34,823 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:441]
+2025-04-23 10:21:34,837 INFO: Generated report for submission d205967b-057b-412a-8885-50274c7d14f3 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:452]
+2025-04-23 10:39:29,109 ERROR: Error in generate: 'PRE_SIGNATURE_IMAGES' is undefined [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:458]
+Traceback (most recent call last):
+  File "C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py", line 405, in generate
+    context_to_store["approver_3_email"] = approver_emails[2]
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 368, in render
+    xml_src = self.build_xml(context, jinja_env)
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 315, in build_xml
+    xml = self.render_xml_part(xml, self.docx._part, context, jinja_env)
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 245, in render_xml_part
+    raise exc
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\docxtpl\template.py", line 239, in render_xml_part
+    dst_xml = template.render(context)
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "<template>", line 22, in top-level template code
+  File "C:\Users\rmeda\AppData\Local\anaconda3\envs\sat_report_env\Lib\site-packages\jinja2\environment.py", line 471, in getitem
+    return obj[argument]
+           ~~~^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'PRE_SIGNATURE_IMAGES' is undefined
+2025-04-23 10:40:14,368 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:40:50,192 WARNING: Could not autofit tables: 'in <string>' requires string as left operand, not ellipsis [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:439]
+2025-04-23 10:40:52,268 INFO: Approval email sent to revanthmeda7702@gmail.com [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:459]
+2025-04-23 10:40:52,281 INFO: Generated report for submission 833364a9-f5c6-4f55-b3d1-8ff8f6761c46 [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:470]
+2025-04-23 10:47:05,047 INFO: SAT Report Generator startup [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\app.py:38]
+2025-04-23 10:47:20,050 ERROR: Error in generate: list index out of range [in C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py:483]
+Traceback (most recent call last):
+  File "C:\Users\rmeda\OneDrive - CULLY AUTOMATION\Personal\Automate SAT\SAT_Report_App\routes\main.py", line 195, in generate
+    SIG_REVIEW_TECH    = build_sig_images([PRE_APPROVALS[1]])[0]
+                                           ~~~~~~~~~~~~~^^^
+IndexError: list index out of range

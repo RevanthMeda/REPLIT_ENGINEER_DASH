@@ -1,0 +1,803 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>My Reports - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            /* Use exact same color variables as main Dashboard */
+            --admin-primary: #4DD0E1;
+            --admin-primary-dark: #26C6DA;
+            --admin-primary-light: #80DEEA;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+            --admin-danger: #ef4444;
+            --admin-neutral: #6b7280;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header Section - Exact same as main Dashboard */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-info p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .header-logo {
+            height: 80px;
+            filter: brightness(0) invert(1) drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 24px;
+        }
+
+        .flash-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #d1fae5;
+            border: 1px solid #059669;
+            border-radius: 12px;
+            color: #065f46;
+            font-weight: 500;
+            box-shadow: var(--card-shadow);
+        }
+
+        .flash-message i {
+            font-size: 18px;
+        }
+
+        /* Horizontal Navigation - Exact same as main Dashboard */
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: #e2e8f0;
+            color: var(--admin-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.25);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(77, 208, 225, 0.4);
+        }
+
+        .nav-link.featured {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
+            border-color: #3b82f6;
+        }
+
+        .nav-link.featured:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            color: white;
+            border-color: #1d4ed8;
+        }
+
+        .nav-link i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* User Info Section */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .user-role {
+            color: #64748b;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* Stats Grid - Exact same as main Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--admin-primary);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px 0 0 0;
+        }
+
+        /* Widget Cards - Exact same as main Dashboard */
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .widget-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-action {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .widget-action:hover {
+            background: linear-gradient(135deg, var(--admin-primary-light), var(--admin-primary));
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .widget-content {
+            padding: 0;
+        }
+
+        /* Reports Table - Unified Style */
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .reports-table th {
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+            color: white;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 3px solid var(--admin-primary-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reports-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .reports-table tr:hover {
+            background: linear-gradient(90deg, rgba(77, 208, 225, 0.05), rgba(77, 208, 225, 0.08));
+        }
+
+        .reports-table tr:nth-child(even) {
+            background: rgba(248, 250, 252, 0.5);
+        }
+
+        .reports-table tr:nth-child(even):hover {
+            background: linear-gradient(90deg, rgba(77, 208, 225, 0.05), rgba(77, 208, 225, 0.08));
+        }
+
+        .report-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .report-lock-icon {
+            color: var(--admin-success);
+            margin-left: 8px;
+        }
+
+        .report-client {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-partially_approved {
+            background: #cce7ff;
+            color: #004085;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            box-shadow: 0 2px 8px rgba(77, 208, 225, 0.25);
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, var(--admin-primary-light), var(--admin-primary));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.35);
+            color: white;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, var(--admin-success), #059669);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+            color: white;
+        }
+
+        .date-text {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* Empty State - Enhanced Design */
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            color: #64748b;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin: 24px 0;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+        }
+
+        .empty-state h4 {
+            color: #374151;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+        }
+
+        .empty-state p {
+            margin: 0 0 32px 0;
+            font-size: 16px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .empty-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .empty-action:hover {
+            background: linear-gradient(135deg, var(--admin-primary-light), var(--admin-primary));
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+            color: white;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-info h1 {
+                font-size: 2rem;
+                justify-content: center;
+            }
+
+            .dashboard-nav {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widgets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .reports-table {
+                font-size: 12px;
+            }
+
+            .reports-table th,
+            .reports-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1><i class="fas fa-folder-open"></i> My Reports</h1>
+                    <p>Manage and review all your created reports in one centralized location</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="header-logo">
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message">
+                            <i class="fa fa-check-circle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Horizontal Navigation -->
+        <div class="dashboard-nav">
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard.engineer') }}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('reports.new') }}" class="nav-link featured">
+                    <i class="fas fa-plus-circle"></i>
+                    Create Report
+                </a>
+                <a href="{{ url_for('dashboard.my_reports') }}" class="nav-link active">
+                    <i class="fas fa-folder-open"></i>
+                    My Reports
+                </a>
+                <a href="{{ url_for('io_builder.index') }}" class="nav-link">
+                    <i class="fas fa-sitemap"></i>
+                    I/O Builder
+                </a>
+                <a href="{{ url_for('notifications.notification_center') }}" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    Notifications
+                </a>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ current_user.full_name[0] if current_user and current_user.full_name else 'U' }}
+                </div>
+                <div class="user-details">
+                    <div class="user-name">{{ current_user.full_name if current_user and current_user.full_name else 'User' }}</div>
+                    <div class="user-role">{{ current_user.role if current_user and current_user.role else 'Engineer' }}</div>
+                </div>
+                <a href="{{ url_for('auth.change_password') }}" class="nav-link">
+                    <i class="fas fa-key"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        {% if reports %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ reports|length }}</div>
+                <p class="stat-label">Total Reports</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                <p class="stat-label">Pending Approval</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ reports|selectattr('status', 'equalto', 'approved')|list|length }}</div>
+                <p class="stat-label">Approved Reports</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Reports Table -->
+        <div class="widgets-grid">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3 class="widget-title">
+                        <i class="fas fa-table"></i>
+                        Reports Overview
+                    </h3>
+                    <a href="{{ url_for('reports.new') }}" class="widget-action">
+                        <i class="fas fa-plus"></i>
+                        Create New Report
+                    </a>
+                </div>
+
+                <div class="widget-content">
+                    {% if reports %}
+                        <table class="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Document Title</th>
+                                    <th>Client</th>
+                                    <th>Project Reference</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in reports %}
+                                <tr>
+                                    <td>
+                                        <div class="report-title">
+                                            {{ report.document_title or 'Untitled Report' }}
+                                            {% if report.locked %}
+                                                <i class="fas fa-lock report-lock-icon" title="Report is locked"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="report-client">{{ report.client_name or '-' }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="report-client">{{ report.project_reference or '-' }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ report.status }}">
+                                            {% if report.status == 'pending' %}
+                                                <i class="fas fa-clock"></i> Pending
+                                            {% elif report.status == 'approved' %}
+                                                <i class="fas fa-check"></i> Approved
+                                            {% elif report.status == 'rejected' %}
+                                                <i class="fas fa-times"></i> Rejected
+                                            {% elif report.status == 'partially_approved' %}
+                                                <i class="fas fa-hourglass-half"></i> Partial
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="date-text">{{ report.created_at.strftime('%Y-%m-%d') }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="date-text">{{ report.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{{ url_for('status.view_status', submission_id=report.id) }}" 
+                                               class="btn-small btn-view">
+                                                <i class="fas fa-eye"></i>
+                                                View
+                                            </a>
+                                            <a href="{{ url_for('status.download_report', submission_id=report.id) }}" 
+                                               class="btn-small btn-download">
+                                                <i class="fas fa-download"></i>
+                                                Download
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-file-alt"></i>
+                            <h4>No reports created yet</h4>
+                            <p>You haven't created any reports yet. Start your journey by creating your first comprehensive report using our guided workflow system.</p>
+                            <a href="{{ url_for('reports.new') }}" class="empty-action">
+                                <i class="fas fa-plus-circle"></i>
+                                Create Your First Report
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

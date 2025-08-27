@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Dashboard{% endblock %} - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-layout">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                    <p class="subtitle">{% block page_subtitle %}{% endblock %}</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" style="height: 60px; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Navigation -->
+            <div class="dashboard-nav">
+                <div class="nav-links">
+                    <a href="{{ url_for('dashboard.home') }}" class="nav-link">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('reports.new') }}" class="nav-link">
+                        <i class="fa fa-plus"></i> New Report
+                    </a>
+                    <a href="{{ url_for('dashboard.my_reports') }}" class="nav-link">
+                        <i class="fa fa-file-alt"></i> My Reports
+                    </a>
+                    <a href="{{ url_for('notifications.notification_center') }}" class="nav-link">
+                        <i class="fa fa-bell"></i> Notifications
+                    </a>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ current_user.full_name[0] if current_user.full_name else 'U' }}
+                    </div>
+                    <div class="user-details">
+                        <h4>{{ current_user.full_name or 'User' }}</h4>
+                        <p>{{ current_user.role }}</p>
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link" style="color: #ef4444;">
+                        <i class="fa fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

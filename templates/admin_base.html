@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Admin Dashboard{% endblock %} - Cully Report Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-layout">
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1><i class="fa fa-{% block page_icon %}tachometer-alt{% endblock %}"></i> {% block page_title %}Dashboard{% endblock %}</h1>
+                    <p>{% block page_subtitle %}System administration, user management, and platform oversight{% endblock %}</p>
+                </div>
+                <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="header-logo">
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Unified Navigation -->
+            <div class="dashboard-nav">
+                <div class="nav-links">
+                    <a href="{{ url_for('dashboard.admin') }}" class="nav-link {% if request.endpoint == 'dashboard.admin' %}active{% endif %}" id="nav-dashboard">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('dashboard.user_management') }}" class="nav-link {% if request.endpoint == 'dashboard.user_management' %}active{% endif %}" id="nav-users">
+                        <i class="fa fa-users"></i> User Management
+                    </a>
+                    <a href="{{ url_for('dashboard.admin_reports') }}" class="nav-link {% if request.endpoint == 'dashboard.admin_reports' %}active{% endif %}" id="nav-reports">
+                        <i class="fa fa-file-alt"></i> All Reports
+                    </a>
+                    <a href="{{ url_for('dashboard.system_settings') }}" class="nav-link {% if request.endpoint == 'dashboard.system_settings' %}active{% endif %}" id="nav-settings">
+                        <i class="fa fa-cog"></i> System Settings
+                    </a>
+                    <a href="{{ url_for('main.sat_form') }}" class="nav-link {% if request.endpoint == 'main.sat_form' %}active{% endif %}" id="nav-create">
+                        <i class="fa fa-plus"></i> Create Report
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link logout" id="nav-logout">
+                        <i class="fa fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <i class="fa fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Main Content Area -->
+            <div class="dashboard-main">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Unified JavaScript -->
+    <script>
+        // Common dashboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-refresh database status with error handling
+            function updateDatabaseStatus() {
+                fetch('/dashboard/db-status')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Update all database status indicators
+                        const statusElements = document.querySelectorAll('.status-badge');
+                        statusElements.forEach(element => {
+                            const textContent = element.textContent || '';
+                            if (textContent.includes('Connected') || textContent.includes('Disconnected') || textContent.includes('Not Connected')) {
+                                if (data.connected) {
+                                    element.className = 'status-badge status-connected';
+                                    element.innerHTML = '<i class="fa fa-circle" style="font-size: 8px; margin-right: 4px;"></i> Connected';
+                                } else {
+                                    element.className = 'status-badge status-disconnected';
+                                    element.innerHTML = '<i class="fa fa-circle" style="font-size: 8px; margin-right: 4px;"></i> Disconnected';
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.warn('Database status check failed:', error.message);
+                        // Update status to show disconnected on error
+                        const statusElements = document.querySelectorAll('.status-badge');
+                        statusElements.forEach(element => {
+                            const textContent = element.textContent || '';
+                            if (textContent.includes('Connected') || textContent.includes('Disconnected') || textContent.includes('Not Connected')) {
+                                element.className = 'status-badge status-disconnected';
+                                element.innerHTML = '<i class="fa fa-circle" style="font-size: 8px; margin-right: 4px;"></i> Disconnected';
+                            }
+                        });
+                    });
+            }
+
+            // Initial status check and setup interval
+            updateDatabaseStatus();
+            setInterval(updateDatabaseStatus, 30000); // Refresh every 30 seconds
+
+            // Common notification function
+            window.showNotification = function(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 16px 24px;
+                    border-radius: 12px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 1000;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    ${type === 'success' ? 'background: linear-gradient(135deg, #10b981, #059669);' : 'background: linear-gradient(135deg, #ef4444, #dc2626);'}
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+                `;
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            };
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
