@@ -5,13 +5,13 @@ pillow>=10.4.0
 pywin32>=307; sys_platform == 'win32'
 werkzeug==2.2.3
 flask-wtf==1.1.1
-docx
+python-docx
 flask-login
 flask-sqlalchemy
 psycopg2-binary
-Werkzeug
 beautifulsoup4
 requests
+itsdangerous
 beautifulsoup4
 docx
 docxtpl==0.16.7
@@ -22,6 +22,7 @@ flask-wtf==1.1.1
 itsdangerous
 pillow>=10.4.0
 psycopg2-binary
+python-docx
 python-dotenv==1.0.0
 requests
 werkzeug==2.2.3
