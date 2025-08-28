@@ -1,0 +1,49 @@
+New/Notable Details on the Form:
+
+The progress sidebar clearly lists and describes all ten steps of the SAT report process.
+
+Step 1 — Basic Information gathers essential details, including:
+
+Document Title (*required)
+
+Project Reference (*required)
+
+Document Reference
+
+Date (Month/Day/Year format) (*required, still split into three fields, with a “Show date picker” link)
+
+Client Name
+
+Revision and Revision Details
+
+Revision Date (Month/Day/Year format, “Show date picker”)
+
+Contact Information section with a required email field (*Your Email).
+
+Buttons available: Save Progress and Next
+
+User profile info is present (e.g., engineer name and icon).
+
+Issues Still Present:
+
+Date Field Frustration: Still uses three separate number fields (Month/Day/Year); modern forms typically use a unified date picker for better user experience.
+
+Validation Indicators: Required fields marked with an asterisk in text and “required” in the HTML, but no visible inline error feedback or red asterisks.
+
+Accessibility Concerns: Some icons (like , , ) may display as missing for some users; use standard icons or labels for accessibility.
+
+Layout and Clarity: Some fields are not grouped visually, and there’s no contextual help or placeholder text to guide the user.
+
+Progress Navigation: Progress steps are visible but not navigable (only informative).
+
+Suggestions for Current State:
+
+Date Inputs: Replace three-number split fields with a native date picker or a single date input.
+
+Required Field Feedback: Use inline error messages for missing required fields when trying to submit, and highlight required fields more clearly (consider a red asterisk or border on blanks).
+
+Help/Tooltips: Add help icons or hover tooltips on less obvious fields (like “Document Reference”, “Revision Details”).
+
+Accessibility: Replace non-rendering or obscure icons with accessible SVGs or font icons; add screen reader labels where appropriate.
+
+Visual Clarity: Visually group related fields under appropriate headings.
