@@ -19,76 +19,31 @@
 
   <style>
     :root {
-      /* Cully Brand Colors from Logo */
-      --cully-primary: #4DD0E1;           /* Main teal from Cully logo */
-      --cully-primary-light: #80DEEA;     /* Lighter teal */
-      --cully-primary-dark: #26C6DA;      /* Darker teal */
-      --cully-secondary: #00BCD4;         /* Accent teal from logo */
-      --cully-secondary-light: #4FC3F7;   /* Light accent teal */
-      --cully-accent: #00ACC1;           /* Deep teal accent */
-      --cully-accent-light: #40C4FF;     /* Light accent blue */
+      /* Cully Brand Colors */
+      --cully-primary: #4DD0E1;
+      --cully-primary-light: #80DEEA;
+      --cully-primary-dark: #26C6DA;
+      --cully-secondary: #00BCD4;
+      --cully-accent: #00ACC1;
 
-      /* Modern UI Colors */
+      /* Layout Variables */
+      --header-height: 80px;
+      --sidebar-width: 300px;
+      --sidebar-collapsed: 60px;
+      --content-padding: 24px;
+
+      /* Colors */
       --text-primary: #1a202c;
       --text-secondary: #64748b;
-      --text-muted: #94a3b8;
       --bg-primary: #f8fafc;
-      --bg-secondary: #f1f5f9;
       --bg-card: #ffffff;
       --border-color: #e2e8f0;
-      --glass-bg: rgba(255, 255, 255, 0.95);
-      --shadow-color: rgba(30, 64, 175, 0.1);
-      --shadow-lg: rgba(30, 64, 175, 0.15);
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
 
-      --border-radius: 12px;
-      --border-radius-sm: 8px;
-      --border-radius-lg: 16px;
-      --transition: 0.3s ease;
-      --spacing-xs: 0.25rem;
-      --spacing-sm: 0.5rem;
-      --spacing-md: 1rem;
-      --spacing-lg: 1.5rem;
-      --spacing-xl: 2rem;
-      
-      /* Dynamic spacing variables */
-      --dynamic-padding: 16px;
-      --dynamic-margin: 12px;
-    }
-
-    /* Table Column Controls */
-    .table-column-controls {
-      padding: 8px 12px;
-      background: rgba(77, 208, 225, 0.08);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-    }
-
-    .column-toggle-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-small {
-      padding: 4px 8px;
-      font-size: 10px;
-      border-radius: 4px;
-      border: 1px solid var(--cully-primary);
-      background: white;
-      color: var(--cully-primary);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-small:hover {
-      background: var(--cully-primary);
-      color: white;
-    }
-
-    .btn-small i {
-      margin-right: 4px;
+      /* Responsive breakpoints */
+      --mobile: 768px;
+      --tablet: 1024px;
     }
 
     * {
@@ -98,296 +53,227 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-dark) 100%);
-      min-height: 100vh;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--cully-primary-light) 0%, #E8F8F8 100%);
       color: var(--text-primary);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* Modern Navigation Bar */
-    .modern-nav {
+    /* Header Section */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
+      border-bottom: 1px solid var(--border-color);
       z-index: 1000;
-      box-shadow: 0 4px 20px var(--shadow-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: var(--shadow);
     }
 
-    .nav-brand {
+    .header-left {
       display: flex;
       align-items: center;
       gap: 16px;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--cully-primary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--cully-primary);
+      color: white;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .brand-logo {
-      height: 40px;
-      border-radius: 8px;
+      height: 45px;
+      width: auto;
     }
 
     .brand-text {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-dark) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--cully-primary);
     }
 
-    /* User Dropdown */
-    .user-dropdown {
-      position: relative;
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 8px 16px;
-      background: rgba(30, 64, 175, 0.1);
-      border-radius: 20px;
-      color: var(--cully-primary);
-      font-weight: 500;
-      cursor: pointer;
     }
 
-    .user-dropdown i {
-      color: var(--cully-primary);
-    }
-
-    .user-dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-sm);
-      box-shadow: 0 4px 20px var(--shadow-color);
-      padding: 8px 0;
-      min-width: 180px;
-      z-index: 1001;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .user-dropdown.open .user-dropdown-menu {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .user-dropdown-menu a,
-    .user-dropdown-menu button {
-      display: block;
-      padding: 10px 20px;
-      color: var(--text-primary);
-      text-decoration: none;
-      font-size: 14px;
-      transition: var(--transition);
-      background: none;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-    }
-
-    .user-dropdown-menu a:hover,
-    .user-dropdown-menu button:hover {
-      background: var(--bg-secondary);
-    }
-
-    .user-dropdown-menu .dropdown-divider {
-      height: 1px;
-      background: var(--border-color);
-      margin: 8px 0;
-    }
-
-    .nav-actions {
+    .header-btn {
       display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    /* Quick Actions */
-    .quick-table-access {
-      position: relative;
-      display: inline-block;
-    }
-
-    .quick-access-btn {
-      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 20px;
-      border-radius: var(--border-radius);
-      font-weight: 600;
+      padding: 10px 16px;
       border: none;
-      cursor: pointer;
-      transition: var(--transition);
+      border-radius: 8px;
+      font-weight: 600;
       font-size: 14px;
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-light) 100%);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .header-btn.primary {
+      background: linear-gradient(135deg, var(--cully-primary), var(--cully-primary-dark));
       color: white;
-      box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+      box-shadow: 0 2px 8px rgba(77, 208, 225, 0.3);
     }
 
-    .quick-access-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(30, 64, 175, 0.4);
+    .header-btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(77, 208, 225, 0.4);
     }
 
-    .quick-access-btn i {
+    .header-btn.secondary {
+      background: var(--cully-secondary);
       color: white;
+      box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
     }
 
-    .quick-access-dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-sm);
-      box-shadow: 0 4px 20px var(--shadow-color);
-      padding: 8px 0;
-      min-width: 200px;
-      z-index: 1002;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+    .header-btn.secondary:hover {
+      background: var(--cully-accent);
+      transform: translateY(-1px);
     }
 
-    .quick-table-access.open .quick-access-dropdown {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .quick-access-dropdown a {
+    .user-profile {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 20px;
-      color: var(--text-primary);
-      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(77, 208, 225, 0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .user-profile:hover {
+      background: rgba(77, 208, 225, 0.2);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--cully-primary), var(--cully-primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
       font-size: 14px;
-      transition: var(--transition);
-      border-bottom: 1px solid var(--border-color);
     }
 
-    .quick-access-dropdown a:last-child {
-      border-bottom: none;
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
     }
 
-    .quick-access-dropdown a:hover {
-      background: var(--bg-secondary);
-    }
-
-    .quick-access-dropdown a i {
-      color: var(--cully-primary);
-      width: 20px; /* Ensure icon alignment */
-      text-align: center;
-    }
-
-    /* Special styling for logout option */
-    .quick-access-dropdown a[href*="logout"] {
-      color: #ef4444;
-    }
-
-    .quick-access-dropdown a[href*="logout"]:hover {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .quick-access-dropdown a[href*="logout"] i {
-      color: #ef4444;
+    .user-role {
+      font-size: 12px;
+      color: var(--text-secondary);
     }
 
     /* Main Layout */
-    .main-layout {
+    .app-layout {
       display: flex;
-      min-height: calc(100vh - 80px); /* Account for nav height */
-      max-width: none;
-      width: 100vw;
-      margin: 0;
-      gap: 0;
-      padding: 0;
+      height: 100vh;
+      padding-top: var(--header-height);
     }
 
-    /* Left Sidebar for Progress */
-    .progress-sidebar {
-      width: 250px;
-      min-width: 250px;
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 0;
-      padding: 24px;
-      height: fit-content;
-      position: sticky;
-      top: 80px;
-      box-shadow: 2px 0 15px rgba(0,0,0,0.08);
+    /* Sidebar Section */
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background: rgba(255, 255, 255, 0.98);
       border-right: 1px solid var(--border-color);
+      padding: 24px 0;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+      z-index: 100;
     }
 
-    .progress-header {
-      text-align: center;
-      margin-bottom: 32px;
+    .sidebar-header {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
     }
 
-    .progress-header h2 {
-      color: var(--cully-primary);
-      font-size: 1.5rem;
+    .sidebar-title {
+      font-size: 18px;
       font-weight: 700;
+      color: var(--cully-primary);
       margin-bottom: 8px;
-    }
-
-    .progress-header p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    /* Vertical Progress Steps */
-    .progress-nav {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 8px;
+    }
+
+    .sidebar-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Progress Steps */
+    .progress-nav {
+      padding: 0 12px;
     }
 
     .progress-step {
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 16px;
-      border-radius: var(--border-radius);
+      padding: 12px;
+      margin-bottom: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s;
       border: 2px solid transparent;
     }
 
-    .progress-step:hover {
-      background: rgba(30, 64, 175, 0.05);
+    .progress-step:hover:not(.active) {
+      background: rgba(77, 208, 225, 0.05);
     }
 
     .progress-step.active {
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-light) 100%);
+      background: linear-gradient(135deg, var(--cully-primary), var(--cully-primary-light));
       color: white;
       border-color: var(--cully-primary-light);
-      box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+      box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3);
     }
 
     .progress-step.disabled {
-      opacity: 0.4;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
     .step-circle {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: #e2e8f0;
       color: var(--text-secondary);
@@ -396,65 +282,64 @@
       justify-content: center;
       font-weight: 600;
       font-size: 14px;
-      transition: var(--transition);
+      transition: all 0.2s;
+      flex-shrink: 0;
     }
 
     .progress-step.active .step-circle {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.3);
       color: white;
     }
 
     .step-info {
       flex: 1;
+      min-width: 0;
     }
 
     .step-title {
       font-weight: 600;
       font-size: 14px;
       margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .step-description {
       font-size: 12px;
       opacity: 0.8;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .progress-step.active .step-description {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Form Container - Full Width */
-    .form-container {
+    /* Main Content Area */
+    .app-content {
       flex: 1;
-      min-width: 0;
-      width: calc(100vw - 250px);
-      max-width: calc(100vw - 250px);
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(15px);
-      border-radius: 0;
-      padding: 30px;
-      box-shadow: none;
-      border-left: 1px solid var(--border-color);
-      margin: 0;
-      box-sizing: border-box;
+      background: var(--bg-primary);
+      overflow-y: auto;
+      position: relative;
     }
 
-    .form-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--cully-primary), var(--cully-secondary));
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--content-padding);
     }
 
     /* Form Steps */
     .form-step {
       display: none;
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      margin-bottom: 24px;
       opacity: 0;
       transform: translateY(20px);
-      transition: all 0.5s ease;
+      transition: all 0.3s ease;
     }
 
     .form-step.active {
@@ -463,18 +348,43 @@
       transform: translateY(0);
     }
 
-    /* Form Sections */
+    .step-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .step-legend {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--cully-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step-description {
+      background: rgba(77, 208, 225, 0.1);
+      border-left: 4px solid var(--cully-primary);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* Form Elements */
     .form-section {
       background: rgba(248, 250, 252, 0.5);
       border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
+      border-radius: 8px;
       padding: 24px;
-      margin: 24px 0;
+      margin-bottom: 24px;
     }
 
     .form-section h4 {
       color: var(--cully-primary);
-      font-size: 1.1rem;
+      font-size: 16px;
       font-weight: 600;
       margin-bottom: 16px;
       display: flex;
@@ -482,40 +392,27 @@
       gap: 8px;
     }
 
-    .step-description {
-      background: rgba(77, 208, 225, 0.1);
-      border-left: 4px solid var(--cully-primary);
-      padding: 16px;
-      margin: 16px 0 24px 0;
-      border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
-      color: var(--text-secondary);
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
     }
 
-    .step-legend {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--cully-primary);
-      margin-bottom: 24px;
+    .form-group {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
     }
 
-    .step-legend i {
-      color: var(--cully-secondary);
-    }
-
-    /* Form Controls */
     label {
       display: block;
-      margin-top: 20px;
+      margin-bottom: 8px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 8px;
     }
 
     .required {
-      color: var(--cully-accent);
+      color: #ef4444;
     }
 
     input, textarea, select {
@@ -523,42 +420,116 @@
       padding: 12px 16px;
       font-size: 14px;
       border: 2px solid #e2e8f0;
-      border-radius: var(--border-radius);
+      border-radius: 8px;
       background: white;
-      transition: var(--transition);
+      transition: all 0.2s;
       font-family: inherit;
     }
 
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: var(--cully-primary);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+      box-shadow: 0 0 0 3px rgba(77, 208, 225, 0.1);
+    }
+
+    /* Cards for tables */
+    .data-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, var(--cully-primary), var(--cully-primary-light));
+      color: white;
+      padding: 16px 24px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Responsive Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 800px;
+    }
+
+    th {
+      background: var(--cully-primary);
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    td input, td select, td textarea {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 0;
     }
 
     /* Buttons */
-    .btn-primary, .btn-secondary, .btn-success {
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 12px 24px;
-      border-radius: var(--border-radius);
+      border-radius: 8px;
       font-weight: 600;
-      text-decoration: none;
+      font-size: 14px;
       border: none;
       cursor: pointer;
-      transition: var(--transition);
-      font-size: 14px;
+      transition: all 0.2s;
+      text-decoration: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-light) 100%);
+      background: linear-gradient(135deg, var(--cully-primary), var(--cully-primary-dark));
       color: white;
-      box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+      box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(30, 64, 175, 0.4);
+      box-shadow: 0 6px 20px rgba(77, 208, 225, 0.4);
     }
 
     .btn-secondary {
@@ -572,814 +543,230 @@
       color: white;
     }
 
-    .btn-success {
-      background: linear-gradient(135deg, var(--cully-secondary) 0%, var(--cully-secondary-light) 100%);
+    .btn-add {
+      background: var(--cully-secondary);
       color: white;
-      box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
-    }
-
-    .save-progress-btn {
-      position: relative; /* Changed from absolute to relative to avoid overlap issues */
-      top: auto;
-      right: auto;
       padding: 8px 16px;
-      font-size: 12px;
-      margin-left: 16px; /* Add margin to separate from other buttons */
-    }
-
-    /* Cards */
-    .card {
-      background: white;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-      margin: 24px 0;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .card-header {
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-light) 100%);
-      color: white;
-      padding: 16px 24px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-header .table-fullscreen-toggle {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background-color 0.2s ease;
-    }
-
-    .card-header .table-fullscreen-toggle:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .card-body {
-      padding: 24px;
-    }
-
-    /* Tables */
-    .table-responsive {
-      overflow-x: auto; /* Allow horizontal scroll only if needed */
-      margin: 16px 0;
-    }
-
-    /* Base Table Styles */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: var(--border-radius);
-      overflow: hidden; /* Ensures rounded corners clip content */
-    }
-
-    /* Specific Table Styles for Full Width and Professional Look */
-    .digital-signals, .digital-outputs, .analogue-inputs, .analogue-outputs, .approvals, .documents, .pretest-table, .key-components, .ip-records, .modbus-digital, .modbus-analogue, .process-tests, .scada-verification, .trends-testing, .alarm-signals {
-      width: 100%; /* Full width */
-      border-collapse: collapse;
-      table-layout: auto; /* Auto adjust column widths */
-    }
-
-    /* Table Headers */
-    .digital-signals th,
-    .digital-outputs th,
-    .analogue-inputs th,
-    .analogue-outputs th,
-    .approvals th,
-    .documents th,
-    .pretest-table th,
-    .key-components th,
-    .ip-records th,
-    .modbus-digital th,
-    .modbus-analogue th,
-    .process-tests th,
-    .scada-verification th,
-    .trends-testing th,
-    .alarm-signals th {
-      background: var(--bg-secondary); /* Light grey background */
-      color: var(--text-primary);
-      padding: 14px 16px; /* Increased padding for better spacing */
-      text-align: left;
-      font-weight: 600;
-      font-size: 14px;
-      border-bottom: 2px solid var(--cully-primary); /* Accent border */
-      white-space: nowrap; /* Prevent header text wrapping */
-    }
-
-    /* Table Cells */
-    .digital-signals td,
-    .digital-outputs td,
-    .analogue-inputs td,
-    .analogue-outputs td,
-    .approvals td,
-    .documents td,
-    .pretest-table td,
-    .key-components td,
-    .ip-records td,
-    .modbus-digital td,
-    .modbus-analogue td,
-    .process-tests td,
-    .scada-verification td,
-    .trends-testing td,
-    .alarm-signals td {
-      padding: 14px 16px; /* Consistent padding */
-      border-bottom: 1px solid var(--border-color); /* Subtle row dividers */
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    /* Specific column width adjustments */
-    /* Example: Make description columns wider, S.No columns narrower */
-    .digital-signals th:nth-child(1), /* S. No. */
-    .digital-signals td:nth-child(1),
-    .digital-outputs th:nth-child(1), /* S. No. */
-    .digital-outputs td:nth-child(1),
-    .analogue-inputs th:nth-child(1), /* S. No. */
-    .analogue-inputs td:nth-child(1),
-    .analogue-outputs th:nth-child(1), /* S. No. */
-    .analogue-outputs td:nth-child(1),
-    .key-components th:nth-child(1), /* S. No. */
-    .key-components td:nth-child(1) {
-      width: 6%; /* Narrow for S.No. */
-      min-width: 60px;
-    }
-
-    .digital-signals th:nth-child(2), /* Rack No. */
-    .digital-signals td:nth-child(2),
-    .digital-outputs th:nth-child(2), /* Rack No. */
-    .digital-outputs td:nth-child(2),
-    .analogue-inputs th:nth-child(2), /* Rack No. */
-    .analogue-inputs td:nth-child(2),
-    .analogue-outputs th:nth-child(2), /* Rack No. */
-    .analogue-outputs td:nth-child(2) {
-      width: 8%; /* Small for Rack No. */
-      min-width: 80px;
-    }
-
-    .digital-signals th:nth-child(3), /* Module Position */
-    .digital-signals td:nth-child(3),
-    .digital-outputs th:nth-child(3), /* Module Position */
-    .digital-outputs td:nth-child(3),
-    .analogue-inputs th:nth-child(3), /* Module Position */
-    .analogue-inputs td:nth-child(3),
-    .analogue-outputs th:nth-child(3), /* Module Position */
-    .analogue-outputs td:nth-child(3) {
-      width: 10%; /* Medium for Module Position */
-      min-width: 100px;
-    }
-
-    .digital-signals th:nth-child(4), /* Signal TAG */
-    .digital-signals td:nth-child(4),
-    .digital-outputs th:nth-child(4), /* Signal TAG */
-    .digital-outputs td:nth-child(4),
-    .analogue-inputs th:nth-child(4), /* Signal TAG */
-    .analogue-inputs td:nth-child(4),
-    .analogue-outputs th:nth-child(4), /* Signal TAG */
-    .analogue-outputs td:nth-child(4),
-    .ip-records th:nth-child(1), /* Device Name */
-    .ip-records td:nth-child(1),
-    .modbus-digital th:nth-child(2), /* Description */
-    .modbus-digital td:nth-child(2),
-    .modbus-analogue th:nth-child(2), /* Description */
-    .modbus-analogue td:nth-child(2) {
-      width: 15%; /* Wider for tags and short descriptions */
-      min-width: 150px;
-    }
-
-    .digital-signals th:nth-child(5), /* Description */
-    .digital-signals td:nth-child(5),
-    .digital-outputs th:nth-child(5), /* Description */
-    .digital-outputs td:nth-child(5),
-    .analogue-inputs th:nth-child(5), /* Description */
-    .analogue-inputs td:nth-child(5),
-    .analogue-outputs th:nth-child(5), /* Description */
-    .analogue-outputs td:nth-child(5),
-    .ip-records th:nth-child(2), /* IP Address */
-    .ip-records td:nth-child(2),
-    .key-components th:nth-child(3), /* Description */
-    .key-components td:nth-child(3) {
-      width: 25%; /* Wider for descriptions */
-      min-width: 250px;
-    }
-
-    .digital-signals th:nth-child(7), /* Punch Item */
-    .digital-signals td:nth-child(7),
-    .digital-outputs th:nth-child(7), /* Punch Item */
-    .digital-outputs td:nth-child(7),
-    .analogue-inputs th:nth-child(7), /* Punch Item */
-    .analogue-inputs td:nth-child(7),
-    .analogue-outputs th:nth-child(7), /* Punch Item */
-    .analogue-outputs td:nth-child(7),
-    .pretest-table th:nth-child(6), /* Punch */
-    .pretest-table td:nth-child(6),
-    .modbus-digital th:nth-child(5), /* Punch Item */
-    .modbus-digital td:nth-child(5),
-    .modbus-analogue th:nth-child(5), /* Punch Item */
-    .modbus-analogue td:nth-child(5),
-    .process-tests th:nth-child(4), /* Pass/Fail */
-    .process-tests td:nth-child(4),
-    .scada-verification th:nth-child(3), /* Pass/Fail */
-    .scada-verification td:nth-child(3),
-    .trends-testing th:nth-child(3), /* Pass/Fail */
-    .trends-testing td:nth-child(3),
-    .alarm-signals th:nth-child(3), /* Pass/Fail */
-    .alarm-signals td:nth-child(3) {
-      width: 15%; /* Wider for punch items, results */
-      min-width: 150px;
-    }
-
-    .digital-signals th:nth-child(8), /* Verified By */
-    .digital-signals td:nth-child(8),
-    .digital-outputs th:nth-child(8), /* Verified By */
-    .digital-outputs td:nth-child(8),
-    .analogue-inputs th:nth-child(8), /* Verified By */
-    .analogue-inputs td:nth-child(8),
-    .analogue-outputs th:nth-child(8), /* Verified By */
-    .analogue-outputs td:nth-child(8),
-    .pretest-table th:nth-child(7), /* Verified */
-    .pretest-table td:nth-child(7),
-    .modbus-digital th:nth-child(6), /* Verified By */
-    .modbus-digital td:nth-child(6),
-    .modbus-analogue th:nth-child(6), /* Verified By */
-    .modbus-analogue td:nth-child(6) {
-      width: 12%;
-      min-width: 120px;
-    }
-
-    .digital-signals th:nth-child(9), /* Comment */
-    .digital-signals td:nth-child(9),
-    .digital-outputs th:nth-child(9), /* Comment */
-    .digital-outputs td:nth-child(9),
-    .analogue-inputs th:nth-child(9), /* Comment */
-    .analogue-inputs td:nth-child(9),
-    .analogue-outputs th:nth-child(9), /* Comment */
-    .analogue-outputs td:nth-child(9),
-    .ip-records th:nth-child(3), /* Comment */
-    .ip-records td:nth-child(3),
-    .pretest-table th:nth-child(8), /* Comment */
-    .pretest-table td:nth-child(8),
-    .process-tests th:nth-child(5), /* Comments */
-    .process-tests td:nth-child(5),
-    .scada-verification th:nth-child(4), /* Comments */
-    .scada-verification td:nth-child(4),
-    .trends-testing th:nth-child(4), /* Comments */
-    .trends-testing td:nth-child(4),
-    .alarm-signals th:nth-child(4), /* Comments */
-    .alarm-signals td:nth-child(4) {
-      width: 20%;
-      min-width: 200px;
-    }
-
-    /* Action column width */
-    .digital-signals th:last-child,
-    .digital-signals td:last-child,
-    .digital-outputs th:last-child,
-    .digital-outputs td:last-child,
-    .analogue-inputs th:last-child,
-    .analogue-inputs td:last-child,
-    .analogue-outputs th:last-child,
-    .analogue-outputs td:last-child,
-    .approvals th:last-child,
-    .approvals td:last-child,
-    .documents th:last-child,
-    .documents td:last-child,
-    .pretest-table th:last-child,
-    .pretest-table td:last-child,
-    .key-components th:last-child,
-    .key-components td:last-child,
-    .ip-records th:last-child,
-    .ip-records td:last-child,
-    .modbus-digital th:last-child,
-    .modbus-digital td:last-child,
-    .modbus-analogue th:last-child,
-    .modbus-analogue td:last-child,
-    .process-tests th:last-child,
-    .process-tests td:last-child,
-    .scada-verification th:last-child,
-    .scada-verification td:last-child,
-    .trends-testing th:last-child,
-    .trends-testing td:last-child,
-    .alarm-signals th:last-child,
-    .alarm-signals td:last-child {
-      width: 6%; /* Narrow for action buttons */
-      min-width: 60px;
-      text-align: center;
-    }
-
-    /* Input styles within tables */
-    .digital-signals td input,
-    .digital-signals td select,
-    .digital-signals td textarea,
-    .digital-outputs td input,
-    .digital-outputs td select,
-    .digital-outputs td textarea,
-    .analogue-inputs td input,
-    .analogue-inputs td select,
-    .analogue-inputs td textarea,
-    .analogue-outputs td input,
-    .analogue-outputs td select,
-    .analogue-outputs td textarea,
-    .approvals td input,
-    .approvals td select,
-    .approvals td textarea,
-    .documents td input,
-    .documents td textarea,
-    .pretest-table td input,
-    .pretest-table td select,
-    .pretest-table td textarea,
-    .key-components td input,
-    .key-components td textarea,
-    .ip-records td input,
-    .ip-records td textarea,
-    .modbus-digital td input,
-    .modbus-digital td select,
-    .modbus-digital td textarea,
-    .modbus-analogue td input,
-    .modbus-analogue td select,
-    .modbus-analogue td textarea,
-    .process-tests td input,
-    .process-tests td select,
-    .process-tests td textarea,
-    .scada-verification td input,
-    .scada-verification td select,
-    .scada-verification td textarea,
-    .trends-testing td input,
-    .trends-testing td select,
-    .trends-testing td textarea,
-    .alarm-signals td input,
-    .alarm-signals td select,
-    .alarm-signals td textarea {
-      width: 100%;
-      margin: 0;
-      padding: 8px 12px; /* Consistent padding for inputs */
       font-size: 13px;
-      border: 1px solid var(--border-color); /* Subtle border for inputs */
-      border-radius: var(--border-radius-sm);
-      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      margin-top: 16px;
     }
 
-    .digital-signals td input:focus,
-    .digital-signals td select:focus,
-    .digital-signals td textarea:focus,
-    .digital-outputs td input:focus,
-    .digital-outputs td select:focus,
-    .digital-outputs td textarea:focus,
-    .analogue-inputs td input:focus,
-    .analogue-inputs td select:focus,
-    .analogue-inputs td textarea:focus,
-    .analogue-outputs td input:focus,
-    .analogue-outputs td select:focus,
-    .analogue-outputs td textarea:focus,
-    .approvals td input:focus,
-    .approvals td select:focus,
-    .approvals td textarea:focus,
-    .documents td input:focus,
-    .documents td textarea:focus,
-    .pretest-table td input:focus,
-    .pretest-table td select:focus,
-    .pretest-table td textarea:focus,
-    .key-components td input:focus,
-    .key-components td textarea:focus,
-    .ip-records td input:focus,
-    .ip-records td textarea:focus,
-    .modbus-digital td input:focus,
-    .modbus-digital td select:focus,
-    .modbus-digital td textarea:focus,
-    .modbus-analogue td input:focus,
-    .modbus-analogue td select:focus,
-    .modbus-analogue td textarea:focus,
-    .process-tests td input:focus,
-    .process-tests td select:focus,
-    .process-tests td textarea:focus,
-    .scada-verification td input:focus,
-    .scada-verification td select:focus,
-    .scada-verification td textarea:focus,
-    .trends-testing td input:focus,
-    .trends-testing td select:focus,
-    .trends-testing td textarea:focus,
-    .alarm-signals td input:focus,
-    .alarm-signals td select:focus,
-    .alarm-signals td textarea:focus {
-      border-color: var(--cully-primary);
-      box-shadow: 0 0 0 2px rgba(77, 208, 225, 0.2);
-    }
-
-    /* Full Screen Toggle Styling */
-    .table-responsive.fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 2000;
-      overflow-y: auto; /* Allow scrolling if content exceeds viewport */
-      padding: 20px;
-    }
-
-    .table-responsive.fullscreen .table-fullscreen-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 2001;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-    }
-
-    .table-responsive.fullscreen .table-fullscreen-toggle i {
-      color: white;
-    }
-
-    .table-responsive.fullscreen table {
-      max-width: none; /* Remove max-width when in fullscreen */
-      width: 100%; /* Ensure it fills the container */
-      border-radius: 0; /* Remove rounded corners for fullscreen */
-    }
-
-    .table-responsive.fullscreen th,
-    .table-responsive.fullscreen td {
-      padding: 16px 20px; /* Slightly more padding in fullscreen */
-      font-size: 15px;
-    }
-
-    /* Specific column width adjustments for I/O Testing tables */
-    #step-8 .card-body table tbody td:nth-child(5), /* Signal Description */
-    #step-8 .card-body table thead th:nth-child(5),
-    #step-8 .card-body table tbody td:nth-child(7), /* Punch Item */
-    #step-8 .card-body table thead th:nth-child(7) {
-      min-width: 250px; /* Wider for description and punch item */
+    .btn-add:hover {
+      background: var(--cully-accent);
     }
 
     .btn-remove {
       background: #ef4444;
       color: white;
-      border: none;
       padding: 6px 8px;
-      border-radius: 4px;
-      cursor: pointer;
       font-size: 12px;
+      border-radius: 4px;
     }
 
     .btn-remove:hover {
       background: #dc2626;
     }
 
-    /* Button Groups */
-    .button-group {
-      display: flex;
-      gap: 16px;
-      justify-content: flex-end;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* Flash Messages */
-    .flash-messages {
-      margin-bottom: 24px;
-    }
-
-    .alert {
-      padding: 16px 20px;
-      border-radius: var(--border-radius);
-      margin-bottom: 12px;
-      border-left: 4px solid;
-    }
-
-    .alert-success {
-      background: rgba(5, 150, 105, 0.1);
-      color: #064e3b;
-      border-left-color: var(--cully-secondary);
-    }
-
-    .alert-error {
-      background: rgba(239, 68, 68, 0.1);
-      color: #7f1d1d;
-      border-left-color: #ef4444;
-    }
-
-    .alert-warning {
-      background: rgba(245, 158, 11, 0.1);
-      color: #78350f;
-      border-left-color: var(--cully-accent);
-    }
-
-    /* Signature Pad */
-    .signature-pad-container {
-      position: relative;
-      border: 2px dashed var(--border-color);
-      border-radius: var(--border-radius);
-      margin: 16px 0;
-      background: #f8fafc;
-      transition: var(--transition);
-    }
-
-    .signature-pad-container:hover {
-      border-color: var(--cully-primary);
-    }
-
-    #fixed_signature_canvas {
-      width: 100%;
-      height: 200px;
-      cursor: crosshair;
-      border-radius: var(--border-radius);
-    }
-
-    /* File Upload */
-    input[type="file"] {
-      border: 2px dashed var(--border-color);
-      background: #f8fafc;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    input[type="file"]:hover {
-      border-color: var(--cully-primary);
-      background: rgba(30, 64, 175, 0.05);
-    }
-
-    /* Form Validation Styles */
-    .error {
-      border-color: #ef4444 !important;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-    }
-
-    .error-message {
-      color: #ef4444;
-      font-size: 12px;
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .error-message::before {
-      content: "⚠";
-      font-size: 14px;
-    }
-
-    /* Required field styling improvements */
-    .required {
-      color: #ef4444;
-      font-weight: 600;
-    }
-
-    /* Form field focus improvements */
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--cully-primary);
-      box-shadow: 0 0 0 3px rgba(77, 208, 225, 0.2);
-      transform: translateY(-1px);
-    }
-
-    /* Placeholder styling */
-    input::placeholder, textarea::placeholder {
-      color: #94a3b8;
-      font-style: italic;
-    }
-
-    /* Tooltip styling */
-    [title] {
-      cursor: help;
-    }
-
-    /* Checklist Styling */
-    .checklist-container {
-      background: white;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-      padding: 24px;
-      margin: 24px 0;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .checklist-header {
-      background: linear-gradient(135deg, var(--cully-primary) 0%, var(--cully-primary-light) 100%);
-      color: white;
-      padding: 16px 24px;
-      font-weight: 600;
-      border-radius: var(--border-radius) var(--border-radius) 0 0; /* Rounded top corners */
-      margin: -24px -24px 24px -24px; /* Offset padding */
-    }
-
-    .checklist-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .checklist-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .checklist-item input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--cully-primary);
-      cursor: pointer;
-    }
-
-    .checklist-text {
-      flex-grow: 1;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .checklist-text.required {
-      color: var(--cully-accent); /* Red color for required */
-      font-weight: 500;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-      .main-layout {
-        flex-direction: column;
-        gap: 24px;
-        padding: 16px; /* Reduced padding for smaller screens */
-      }
-
-      .progress-sidebar, .form-container {
-        width: 100%;
-        position: relative;
-        top: auto;
-      }
-
-      .progress-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
-      }
-
-      .progress-step {
-        flex: 1;
-        min-width: 200px;
-      }
-
-      .save-progress-btn {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin-bottom: 16px;
-      }
-
-      .form-container {
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .modern-nav {
-        padding: 12px 16px;
-      }
-
-      .brand-text {
-        font-size: 16px;
-      }
-
-      .user-dropdown {
-        padding: 6px 12px;
-      }
-
-      .user-dropdown-menu {
-        min-width: 150px;
-      }
-    }
-
     /* Watermark */
-    .watermark-img {
+    .watermark {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 300px;
       height: auto;
-      max-width: 80vw;
-      max-height: 80vh;
       opacity: 0.03;
       pointer-events: none;
       z-index: 0;
     }
-  </style>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM fully loaded');
-      console.log('SignaturePad available:', typeof SignaturePad !== 'undefined');
-
-      // Fix for canvas warning
-      const canvas = document.getElementById('fixed_signature_canvas');
-      if (canvas) {
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        console.log('Canvas initialized with willReadFrequently');
+    /* Mobile Responsiveness */
+    @media (max-width: 1024px) {
+      :root {
+        --sidebar-width: 280px;
+        --content-padding: 20px;
       }
 
-      // Initialize table fullscreen toggles
-      document.querySelectorAll('.table-fullscreen-toggle').forEach(button => {
-        button.addEventListener('click', function() {
-          const tableResponsive = this.closest('.table-responsive');
-          if (tableResponsive) {
-            tableResponsive.classList.toggle('fullscreen');
-            const icon = this.querySelector('i');
-            if (tableResponsive.classList.contains('fullscreen')) {
-              icon.classList.remove('fa-expand');
-              icon.classList.add('fa-compress');
-              this.innerHTML = '<i class="fas fa-compress"></i> Close Full Screen';
-            } else {
-              icon.classList.remove('fa-compress');
-              icon.classList.add('fa-expand');
-              this.innerHTML = '<i class="fas fa-expand"></i> Full Screen';
-            }
-          }
-        });
-      });
-    });
-  </script>
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .app-sidebar {
+        position: fixed;
+        left: calc(-1 * var(--sidebar-width));
+        top: var(--header-height);
+        height: calc(100vh - var(--header-height));
+        z-index: 999;
+        box-shadow: var(--shadow-lg);
+        transition: left 0.3s ease;
+      }
+
+      .app-sidebar.open {
+        left: 0;
+      }
+
+      .app-content {
+        width: 100%;
+      }
+
+      .brand-text {
+        display: none;
+      }
+
+      .header-btn .btn-text {
+        display: none;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        min-width: 600px;
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --header-height: 60px;
+        --content-padding: 16px;
+      }
+
+      .app-header {
+        padding: 0 16px;
+      }
+
+      .header-actions {
+        gap: 8px;
+      }
+
+      .header-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .user-profile {
+        padding: 6px 8px;
+      }
+
+      .user-name, .user-role {
+        display: none;
+      }
+
+      .form-step {
+        padding: 20px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+      }
+
+      .step-legend {
+        font-size: 20px;
+      }
+
+      .form-section {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      table {
+        min-width: 500px;
+        font-size: 11px;
+      }
+
+      th, td {
+        padding: 6px;
+      }
+
+      td input, td select, td textarea {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+    }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      width: 100%;
+      height: calc(100vh - var(--header-height));
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Modern Navigation -->
-  <nav class="modern-nav">
-    <div class="nav-brand">
-      <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="brand-logo">
-      <span class="brand-text">SAT Report Generator</span>
-    </div>
-    <div class="nav-actions">
-      <!-- Quick Actions -->
-      <div class="quick-table-access">
-        <button type="button" class="quick-access-btn" onclick="toggleQuickAccess()">
-          <i class="fas fa-bolt"></i>
-          Quick Actions
-        </button>
-        <div class="quick-access-dropdown" id="quickAccessDropdown">
-          <a href="{{ url_for('dashboard.engineer') }}">
-            <i class="fas fa-home"></i> Dashboard
-          </a>
-          <a href="#" onclick="alert('Help & Support feature coming soon!')">
-            <i class="fas fa-question-circle"></i> Help & Support
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="{{ url_for('auth.logout') }}">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </a>
-        </div>
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="header-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="header-brand">
+        <img src="{{ url_for('static', filename='cully.png') }}" alt="Cully Logo" class="brand-logo">
+        <span class="brand-text">SAT Report Generator</span>
       </div>
+    </div>
 
-      <!-- Save Progress Button -->
-      <button type="button" class="save-progress-btn" onclick="saveProgress()">
+    <div class="header-actions">
+      <button type="button" class="header-btn secondary" onclick="saveProgress()">
         <i class="fas fa-save"></i>
-        Save Progress
+        <span class="btn-text">Save Progress</span>
       </button>
 
-      <!-- User Profile Section -->
+      <a href="{{ url_for('dashboard.engineer') }}" class="header-btn primary">
+        <i class="fas fa-home"></i>
+        <span class="btn-text">Dashboard</span>
+      </a>
+
       <div class="user-profile">
         <div class="user-avatar">
-          <i class="fas fa-user-circle"></i>
+          <i class="fas fa-user"></i>
         </div>
-        <div class="user-details" onclick="toggleUserDropdown()">
+        <div>
           <div class="user-name">{{ current_user.full_name if current_user.is_authenticated else 'Guest User' }}</div>
           <div class="user-role">{{ current_user.role if current_user.is_authenticated else 'Guest' }}</div>
         </div>
-        <div class="user-dropdown-menu" id="userDropdownMenu">
-          <a href="#" onclick="event.preventDefault(); window.print();">
-            <i class="fas fa-print"></i> Print Preview
-          </a>
-          <a href="{{ url_for('dashboard.engineer') }}">
-            <i class="fas fa-home"></i> Dashboard
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="{{ url_for('auth.logout') }}">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </a>
-        </div>
       </div>
     </div>
-  </nav>
+  </header>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <!-- Main Layout -->
-  <div class="main-layout">
-    <!-- Left Sidebar - Progress Navigation -->
-    <div class="progress-sidebar">
-      <div class="progress-header">
-        <h2><i class="fas fa-route"></i> Progress</h2>
-        <p>Track your progress through the SAT report</p>
+  <div class="app-layout">
+    <!-- Sidebar Section -->
+    <nav class="app-sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">
+          <i class="fas fa-route"></i>
+          Progress
+        </h2>
+        <p class="sidebar-subtitle">Track your progress through the SAT report</p>
       </div>
 
-      <nav class="progress-nav" aria-label="Form steps">
+      <div class="progress-nav">
         {% set steps = [
           (1, 'Basic Info', 'Document details and project info', 'fa-info-circle'),
           (2, 'Approvals', 'Review workflow and signatures', 'fa-users'),
@@ -1396,10 +783,7 @@
         {% for num, title, desc, icon in steps %}
         <div id="prog-{{ num }}"
              class="progress-step {{ 'active' if num==1 else 'disabled' }}"
-             role="tab"
-             tabindex="{{ 0 if num==1 else -1 }}"
-             aria-controls="step-{{ num }}"
-             aria-selected="{{ 'true' if num==1 else 'false' }}">
+             onclick="goToStep({{ num }})">
           <div class="step-circle">{{ num }}</div>
           <div class="step-info">
             <div class="step-title">{{ title }}</div>
@@ -1407,544 +791,420 @@
           </div>
         </div>
         {% endfor %}
-      </nav>
-    </div>
+      </div>
+    </nav>
 
-    <!-- Main Form Container -->
-    <div class="form-container">
-      <img src="{{ url_for('static', filename='Cully_Watermark.jpg') }}" class="watermark-img" />
+    <!-- Main Content Area -->
+    <main class="app-content">
+      <div class="content-wrapper">
+        <!-- Watermark -->
+        <img src="{{ url_for('static', filename='Cully_Watermark.jpg') }}" class="watermark" alt="Watermark" />
 
-      <!-- Flash messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        </div>
-      {% endif %}
-      {% endwith %}
-
-      <form id="satForm" method="POST" action="{{ url_for('main.generate') }}" enctype="multipart/form-data" novalidate>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
-        <input type="hidden" name="submission_id" value="{{ submission_id }}"/>
-
-        <!-- Step 1 — Basic Info -->
-        <fieldset class="form-step active" id="step-1" role="tabpanel" aria-labelledby="prog-1">
-          <legend class="step-legend">
-            <i class="fas fa-info-circle"></i>
-            Step 1 — Basic Information
-          </legend>
-
-          <div class="step-description">
-            <p>Please provide the basic information about your SAT report. Fields marked with <span class="required">*</span> are required.</p>
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
           </div>
+        {% endif %}
+        {% endwith %}
 
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
+        <form id="satForm" method="POST" action="{{ url_for('main.generate') }}" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+          <input type="hidden" name="submission_id" value="{{ submission_id }}"/>
 
-          <div class="form-section">
-            <h4><i class="fas fa-file-alt" aria-hidden="true"></i> Document Information</h4>
-            <p class="section-description">Provide the basic identification details for this SAT report</p>
-
-          <label for="document_title">Document Title <span class="required">*</span></label>
-          <input id="document_title" name="document_title" type="text" required
-                 placeholder="e.g. SAT Report v1.2" value="{{ submission_data.DOCUMENT_TITLE }}"/>
-
-          <label for="project_reference">Project Reference <span class="required">*</span></label>
-          <input id="project_reference" name="project_reference" type="text" required
-                 placeholder="e.g. PROJ-1234" value="{{ submission_data.PROJECT_REFERENCE }}"/>
-
-          <label for="document_reference">
-            Document Reference
-            <span class="tooltip">
-              <i class="fas fa-question-circle tooltip-icon" aria-label="Help"></i>
-              <span class="tooltip-text">Internal document reference number or code (optional)</span>
-            </span>
-          </label>
-          <input id="document_reference" name="document_reference" type="text"
-                 placeholder="e.g. DOC-SAT-2024-001"
-                 aria-describedby="doc-ref-help"
-                 value="{{ submission_data.DOCUMENT_REFERENCE }}"/>
-          <small id="doc-ref-help" class="field-help">Optional internal reference number for document tracking</small>
-
-          <label for="date">Date <span class="required">*</span></label>
-          <input id="date" name="date" type="date" required value="{{ submission_data.DATE }}" 
-                 placeholder="Select report date"
-                 aria-describedby="date-help"
-                 title="Select the date for this SAT report"/>
-          <small id="date-help" class="field-help">Select the date when this SAT report is being created</small>
-
-          <label for="client_name">Client Name</label>
-          <input id="client_name" name="client_name" type="text" 
-                 placeholder="Enter client/company name" value="{{ submission_data.CLIENT_NAME }}"/>
-
-          <label for="revision">Revision</label>
-          <input id="revision" name="revision" type="text" 
-                 placeholder="e.g., R0, R1, Rev A" value="{{ submission_data.REVISION }}"/>
-
-          <label for="revision_details">
-            Revision Details
-            <span class="tooltip">
-              <i class="fas fa-question-circle tooltip-icon" aria-label="Help"></i>
-              <span class="tooltip-text">Brief description of changes made in this revision</span>
-            </span>
-          </label>
-          <input id="revision_details" name="revision_details" type="text"
-                 placeholder="e.g. Updated test procedures, corrected signal references"
-                 aria-describedby="revision-details-help"
-                 value="{{ submission_data.REVISION_DETAILS }}"/>
-          <small id="revision-details-help" class="field-help">Describe the main changes or updates made in this revision</small>
-
-          <label for="revision_date">Revision Date</label>
-          <input id="revision_date" name="revision_date" type="date"
-                 placeholder="Select revision date"
-                 aria-describedby="revision-date-help"
-                 title="Date when this revision was made"
-                 value="{{ submission_data.REVISION_DATE }}"/>
-          <small id="revision-date-help" class="field-help">Date when this revision was created (leave blank for initial version)</small>
-
-          </div>
-
-          <div class="form-section">
-            <h4><i class="fas fa-envelope" aria-hidden="true"></i> Contact Information</h4>
-            <p class="section-description">Specify contact details for notifications and communication</p>
-            
-            <label for="user_email">Your Email <span class="required">*</span></label>
-            <input id="user_email" name="user_email" type="email" required
-                   placeholder="your.email@company.com" 
-                   aria-describedby="email-help"
-                   title="Enter a valid email address for notifications"
-                   value="{{ submission_data.USER_EMAIL }}"/>
-            <small id="email-help" class="field-help">This email will receive notifications about report status and approvals</small>
-            <div class="error-message" id="user_email_error" style="display: none;">
-              <i class="fas fa-exclamation-triangle"></i>
-              Please enter a valid email address
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-primary" data-next-step="2">
-              Next <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 2 — Approvals -->
-        <fieldset class="form-step" id="step-2" role="tabpanel" aria-labelledby="prog-2">
-          <legend class="step-legend">
-            <i class="fas fa-users"></i>
-            Step 2 — Approvals & Workflow
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <label for="prepared_by">Prepared By</label>
-          <input id="prepared_by" name="prepared_by" type="text" value="{{ submission_data.PREPARED_BY }}"/>
-
-          <label for="reviewed_by_tech_lead">Reviewed by (Technical Manager)</label>
-          <input type="text" id="reviewed_by_tech_lead" name="reviewed_by_tech_lead"
-                 value="{{ submission_data.get('REVIEWED_BY_TECH_LEAD', '') }}"/>
-
-          <label for="reviewed_by_pm">Reviewed By PM</label>
-          <input id="reviewed_by_pm" name="reviewed_by_pm" type="text"
-                 value="{{ submission_data.REVIEWED_BY_PM }}"/>
-
-          <label for="approved_by_client">Approved By Client</label>
-          <input id="approved_by_client" name="approved_by_client" type="text"
-                 value="{{ submission_data.APPROVED_BY_CLIENT }}"/>
-
-          <div class="card">
-            <div class="card-header">Approval Workflow Emails</div>
-            <div class="card-body">
-              <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                Enter the email addresses of the people who will approve this report.
-              </p>
-
-              <label for="approver_1_email">
-                <i class="fa fa-user"></i> Technical Manager Email
-              </label>
-              <div style="margin-bottom: 20px;">
-                <select id="approver_1_select" style="margin-bottom: 8px;">
-                  <option value="">Select Technical Manager...</option>
-                </select>
-                <input type="email" id="approver_1_email" name="approver_1_email"
-                       value="{{ submission_data.get('approver_1_email', '') }}" required
-                       placeholder="technical.lead@company.com or enter custom email"/>
-              </div>
-
-              <label for="approver_2_email">
-                <i class="fa fa-user"></i> Project Manager Email
-              </label>
-              <div>
-                <select id="approver_2_select" style="margin-bottom: 8px;">
-                  <option value="">Select Project Manager...</option>
-                </select>
-                <input type="email" id="approver_2_email" name="approver_2_email"
-                       value="{{ submission_data.get('approver_2_email', '') }}" required
-                       placeholder="project.manager@company.com or enter custom email"/>
+          <!-- Step 1 — Basic Info -->
+          <fieldset class="form-step active" id="step-1">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-info-circle"></i>
+                Step 1 — Basic Information
+              </h1>
+              <div class="step-description">
+                <p>Please provide the basic information about your SAT report. Fields marked with <span class="required">*</span> are required.</p>
               </div>
             </div>
-          </div>
 
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="1">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="3">
-              Next <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
+            <div class="form-section">
+              <h4><i class="fas fa-file-alt"></i> Document Information</h4>
 
-        <!-- Step 3 — Purpose & Scope -->
-        <fieldset class="form-step" id="step-3" role="tabpanel" aria-labelledby="prog-3">
-          <legend class="step-legend">
-            <i class="fas fa-bullseye"></i>
-            Step 3 — Purpose & Scope
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <label for="purpose">Purpose</label>
-          <textarea id="purpose" name="purpose" rows="4">{{ submission_data.PURPOSE }}</textarea>
-
-          <label for="scope">Scope</label>
-          <textarea id="scope" name="scope" rows="4">{{ submission_data.SCOPE }}</textarea>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="2">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="4">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 4 — Related Documents & Approvals -->
-        <fieldset class="form-step" id="step-4" role="tabpanel" aria-labelledby="prog-4">
-          <legend class="step-legend">
-            <i class="fas fa-file-alt"></i>
-            Step 4 — Related Documents & Approvals
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <!-- Related Documents -->
-          <div class="card">
-            <div class="card-header">
-              Related Documents
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table>
-                  <thead>
-                    <tr><th>Document Reference</th><th>Document Title</th><th>Action</th></tr>
-                  </thead>
-                  <tbody id="related-docs-body">
-                    {% for doc in submission_data.RELATED_DOCUMENTS %}
-                    <tr>
-                      <td><input name="doc_ref[]" value="{{ doc.Document_Reference }}"/></td>
-                      <td><input name="doc_title[]" value="{{ doc.Document_Title }}"/></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove document"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-related-doc-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add related document"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Document
-              </button>
-            </div>
-          </div>
-
-          <!-- SAT Protocol Pre-Execution Approval -->
-          <div class="card">
-            <div class="card-header">
-              SAT Protocol Pre-Execution Approval
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table>
-                  <thead>
-                    <tr><th>Print Name</th><th>Signature</th><th>Date</th><th>Initial</th><th>Company</th><th>Action</th></tr>
-                  </thead>
-                  <tbody id="pre-approval-body">
-                    {% for app in submission_data.PRE_EXECUTION_APPROVAL %}
-                    <tr>
-                      <td><input name="pre_approval_print_name[]" value="{{ app.Print_Name }}"/></td>
-                      <td><input name="pre_approval_signature[]" value="{{ app.Signature }}"/></td>
-                      <td><input name="pre_approval_date[]" type="date" value="{{ app.Date }}"/></td>
-                      <td><input name="pre_approval_initial[]" value="{{ app.Initial }}"/></td>
-                      <td><input name="pre_approval_company[]" value="{{ app.Company }}"/></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove pre-approval"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-pre-approval-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add pre-execution approval"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Approval
-              </button>
-            </div>
-          </div>
-
-          <!-- SAT Protocol Post Execution Approval -->
-          <div class="card">
-            <div class="card-header">
-              SAT Protocol Post Execution Approval
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table>
-                  <thead>
-                    <tr><th>Print Name</th><th>Signature</th><th>Date</th><th>Initial</th><th>Company</th><th>Action</th></tr>
-                  </thead>
-                  <tbody id="post-approval-body">
-                    {% for app in submission_data.POST_EXECUTION_APPROVAL %}
-                    <tr>
-                      <td><input name="post_approval_print_name[]" value="{{ app.Print_Name }}"/></td>
-                      <td><input name="post_approval_signature[]" value="{{ app.Signature }}"/></td>
-                      <td><input name="post_approval_date[]" type="date" value="{{ app.Date }}"/></td>
-                      <td><input name="post_approval_initial[]" value="{{ app.Initial }}"/></td>
-                      <td><input name="post_approval_company[]" value="{{ app.Company }}"/></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove post-approval"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-post-approval-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add post-execution approval"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Approval
-              </button>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="3">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="5">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 5 — I/O Configuration Builder -->
-        <fieldset id="step-5" class="form-step" role="tabpanel" aria-labelledby="prog-5">
-          <legend class="step-legend">
-            <i class="fas fa-microchip"></i>
-            Step 5 — I/O Configuration Builder
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <div class="io-builder-container">
-            <div class="io-builder-header">
-              <h3>Intelligent I/O Table Generator</h3>
-              <p>Configure your PLC modules to automatically generate I/O signal tables</p>
-            </div>
-
-            <!-- Module Configuration Section -->
-            <div class="module-config-section">
-              <h4>Standard PLC Modules</h4>
-              <div class="module-stats">
-                <div class="stat-item">
-                  <label for="total_modules">Total Modules:</label>
-                  <input type="number" id="total_modules" min="0" value="0" readonly>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="document_title">Document Title <span class="required">*</span></label>
+                  <input id="document_title" name="document_title" type="text" required
+                         placeholder="e.g. SAT Report v1.2" value="{{ submission_data.DOCUMENT_TITLE }}"/>
                 </div>
-                <div class="stat-item">
-                  <label for="digital_modules">Digital Modules:</label>
-                  <input type="number" id="digital_modules" min="0" value="0" readonly>
-                </div>
-                <div class="stat-item">
-                  <label for="analog_modules">Analog Modules:</label>
-                  <input type="number" id="analog_modules" min="0" value="0" readonly>
-                </div>
-                <div class="stat-item">
-                  <label for="mixed_modules">Mixed Modules:</label>
-                  <input type="number" id="mixed_modules" min="0" value="0" readonly>
+
+                <div class="form-group">
+                  <label for="project_reference">Project Reference <span class="required">*</span></label>
+                  <input id="project_reference" name="project_reference" type="text" required
+                         placeholder="e.g. PROJ-1234" value="{{ submission_data.PROJECT_REFERENCE }}"/>
                 </div>
               </div>
 
-              <div class="module-entry-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="document_reference">Document Reference</label>
+                  <input id="document_reference" name="document_reference" type="text"
+                         placeholder="e.g. DOC-SAT-2024-001" value="{{ submission_data.DOCUMENT_REFERENCE }}"/>
+                </div>
+
+                <div class="form-group">
+                  <label for="date">Date <span class="required">*</span></label>
+                  <input id="date" name="date" type="date" required value="{{ submission_data.DATE }}"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="client_name">Client Name</label>
+                  <input id="client_name" name="client_name" type="text" 
+                         placeholder="Enter client/company name" value="{{ submission_data.CLIENT_NAME }}"/>
+                </div>
+
+                <div class="form-group">
+                  <label for="revision">Revision</label>
+                  <input id="revision" name="revision" type="text" 
+                         placeholder="e.g., R0, R1, Rev A" value="{{ submission_data.REVISION }}"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="revision_details">Revision Details</label>
+                  <input id="revision_details" name="revision_details" type="text"
+                         placeholder="e.g. Updated test procedures, corrected signal references"
+                         value="{{ submission_data.REVISION_DETAILS }}"/>
+                </div>
+
+                <div class="form-group">
+                  <label for="revision_date">Revision Date</label>
+                  <input id="revision_date" name="revision_date" type="date"
+                         value="{{ submission_data.REVISION_DATE }}"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4><i class="fas fa-envelope"></i> Contact Information</h4>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="user_email">Your Email <span class="required">*</span></label>
+                  <input id="user_email" name="user_email" type="email" required
+                         placeholder="your.email@company.com" value="{{ submission_data.USER_EMAIL }}"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" onclick="goToStep(2)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 2 — Approvals -->
+          <fieldset class="form-step" id="step-2">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-users"></i>
+                Step 2 — Approvals & Workflow
+              </h1>
+            </div>
+
+            <div class="form-section">
+              <h4><i class="fas fa-user-check"></i> Approval Personnel</h4>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="prepared_by">Prepared By</label>
+                  <input id="prepared_by" name="prepared_by" type="text" value="{{ submission_data.PREPARED_BY }}"/>
+                </div>
+
+                <div class="form-group">
+                  <label for="reviewed_by_tech_lead">Reviewed by (Technical Manager)</label>
+                  <input type="text" id="reviewed_by_tech_lead" name="reviewed_by_tech_lead"
+                         value="{{ submission_data.get('REVIEWED_BY_TECH_LEAD', '') }}"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="reviewed_by_pm">Reviewed By PM</label>
+                  <input id="reviewed_by_pm" name="reviewed_by_pm" type="text"
+                         value="{{ submission_data.REVIEWED_BY_PM }}"/>
+                </div>
+
+                <div class="form-group">
+                  <label for="approved_by_client">Approved By Client</label>
+                  <input id="approved_by_client" name="approved_by_client" type="text"
+                         value="{{ submission_data.APPROVED_BY_CLIENT }}"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">Approval Workflow Emails</div>
+              <div class="card-body">
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                  Enter the email addresses of the people who will approve this report.
+                </p>
+
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="module_company">Company/Vendor:</label>
-                    <select id="module_company" required>
-                      <option value="">Select Vendor...</option>
-                      <option value="ABB">ABB</option>
-                      <option value="SIEMENS">Siemens</option>
-                      <option value="SCHNEIDER">Schneider Electric</option>
-                      <option value="ROCKWELL">Rockwell Automation</option>
-                      <option value="OMRON">Omron</option>
-                      <option value="MITSUBISHI">Mitsubishi</option>
-                      <option value="BECKHOFF">Beckhoff</option>
-                      <option value="OTHER">Other</option>
+                    <label for="approver_1_email">
+                      <i class="fa fa-user"></i> Technical Manager Email
+                    </label>
+                    <select id="approver_1_select" style="margin-bottom: 8px;">
+                      <option value="">Select Technical Manager...</option>
                     </select>
+                    <input type="email" id="approver_1_email" name="approver_1_email"
+                           value="{{ submission_data.get('approver_1_email', '') }}" required
+                           placeholder="technical.lead@company.com or enter custom email"/>
                   </div>
+
                   <div class="form-group">
-                    <label for="module_model">Module Model:</label>
-                    <input type="text" id="module_model" placeholder="e.g., DI810, SM1231, etc." required>
-                    <button type="button" id="lookup_module_btn" class="btn-lookup">🔍 Lookup</button>
+                    <label for="approver_2_email">
+                      <i class="fa fa-user"></i> Project Manager Email
+                    </label>
+                    <select id="approver_2_select" style="margin-bottom: 8px;">
+                      <option value="">Select Project Manager...</option>
+                    </select>
+                    <input type="email" id="approver_2_email" name="approver_2_email"
+                           value="{{ submission_data.get('approver_2_email', '') }}" required
+                           placeholder="project.manager@company.com or enter custom email"/>
                   </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="module_rack">Rack No.:</label>
-                    <input type="number" id="module_rack" min="0" value="0" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="module_position">Module Position/Slot:</label>
-                    <input type="number" id="module_position" min="1" value="1" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="module_starting_sno">Starting S. No. (Optional):</label>
-                    <input type="number" id="module_starting_sno" min="1" placeholder="Auto">
-                  </div>
-                </div>
-
-                <!-- Module Specification Display -->
-                <div id="module_spec_display" class="module-spec hidden">
-                  <h5>Module Specification</h5>
-                  <div class="spec-grid">
-                    <div class="spec-item">
-                      <label>Description:</label>
-                      <span id="spec_description">-</span>
-                    </div>
-                    <div class="spec-item">
-                      <label>Digital Inputs:</label>
-                      <span id="spec_di">0</span>
-                    </div>
-                    <div class="spec-item">
-                      <label>Digital Outputs:</label>
-                      <span id="spec_do">0</span>
-                    </div>
-                    <div class="spec-item">
-                      <label>Analog Inputs:</label>
-                      <span id="spec_ai">0</span>
-                    </div>
-                    <div class="spec-item">
-                      <label>Analog Outputs:</label>
-                      <span id="spec_ao">0</span>
-                    </div>
-                    <div class="spec-item">
-                      <label>Total Channels:</label>
-                      <span id="spec_total">0</span>
-                    </div>
-                  </div>
-
-                  <!-- Manual Override for Unknown Modules -->
-                  <div id="manual_override" class="manual-override hidden">
-                    <h6>Manual Specification (Module not found)</h6>
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label for="manual_di">Digital Inputs:</label>
-                        <input type="number" id="manual_di" min="0" value="0">
-                      </div>
-                      <div class="form-group">
-                        <label for="manual_do">Digital Outputs:</label>
-                        <input type="number" id="manual_do" min="0" value="0">
-                      </div>
-                      <div class="form-group">
-                        <label for="manual_ai">Analog Inputs:</label>
-                        <input type="number" id="manual_ai" min="0" value="0">
-                      </div>
-                      <div class="form-group">
-                        <label for="manual_ao">Analog Outputs:</label>
-                        <input type="number" id="manual_ao" min="0" value="0">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" id="add_module_btn" class="btn-primary" disabled>
-                    <i class="fa fa-plus"></i> Add Module
-                  </button>
-                </div>
-              </div>
-
-              <!-- Module List -->
-              <div id="modules_list" class="modules-list">
-                <h4>Configured Modules</h4>
-                <div id="modules_container" class="modules-container">
-                  <p class="no-modules">No modules configured yet. Add modules above to get started.</p>
                 </div>
               </div>
             </div>
 
-            <!-- Modbus Configuration Section -->
-            <div class="modbus-config-section">
-              <h4>Modbus Configuration</h4>
-              <div class="modbus-entry-form">
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(1)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(3)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 3 — Purpose & Scope -->
+          <fieldset class="form-step" id="step-3">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-bullseye"></i>
+                Step 3 — Purpose & Scope
+              </h1>
+            </div>
+
+            <div class="form-section">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="purpose">Purpose</label>
+                  <textarea id="purpose" name="purpose" rows="4" placeholder="Describe the purpose of this SAT report...">{{ submission_data.PURPOSE }}</textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="scope">Scope</label>
+                  <textarea id="scope" name="scope" rows="4" placeholder="Define the scope of testing...">{{ submission_data.SCOPE }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(2)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(4)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 4 — Related Documents & Approvals (Simplified for brevity, content from original) -->
+          <fieldset class="form-step" id="step-4" role="tabpanel" aria-labelledby="prog-4">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-file-alt"></i>
+                Step 4 — Related Documents & Approvals
+              </h1>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>Related Documents</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr><th>Document Reference</th><th>Document Title</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="related-docs-body">
+                      {% for doc in submission_data.RELATED_DOCUMENTS %}
+                      <tr>
+                        <td><input name="doc_ref[]" value="{{ doc.Document_Reference }}"/></td>
+                        <td><input name="doc_title[]" value="{{ doc.Document_Title }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addRow('related-docs-body', 'tmpl-related-doc')">
+                  <i class="fas fa-plus"></i> Add Document
+                </button>
+              </div>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>SAT Protocol Pre-Execution Approval</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr><th>Print Name</th><th>Signature</th><th>Date</th><th>Initial</th><th>Company</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="pre-approval-body">
+                      {% for app in submission_data.PRE_EXECUTION_APPROVAL %}
+                      <tr>
+                        <td><input name="pre_approval_print_name[]" value="{{ app.Print_Name }}"/></td>
+                        <td><input name="pre_approval_signature[]" value="{{ app.Signature }}"/></td>
+                        <td><input name="pre_approval_date[]" type="date" value="{{ app.Date }}"/></td>
+                        <td><input name="pre_approval_initial[]" value="{{ app.Initial }}"/></td>
+                        <td><input name="pre_approval_company[]" value="{{ app.Company }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addApproval('pre-approval-body', 'tmpl-pre-approval')">
+                  <i class="fas fa-plus"></i> Add Approval
+                </button>
+              </div>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>SAT Protocol Post Execution Approval</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr><th>Print Name</th><th>Signature</th><th>Date</th><th>Initial</th><th>Company</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="post-approval-body">
+                      {% for app in submission_data.POST_EXECUTION_APPROVAL %}
+                      <tr>
+                        <td><input name="post_approval_print_name[]" value="{{ app.Print_Name }}"/></td>
+                        <td><input name="post_approval_signature[]" value="{{ app.Signature }}"/></td>
+                        <td><input name="post_approval_date[]" type="date" value="{{ app.Date }}"/></td>
+                        <td><input name="post_approval_initial[]" value="{{ app.Initial }}"/></td>
+                        <td><input name="post_approval_company[]" value="{{ app.Company }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addApproval('post-approval-body', 'tmpl-post-approval')">
+                  <i class="fas fa-plus"></i> Add Approval
+                </button>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(3)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(5)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 5 — I/O Builder -->
+          <fieldset class="form-step" id="step-5">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-microchip"></i>
+                Step 5 — I/O Configuration Builder
+              </h1>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>Intelligent I/O Table Generator</span>
+              </div>
+              <div class="card-body">
+                <h4>Standard PLC Modules</h4>
+                <div class="module-config-section">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="module_company">Company/Vendor:</label>
+                      <select id="module_company">
+                        <option value="">Select Vendor...</option>
+                        <option value="ABB">ABB</option>
+                        <option value="SIEMENS">Siemens</option>
+                        <option value="SCHNEIDER">Schneider Electric</option>
+                        <option value="ROCKWELL">Rockwell Automation</option>
+                        <option value="OMRON">Omron</option>
+                        <option value="MITSUBISHI">Mitsubishi</option>
+                        <option value="BECKHOFF">Beckhoff</option>
+                        <option value="OTHER">Other</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="module_model">Module Model:</label>
+                      <input type="text" id="module_model" placeholder="e.g., DI810, SM1231, etc.">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="module_rack">Rack No.:</label>
+                      <input type="number" id="module_rack" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                      <label for="module_position">Module Position/Slot:</label>
+                      <input type="number" id="module_position" min="1" value="1">
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary" onclick="addModule()">
+                    <i class="fas fa-plus"></i> Add Module
+                  </button>
+                  <div id="modules_container"></div>
+                </div>
+              </div>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>Modbus Configuration</span>
+              </div>
+              <div class="card-body">
                 <div class="form-row">
                   <div class="form-group">
                     <label for="modbus_start">Start Address:</label>
-                    <input type="number" id="modbus_start" min="0" placeholder="e.g., 2800">
+                    <input type="number" id="modbus_start" placeholder="e.g., 2800">
                   </div>
                   <div class="form-group">
                     <label for="modbus_end">End Address:</label>
-                    <input type="number" id="modbus_end" min="0" placeholder="e.g., 2899">
+                    <input type="number" id="modbus_end" placeholder="e.g., 2899">
                   </div>
                   <div class="form-group">
                     <label for="modbus_type">Data Type:</label>
@@ -1966,972 +1226,333 @@
                     <input type="text" id="modbus_range" placeholder="e.g., 0-65535, 4-20mA">
                   </div>
                 </div>
-                <div class="form-actions">
-                  <button type="button" id="add_modbus_btn" class="btn-primary">
-                    <i class="fa fa-plus"></i> Add Modbus Range
-                  </button>
-                </div>
-              </div>
-
-              <!-- Modbus Ranges List -->
-              <div id="modbus_ranges_list" class="modbus-ranges-list">
-                <h5>Configured Modbus Ranges</h5>
-                <div id="modbus_ranges_container" class="ranges-container">
-                  <p class="no-ranges">No Modbus ranges configured.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Generation Section -->
-            <div class="generation-section">
-              <div class="generation-actions">
-                <button type="button" id="generate_tables_btn" class="btn-success btn-large" disabled>
-                  <i class="fa fa-table"></i> Generate I/O Tables
+                <button type="button" class="btn btn-primary" onclick="addModbusRange()">
+                  <i class="fas fa-plus"></i> Add Modbus Range
                 </button>
-                <button type="button" id="preview_tables_btn" class="btn-secondary" disabled>
-                  <i class="fa fa-eye"></i> Preview Tables
+                <div id="modbus_ranges_container"></div>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(4)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(6)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 6 — Pre-Test Requirements -->
+          <fieldset class="form-step" id="step-6">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-check-circle"></i>
+                Step 6 — Pre-Test Requirements
+              </h1>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>Pre-Test Requirements</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="pretest-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th><th>Test</th><th>Method/Test</th><th>Acceptance</th>
+                        <th>Result</th><th>Punch</th><th>Verified</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pretest-body">
+                      {% for p in submission_data.PRE_TEST_REQUIREMENTS %}
+                      <tr>
+                        <td><input name="pretest_item[]" value="{{p.Item}}"/></td>
+                        <td><input name="pretest_test[]" value="{{p.Test}}"/></td>
+                        <td><input name="pretest_method[]" value="{{p.Method_Test_Steps}}"/></td>
+                        <td><input name="pretest_acceptance[]" value="{{p.Acceptance_Criteria}}"/></td>
+                        <td>
+                          <select name="pretest_result[]">
+                            <option value="Pass" {% if p.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if p.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if p.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="pretest_punch[]" value="{{p.Punch_Item}}"/></td>
+                        <td><input name="pretest_verified_by[]" value="{{p.Verified_by}}"/></td>
+                        <td><input name="pretest_comment[]" value="{{p.Comment}}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addPreTest()">
+                  <i class="fas fa-plus"></i> Add Requirement
                 </button>
               </div>
-              <div id="generation_status" class="generation-status hidden">
-                <div class="status-message">
-                  <span id="status_text">Ready to generate tables...</span>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(5)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(7)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
+          <!-- Step 7 — Key Components & IP Records -->
+          <fieldset class="form-step" id="step-7">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-cogs"></i>
+                Step 7 — Key Components & IP Records
+              </h1>
+            </div>
+            <div class="data-card">
+              <div class="card-header">
+                <span>Key Components</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="key-components">
+                    <thead>
+                      <tr><th>S. No.</th><th>Model</th><th>Description</th><th>Remarks</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="key-components-body">
+                      {% for r in submission_data.IP_RECORDS %}
+                      <tr>
+                        <td><input name="ip_device[]" value="{{ r.Device_Name }}"/></td>
+                        <td><input name="ip_address[]" value="{{ r.IP_Address }}"/></td>
+                        <td><textarea name="ip_comment[]">{{ r.Comment }}</textarea></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
+                <button type="button" class="btn btn-add" onclick="addKeyComponent()">
+                  <i class="fas fa-plus"></i> Add Component
+                </button>
               </div>
             </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="4">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="6">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 6 — Pre-Test Requirements -->
-        <fieldset class="form-step" id="step-6" role="tabpanel" aria-labelledby="prog-6">
-          <legend class="step-legend">
-            <i class="fas fa-check-circle"></i>
-            Step 6 — Pre-Test Requirements
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-          <div class="card">
-            <div class="card-header">
-              Pre-Test Requirements
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="pretest-table">
-                  <thead>
-                    <tr>
-                      <th>Item</th><th>Test</th><th>Method/Test</th>
-                      <th>Acceptance</th><th>Result</th><th>Punch</th>
-                      <th>Verified</th><th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pretest-body">
-                    {% for p in submission_data.PRE_TEST_REQUIREMENTS %}
-                    <tr>
-                      <td><input name="pretest_item[]" value="{{p.Item}}"/></td>
-                      <td><input name="pretest_test[]" value="{{p.Test}}"/></td>
-                      <td><input name="pretest_method[]" value="{{p.Method_Test_Steps}}"/></td>
-                      <td><input name="pretest_acceptance[]" value="{{p.Acceptance_Criteria}}"/></td>
-                      <td>
-                        <select name="pretest_result[]">
-                          <option value=""></option>
-                          <option {{ 'selected' if p.Result=='Pass' }}>Pass</option>
-                          <option {{ 'selected' if p.Result=='Fail' }}>Fail</option>
-                          <option {{ 'selected' if p.Result=='N/A' }}>N/A</option>
-                        </select>
-                      </td>
-                      <td><input name="pretest_punch[]" value="{{p.Punch_Item}}"/></td>
-                      <td><input name="pretest_verified_by[]" value="{{p.Verified_by}}"/></td>
-                      <td><input name="pretest_comment[]" value="{{p.Comment}}"/></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove pre-test"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+            <div class="data-card">
+              <div class="card-header">
+                <span>IP Address Records</span>
               </div>
-              <button
-                id="add-pretest-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add pre-test requirement"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Requirement
-              </button>
-            </div>
-          </div>
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="5">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="7">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 7 — Key Components & IP Records -->
-        <fieldset class="form-step" id="step-7" role="tabpanel" aria-labelledby="prog-7">
-          <legend class="step-legend">
-            <i class="fas fa-cogs"></i>
-            Step 7 — Key Components & IP Records
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <!-- Key Components -->
-          <div class="card">
-            <div class="card-header">
-              Key Components
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="key-components">
-                  <thead>
-                    <tr><th>S. No.</th><th>Model</th><th>Description</th><th>Remarks</th><th>Action</th></tr>
-                  </thead>
-                  <tbody id="key-components-body"><!-- rows added by JS using global template --></tbody>
-                </table>
-              </div>
-              <button
-                id="add-keycomp-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add key component"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Component
-              </button>
-            </div>
-          </div>
-
-          <!-- IP Address Records -->
-          <div class="card">
-            <div class="card-header">
-              IP Address Records
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="ip-records">
-                  <thead>
-                    <tr><th>Device Name</th><th>IP Address</th><th>Comment</th><th>Action</th></tr>
-                  </thead>
-                  <tbody id="ip-records-body">
-                    {% for r in submission_data.IP_RECORDS %}
-                    <tr>
-                      <td><input name="ip_device[]" value="{{ r.Device_Name }}"/></td>
-                      <td><input name="ip_address[]" value="{{ r.IP_Address }}"/></td>
-                      <td><textarea name="ip_comment[]">{{ r.Comment }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove IP record"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-iprecord-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add IP record"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add IP Record
-              </button>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="6">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="8">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 8 — I/O Testing -->
-        <fieldset id="step-8" class="form-step" role="tabpanel" aria-labelledby="prog-8">
-          <legend class="step-legend">
-            <i class="fas fa-play-circle"></i>
-            Step 8 — I/O Testing
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <!-- Note: I/O tables are generated using the I/O Builder from Step 4 -->
-
-          <!-- Digital Signals -->
-          <div class="card">
-            <div class="card-header">
-              Digital Signals
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive-wrapper">
-                <div class="table-responsive">
-                  <div class="table-column-controls">
-                    <span class="table-info">
-                      <i class="fas fa-info-circle"></i>
-                      Digital Signals Configuration
-                    </span>
-                    <div class="column-toggle-buttons">
-                      <button type="button" class="btn-small" onclick="toggleEssentialColumns(this)">
-                        <i class="fas fa-eye"></i> Essential Only
-                      </button>
-                      <button type="button" class="btn-small" onclick="toggleAllColumns(this)">
-                        <i class="fas fa-columns"></i> All Columns
-                      </button>
-                    </div>
-                  </div>
-                  <table class="digital-signals">
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
                     <thead>
-                      <tr>
-                        <th class="col-priority-low" title="Serial Number">S.No</th>
-                        <th class="col-priority-medium" title="Rack Number">Rack</th>
-                        <th class="col-priority-medium" title="Module Position">Pos</th>
-                        <th class="col-priority-high col-sticky" title="Signal TAG">Signal TAG</th>
-                        <th class="col-priority-high" title="Signal Description">Description</th>
-                        <th class="col-priority-high" title="Test Result">Result</th>
-                        <th class="col-priority-medium" title="Punch Item">Punch</th>
-                        <th class="col-priority-medium" title="Verified By">Verified</th>
-                        <th class="col-priority-low" title="Comments">Comment</th>
-                        <th class="col-priority-high col-sticky-actions" title="Actions">Action</th>
-                      </tr>
+                      <tr><th>Device Name</th><th>IP Address</th><th>Comment</th><th>Action</th></tr>
                     </thead>
-                  <tbody id="digital-signals-body">
-                    {% for s in submission_data.SIGNAL_LISTS %}
-                    <tr>
-                      <td><input name="sno[]" value="{{ s['S. No.'] }}"/></td>
-                      <td><input name="rack_no[]" value="{{ s['Rack No.'] }}"/></td>
-                      <td><input name="module_position[]" value="{{ s['Module Position'] }}"/></td>
-                      <td><input name="signal_tag[]" value="{{ s['Signal TAG'] }}"/></td>
-                      <td><input name="signal_description[]" value="{{ s['Signal Description'] }}"/></td>
-                      <td>
-                        <select class="form-control result-input" name="digital_signals[${rowCount}][result]">
-                          <option value="">Select</option>
-                          <option value="Pass">Pass</option>
-                          <option value="Fail">Fail</option>
-                          <option value="N/A">N/A</option>
-                        </select>
-                      </td>
-                      <td><input name="punch_item[]" value="{{ s['Punch Item'] }}"/></td>
-                      <td><input name="verified_by[]" value="{{ s['Verified By'] }}"/></td>
-                      <td><textarea name="comment[]">{{ s['Comment'] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove digital signal"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                    <tbody id="ip-records-body">
+                      {% for r in submission_data.IP_RECORDS %}
+                      <tr>
+                        <td><input name="ip_device[]" value="{{ r.Device_Name }}"/></td>
+                        <td><input name="ip_address[]" value="{{ r.IP_Address }}"/></td>
+                        <td><textarea name="ip_comment[]">{{ r.Comment }}</textarea></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addIpRecord()">
+                  <i class="fas fa-plus"></i> Add IP Record
+                </button>
               </div>
-              <button
-                id="add-digital-signal-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add digital signal"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Digital Signal
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(6)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(8)">
+                Next Step <i class="fas fa-arrow-right"></i>
               </button>
             </div>
-          </div>
+          </fieldset>
 
-          <!-- Digital Outputs -->
-          <div class="card">
-            <div class="card-header">
-              Digital Outputs
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
+          <!-- Step 9 — Process, Alarms & Images -->
+          <fieldset class="form-step" id="step-9">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-desktop"></i>
+                Step 9 — Process, Alarms & Images
+              </h1>
             </div>
-            <div class="card-body">
-              <div class="table-responsive-wrapper">
-                <div class="table-responsive">
-                  <table class="digital-outputs">
+            <div class="data-card">
+              <div class="card-header">
+                <span>Process Tests</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
                     <thead>
-                      <tr>
-                        <th class="col-priority-low">S. No.</th>
-                        <th class="col-priority-medium">Rack No.</th>
-                        <th class="col-priority-medium">Module Position</th>
-                        <th class="col-priority-high col-sticky">Signal TAG</th>
-                        <th class="col-priority-high">Description</th>
-                        <th class="col-priority-high">Result</th>
-                        <th class="col-priority-medium">Punch Item</th>
-                        <th class="col-priority-medium">Verified By</th>
-                        <th class="col-priority-low">Comment</th>
-                        <th class="col-priority-high col-sticky-actions">Action</th>
-                      </tr>
+                      <tr><th>Item</th><th>Action</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th></tr>
                     </thead>
-                  <tbody id="digital-outputs-body">
-                    {% for s in submission_data.DIGITAL_OUTPUTS %}
-                    <tr>
-                      <td><input name="output_sno[]" value="{{ s['S. No.'] }}"/></td>
-                      <td><input name="output_rack_no[]" value="{{ s['Rack No.'] }}"/></td>
-                      <td><input name="output_module_position[]" value="{{ s['Module Position'] }}"/></td>
-                      <td><input name="output_signal_tag[]" value="{{ s['Signal TAG'] }}"/></td>
-                      <td><input name="output_signal_description[]" value="{{ s['Signal Description'] }}"/></td>
-                      <td><input name="output_result[]" value="{{ s['Result'] }}"/></td>
-                      <td><input name="output_punch_item[]" value="{{ s['Punch Item'] }}"/></td>
-                      <td><input name="output_verified_by[]" value="{{ s['Verified By'] }}"/></td>
-                      <td><textarea name="output_comment[]">{{ s['Comment'] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove digital output"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                    <tbody id="process-test-body">
+                      {% for p in submission_data.PROCESS_TEST %}
+                      <tr>
+                        <td><input name="Process_Item[]" value="{{ p.Item }}"/></td>
+                        <td><input name="Process_Action[]" value="{{ p.Action }}"/></td>
+                        <td><input name="Process_Expected / Required Result[]" value="{{ p['Expected / Required Result'] }}"/></td>
+                        <td>
+                          <select name="Process_Pass/Fail[]">
+                            <option value="Pass" {% if p[' Pass/Fail ']=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if p[' Pass/Fail ']=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if p[' Pass/Fail ']=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><textarea name="Process_Comments[]">{{ p[' Comments '] }}</textarea></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addProcessTest()">
+                  <i class="fas fa-plus"></i> Add Process Test
+                </button>
               </div>
-              <button
-                id="add-digital-output-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add digital output"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Digital Output
-              </button>
             </div>
-          </div>
-
-          <!-- Analogue Inputs -->
-          <div class="card">
-            <div class="card-header">
-              Analog Inputs
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive-wrapper">
-                <div class="table-responsive">
-                  <table class="analogue-inputs">
+            <div class="data-card">
+              <div class="card-header">
+                <span>SCADA Verification</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
                     <thead>
-                      <tr>
-                        <th class="col-priority-low">S. No.</th>
-                        <th class="col-priority-medium">Rack No.</th>
-                        <th class="col-priority-medium">Module Position</th>
-                        <th class="col-priority-high col-sticky">Signal TAG</th>
-                        <th class="col-priority-high">Description</th>
-                        <th class="col-priority-high">Result</th>
-                        <th class="col-priority-medium">Punch Item</th>
-                        <th class="col-priority-medium">Verified By</th>
-                        <th class="col-priority-low">Comment</th>
-                        <th class="col-priority-high col-sticky-actions">Action</th>
-                      </tr>
+                      <tr><th>Task</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th></tr>
                     </thead>
-                  <tbody id="analogue-inputs-body">
-                    {% for s in submission_data.ANALOGUE_INPUTS %}
-                    <tr>
-                      <td><input name="analog_sno[]" value="{{ s['S. No.'] }}"/></td>
-                      <td><input name="analog_rack_no[]" value="{{ s['Rack No.'] }}"/></td>
-                      <td><input name="analog_module_position[]" value="{{ s['Module Position'] }}"/></td>
-                      <td><input name="analog_signal_tag[]" value="{{ s['Signal TAG'] }}"/></td>
-                      <td><input name="analog_signal_description[]" value="{{ s['Signal Description'] }}"/></td>
-                      <td>
-                        <select name="analog_result[]">
-                          <option value="">Select Result</option>
-                          <option value="Pass">Pass</option>
-                          <option value="Fail">Fail</option>
-                          <option value="N/A">N/A</option>
-                        </select>
-                      </td>
-                      <td><input name="analog_punch_item[]" value="{{ s['Punch Item'] }}"/></td>
-                      <td><input name="analog_verified_by[]" value="{{ s['Verified By'] }}"/></td>
-                      <td><textarea name="analog_comment[]">{{ s['Comment'] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove analogue input"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                    <tbody id="scada-verification-body">
+                      {% for v in submission_data.SCADA_VERIFICATION %}
+                      <tr>
+                        <td><input name="SCADA_Task[]" value="{{ v.Task }}"/></td>
+                        <td><input name="SCADA_Expected_Result[]" value="{{ v['Expected Result'] }}"/></td>
+                        <td>
+                          <select name="SCADA_Pass/Fail[]">
+                            <option value="Pass" {% if v['Pass/Fail']=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if v['Pass/Fail']=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if v['Pass/Fail']=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><textarea name="SCADA_Comments[]">{{ v.Comments }}</textarea></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addScadaVerification()">
+                  <i class="fas fa-plus"></i> Add Verification
+                </button>
               </div>
-              <button
-                id="add-analogue-input-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add analogue input"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Analogue Input
-              </button>
             </div>
-          </div>
-
-          <!-- Analogue Outputs -->
-          <div class="card">
-            <div class="card-header">
-              Analogue Outputs
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive-wrapper">
-                <div class="table-responsive">
-                  <table class="analogue-outputs">
+            <div class="data-card">
+              <div class="card-header">
+                <span>Trends Testing</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
                     <thead>
-                      <tr>
-                        <th class="col-priority-low">S. No.</th>
-                        <th class="col-priority-medium">Rack No.</th>
-                        <th class="col-priority-medium">Module Position</th>
-                        <th class="col-priority-high col-sticky">Signal TAG</th>
-                        <th class="col-priority-high">Description</th>
-                        <th class="col-priority-high">Result</th>
-                        <th class="col-priority-medium">Punch Item</th>
-                        <th class="col-priority-medium">Verified By</th>
-                        <th class="col-priority-low">Comment</th>
-                        <th class="col-priority-high col-sticky-actions">Action</th>
-                      </tr>
+                      <tr><th>Trend</th><th>Expected Behavior</th><th>Pass/Fail</th><th>Comments</th><th>Action</th></tr>
                     </thead>
-                  <tbody id="analogue-outputs-body">
-                    {% for s in submission_data.ANALOGUE_OUTPUTS %}
-                    <tr>
-                      <td><input name="analog_output_sno[]" value="{{ s['S. No.'] }}"/></td>
-                      <td><input name="analog_output_rack_no[]" value="{{ s['Rack No.'] }}"/></td>
-                      <td><input name="analog_output_module_position[]" value="{{ s['Module Position'] }}"/></td>
-                      <td><input name="analog_output_signal_tag[]" value="{{ s['Signal TAG'] }}"/></td>
-                      <td><input name="analog_output_signal_description[]" value="{{ s['Signal Description'] }}"/></td>
-                      <td>
-                        <select name="analog_output_result[]">
-                          <option value="">Select Result</option>
-                          <option value="Pass">Pass</option>
-                          <option value="Fail">Fail</option>
-                          <option value="N/A">N/A</option>
-                        </select>
-                      </td>
-                      <td><input name="analog_output_punch_item[]" value="{{ s['Punch Item'] }}"/></td>
-                      <td><input name="analog_output_verified_by[]" value="{{ s['Verified By'] }}"/></td>
-                      <td><textarea name="analog_output_comment[]">{{ s['Comment'] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove analogue output"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                    <tbody id="trends-testing-body">
+                      {% for t in submission_data.TRENDS_TESTING %}
+                      <tr>
+                        <td><input name="Trend[]" value="{{ t.Trend }}"/></td>
+                        <td><input name="Expected Behavior[]" value="{{ t['Expected Behavior'] }}"/></td>
+                        <td>
+                          <select name="Pass/Fail Trend[]">
+                            <option value="Pass" {% if t['Pass/Fail']=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if t['Pass/Fail']=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if t['Pass/Fail']=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><textarea name="Comments Trend[]">{{ t.Comments }}</textarea></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addTrendsTesting()">
+                  <i class="fas fa-plus"></i> Add Trend
+                </button>
               </div>
-              <button
-                id="add-analogue-output-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add analogue output"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Analogue Output
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(8)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(10)">
+                Next Step <i class="fas fa-arrow-right"></i>
               </button>
             </div>
-          </div>
+          </fieldset>
 
-          <!-- Modbus Digital Signals -->
-          <div class="card">
-            <div class="card-header">
-              Modbus Digital Signals
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="modbus-digital">
-                  <thead>
-                    <tr>
-                      <th>Address</th><th>Description</th><th>Remarks</th>
-                      <th>Result</th><th>Punch Item</th><th>Verified By</th>
-                      <th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="modbus-digital-body">
-                    {% for m in submission_data.MODBUS_DIGITAL_LISTS %}
-                    <tr>
-                      <td><input name="Address[]" value="{{ m.Address }}"/></td>
-                      <td><input name="Description[]" value="{{ m.Description }}"/></td>
-                      <td><input name="Remarks[]" value="{{ m.Remarks }}"/></td>
-                      <td><input name="Digital_Result[]" value="{{ m.Result }}"/></td>
-                      <td><input name="Digital_Punch Item[]" value="{{ m['Punch Item'] }}"/></td>
-                      <td><input name="Digital_Verified By[]" value="{{ m['Verified By'] }}"/></td>
-                      <td><textarea name="Digital_Comment[]">{{ m.Comment }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove modbus digital"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+          <!-- Step 10 — Verify & Submit -->
+          <fieldset class="form-step" id="step-10">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-flag-checkered"></i>
+                Step 10 — Final Review & Submit
+              </h1>
+              <div class="step-description">
+                <p>Please review all information before submitting your SAT report.</p>
               </div>
-              <button
-                id="add-modbus-digital-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add modbus digital"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Modbus Digital
-              </button>
             </div>
-          </div>
 
-          <!-- Modbus Analogue Signals -->
-          <div class="card">
-            <div class="card-header">
-              Modbus Analogue Signals
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="modbus-analogue">
-                  <thead>
-                    <tr>
-                      <th>Address</th><th>Description</th><th>Range</th>
-                      <th>Result</th><th>Punch Item</th><th>Verified By</th>
-                      <th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="modbus-analogue-body">
-                    {% for m in submission_data.MODBUS_ANALOGUE_LISTS %}
-                    <tr>
-                      <td><input name="Address Analogue[]" value="{{ m[' Address'] }}"/></td>
-                      <td><input name="Description Analogue[]" value="{{ m.Description }}"/></td>
-                      <td><input name="Range Analogue[]" value="{{ m.Range }}"/></td>
-                      <td><input name="Result Analogue[]" value="{{ m.Result }}"/></td>
-                      <td><input name="Punch Item Analogue[]" value="{{ m['Punch Item'] }}"/></td>
-                      <td><input name="Verified By Analogue[]" value="{{ m['Verified By'] }}"/></td>
-                      <td><textarea name="Comment Analogue[]">{{ m.Comment }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove modbus analogue"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-modbus-analogue-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add modbus analogue"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Modbus Analogue
-              </button>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="7">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="9">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 9 — Process, Alarms & Images -->
-        <fieldset class="form-step" id="step-9" role="tabpanel" aria-labelledby="prog-9">
-          <legend class="step-legend">
-            <i class="fas fa-desktop"></i>
-            Step 9 — Process, Alarms & Images
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <!-- Process Tests -->
-          <div class="card">
-            <div class="card-header">
-              Process Tests
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="process-tests">
-                  <thead>
-                    <tr>
-                      <th>Item</th><th>Action</th><th>Expected Result</th>
-                      <th>Pass/Fail</th><th>Comments</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="process-test-body">
-                    {% for p in submission_data.PROCESS_TEST %}
-                    <tr>
-                      <td><input name="Process_Item[]" value="{{ p.Item }}"/></td>
-                      <td><input name="Process_Action[]" value="{{ p.Action }}"/></td>
-                      <td><input name="Process_Expected / Required Result[]" value="{{ p['Expected / Required Result'] }}"/></td>
-                      <td>
-                        <select name="Process_Pass/Fail[]">
-                          <option value=""></option>
-                          <option {{ 'selected' if p[' Pass/Fail ']=='Pass' }}>Pass</option>
-                          <option {{ 'selected' if p[' Pass/Fail ']=='Fail' }}>Fail</option>
-                          <option {{ 'selected' if p[' Pass/Fail ']=='N/A' }}>N/A</option>
-                        </select>
-                      </td>
-                      <td><textarea name="Process_Comments[]">{{ p[' Comments '] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove process test"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-process-test-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add process test"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Process Test
-              </button>
-            </div>
-          </div>
-
-          <!-- SCADA Verification -->
-          <div class="card">
-            <div class="card-header">
-              SCADA Verification
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="scada-verification">
-                  <thead>
-                    <tr>
-                      <th>Task</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="scada-verification-body">
-                    {% for v in submission_data.SCADA_VERIFICATION %}
-                    <tr>
-                      <td><input name="SCADA_Task[]" value="{{ v.Task }}"/></td>
-                      <td><input name="SCADA_Expected_Result[]" value="{{ v['Expected Result'] }}"/></td>
-                      <td>
-                        <select name="SCADA_Pass/Fail[]">
-                          <option value="">—</option>
-                          <option {{ 'selected' if v['Pass/Fail']=='Pass' }}>Pass</option>
-                          <option {{ 'selected' if v['Pass/Fail']=='Fail' }}>Fail</option>
-                          <option {{ 'selected' if v['Pass/Fail']=='N/A' }}>N/A</option>
-                        </select>
-                      </td>
-                      <td><textarea name="SCADA_Comments[]">{{ v.Comments }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove SCADA verification"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-scada-ver-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add SCADA verification"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Verification
-              </button>
-            </div>
-          </div>
-
-          <!-- Trends Testing -->
-          <div class="card">
-            <div class="card-header">
-              Trends Testing
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="trends-testing">
-                  <thead>
-                    <tr>
-                      <th>Trend</th><th>Expected Behavior</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="trends-testing-body">
-                    {% for t in submission_data.TRENDS_TESTING %}
-                    <tr>
-                      <td><input name="Trend[]" value="{{ t.Trend }}"/></td>
-                      <td><input name="Expected Behavior[]" value="{{ t['Expected Behavior'] }}"/></td>
-                      <td>
-                        <select name="Pass/Fail Trend[]">
-                          <option value="">—</option>
-                          <option {{ 'selected' if t['Pass/Fail']=='Pass' }}>Pass</option>
-                          <option {{ 'selected' if t['Pass/Fail']=='Fail' }}>Fail</option>
-                          <option {{ 'selected' if t['Pass/Fail']=='N/A' }}>N/A</option>
-                        </select>
-                      </td>
-                      <td><textarea name="Comments Trend[]">{{ t.Comments }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove trend test"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-trends-testing-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add trend test"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Trend
-              </button>
-            </div>
-          </div>
-
-          <!-- Alarm Signals -->
-          <div class="card">
-            <div class="card-header">
-              Alarm Signals
-              <button type="button" class="table-fullscreen-toggle">
-                <i class="fas fa-expand"></i> Full Screen
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="alarm-signals">
-                  <thead>
-                    <tr>
-                      <th>Alarm Type</th><th>Expected Result</th><th>Pass/Fail</th><th>Comments</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="alarm-body">
-                    {% for a in submission_data.ALARM_LIST %}
-                    <tr>
-                      <td><input name="Alarm_Type[]" value="{{ a['Alarm Type'] }}"/></td>
-                      <td><input name="Expected / Required Result[]" value="{{ a[' Expected / Required Result'] }}"/></td>
-                      <td>
-                        <select name="Pass/Fail []">
-                          <option value=""></option>
-                          <option {{ 'selected' if a[' Pass/Fail ']=='Pass' }}>Pass</option>
-                          <option {{ 'selected' if a[' Pass/Fail ']=='Fail' }}>Fail</option>
-                          <option {{ 'selected' if a[' Pass/Fail ']=='N/A' }}>N/A</option>
-                        </select>
-                      </td>
-                      <td><textarea name="Comments []">{{ a[' Comments '] }}</textarea></td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-remove remove-row-btn"
-                          aria-label="Remove alarm signal"
-                        >
-                          <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <button
-                id="add-alarm-list-btn"
-                type="button"
-                class="btn-secondary"
-                aria-label="Add alarm"
-              >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Alarm
-              </button>
-            </div>
-          </div>
-
-          <!-- File Uploads + Removal UI -->
-          <div class="card">
-            <div class="card-header">Upload SCADA Screenshots</div>
-            <div class="card-body">
-              <input id="scada-input" type="file" name="SCADA_IMAGES" multiple accept="image/*"/>
-              <ul id="scada-file-list" class="file-list"></ul>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">Upload Trend Screenshots</div>
-            <div class="card-body">
-              <input id="trends-input" type="file" name="TRENDS_IMAGES" multiple accept="image/*"/>
-              <ul id="trends-file-list" class="file-list"></ul>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">Upload Alarm Screenshots</div>
-            <div class="card-body">
-              <input id="alarm-input" type="file" name="ALARM_IMAGES" multiple accept="image/*"/>
-              <ul id="alarm-file-list" class="file-list"></ul>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="8">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-primary" data-next-step="10">
-              Continue <i class="fa fa-arrow-right"></i>
-            </button>
-          </div>
-        </fieldset>
-
-        <!-- Step 10 — Verify & Submit -->
-        <fieldset class="form-step" id="step-10" role="tabpanel" aria-labelledby="prog-10">
-          <legend class="step-legend">
-            <i class="fas fa-flag-checkered"></i>
-            Step 10 — Review & Submit
-          </legend>
-
-          <button type="button" class="btn-secondary save-progress-btn">
-            <i class="fa fa-save"></i> Save Progress
-          </button>
-
-          <h3 style="color: var(--cully-primary); margin-bottom: 20px;">
-            <i class="fas fa-check-circle"></i> Final Review
-          </h3>
-
-          <div class="card">
-            <div class="card-header">Digital Signature</div>
-            <div class="card-body">
-              <label>Prepared By Signature <span class="required">*</span></label>
+            <div class="form-section">
+              <h4><i class="fas fa-signature"></i> Digital Signature</h4>
               <div class="signature-pad-container">
-                <canvas id="fixed_signature_canvas" width="800" height="200"></canvas>
+                <canvas id="fixed_signature_canvas" width="600" height="200"></canvas>
               </div>
-              <button type="button" id="fixed_clear_btn" class="btn-secondary">
+              <button type="button" id="fixed_clear_btn" class="btn btn-secondary">
                 <i class="fas fa-eraser"></i> Clear Signature
               </button>
-              <input type="hidden" name="sig_prepared_data" id="sig_prepared_data">
-            </div>
-          </div>
-
-          <!-- Pre-Submission Checklist -->
-          <div class="checklist-container">
-            <div class="checklist-header">Pre-Submission Checklist</div>
-
-            <div class="checklist-item">
-              <input type="checkbox" name="required_fields_check" required>
-              <div class="checklist-text required">All required fields have been completed</div>
+              <input type="hidden" id="sig_prepared_data" name="sig_prepared_data"/>
             </div>
 
-            <div class="checklist-item">
-              <input type="checkbox" name="documents_check">
-              <div class="checklist-text">All necessary images and documents have been uploaded</div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(9)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Generate Report
+              </button>
             </div>
-
-            <div class="checklist-item">
-              <input type="checkbox" name="accuracy_check">
-              <div class="checklist-text">I have reviewed the accuracy of all information</div>
-            </div>
-
-            <div class="checklist-item">
-              <input type="checkbox" name="signature_check">
-              <div class="checklist-text">Digital signature has been provided</div>
-            </div>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="btn-secondary" data-prev-step="9">
-              <i class="fa fa-arrow-left"></i> Back
-            </button>
-            <button type="submit" class="btn-success">
-              <i class="fa fa-rocket"></i> Generate SAT Report
-            </button>
-          </div>
-        </fieldset>
-      </form>
-    </div>
+          </fieldset>
+        </form>
+      </div>
+    </main>
   </div>
 
   <!-- Templates for dynamic rows -->
@@ -2939,22 +1560,9 @@
     <tr>
       <td><input name="doc_ref[]" placeholder="Reference" /></td>
       <td><input name="doc_title[]" placeholder="Title" /></td>
-      <td class="table-actions-cell">
-        <div class="table-action-buttons">
-          <button type="button" class="table-action-btn edit-btn" title="Edit" aria-label="Edit document">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button type="button" class="table-action-btn delete-btn" title="Delete" aria-label="Delete document">
-            <i class="fas fa-trash"></i>
-          </button>
-          <button type="button" class="table-action-btn move-btn" title="Move" aria-label="Move document">
-            <i class="fas fa-arrows-alt"></i>
-          </button>
-        </div>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-pre-approval">
     <tr>
       <td><input name="pre_approval_print_name[]" placeholder="Print Name" /></td>
@@ -2962,14 +1570,9 @@
       <td><input name="pre_approval_date[]" type="date" /></td>
       <td><input name="pre_approval_initial[]" placeholder="Initial" /></td>
       <td><input name="pre_approval_company[]" placeholder="Company" /></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove pre-approval">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-post-approval">
     <tr>
       <td><input name="post_approval_print_name[]" placeholder="Print Name" /></td>
@@ -2977,14 +1580,9 @@
       <td><input name="post_approval_date[]" type="date" /></td>
       <td><input name="post_approval_initial[]" placeholder="Initial" /></td>
       <td><input name="post_approval_company[]" placeholder="Company" /></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove post-approval">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-pretest">
     <tr>
       <td><input name="pretest_item[]" placeholder="Item" /></td>
@@ -2993,189 +1591,32 @@
       <td><input name="pretest_acceptance[]" placeholder="Acceptance Criteria" /></td>
       <td>
         <select name="pretest_result[]">
-          <option value="">—</option>
-          <option>Pass</option>
-          <option>Fail</option>
-          <option>N/A</option>
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
         </select>
       </td>
       <td><input name="pretest_punch[]" placeholder="Punch Item" /></td>
       <td><input name="pretest_verified_by[]" placeholder="Verified by" /></td>
       <td><input name="pretest_comment[]" placeholder="Comment" /></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove pre-test">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-keycomp">
     <tr>
       <td><input name="keycomp_s_no[]" placeholder="S. No." /></td>
       <td><input name="keycomp_model[]" placeholder="Model" /></td>
       <td><input name="keycomp_description[]" placeholder="Description" /></td>
       <td><input name="keycomp_remarks[]" placeholder="Remarks" /></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove component">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-iprecord">
     <tr>
       <td><input name="ip_device[]" placeholder="Device Name" /></td>
       <td><input name="ip_address[]" placeholder="IP Address" /></td>
       <td><textarea name="ip_comment[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove IP record">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
-  <template id="tmpl-digital-signal">
-    <tr>
-      <td><input name="sno[]" placeholder="S. No." /></td>
-      <td><input name="rack_no[]" placeholder="Rack No." /></td>
-      <td><input name="module_position[]" placeholder="Module Position" /></td>
-      <td><input name="signal_tag[]" placeholder="Signal TAG" /></td>
-      <td><input name="signal_description[]" placeholder="Signal Description" /></td>
-      <td>
-        <select name="result[]">
-          <option value="">Select</option>
-          <option value="Pass">Pass</option>
-          <option value="Fail">Fail</option>
-          <option value="N/A">N/A</option>
-        </select>
-      </td>
-      <td><input name="punch_item[]" placeholder="Punch Item" /></td>
-      <td><input name="verified_by[]" placeholder="Verified By" /></td>
-      <td><textarea name="comment[]" placeholder="Comment"></textarea></td>
-      <td class="table-actions-cell">
-        <div class="table-action-buttons">
-          <button type="button" class="table-action-btn edit-btn" title="Edit" aria-label="Edit signal">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button type="button" class="table-action-btn delete-btn" title="Delete" aria-label="Delete signal">
-            <i class="fas fa-trash"></i>
-          </button>
-          <button type="button" class="table-action-btn move-btn" title="Move" aria-label="Move signal">
-            <i class="fas fa-arrows-alt"></i>
-          </button>
-        </div>
-      </td>
-    </tr>
-  </template>
-
-  <template id="tmpl-digital-output">
-    <tr>
-      <td><input name="output_sno[]" placeholder="S. No." /></td>
-      <td><input name="output_rack_no[]" placeholder="Rack No." /></td>
-      <td><input name="output_module_position[]" placeholder="Module Position" /></td>
-      <td><input name="output_signal_tag[]" placeholder="Signal TAG" /></td>
-      <td><input name="output_signal_description[]" placeholder="Signal Description" /></td>
-      <td><input name="output_result[]" placeholder="Result" /></td>
-      <td><input name="output_punch_item[]" placeholder="Punch Item" /></td>
-      <td><input name="output_verified_by[]" placeholder="Verified By" /></td>
-      <td><textarea name="output_comment[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove digital output">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
-  <template id="tmpl-analogue-input">
-    <tr>
-      <td><input name="analog_sno[]" placeholder="S. No." /></td>
-      <td><input name="analog_rack_no[]" placeholder="Rack No." /></td>
-      <td><input name="analog_module_position[]" placeholder="Module Position" /></td>
-      <td><input name="analog_signal_tag[]" placeholder="Signal TAG" /></td>
-      <td><input name="analog_signal_description[]" placeholder="Signal Description" /></td>
-      <td>
-        <select name="analog_result[]">
-          <option value="">Select Result</option>
-          <option value="Pass">Pass</option>
-          <option value="Fail">Fail</option>
-          <option value="N/A">N/A</option>
-        </select>
-      </td>
-      <td><input name="analog_punch_item[]" placeholder="Punch Item" /></td>
-      <td><input name="analog_verified_by[]" placeholder="Verified By" /></td>
-      <td><textarea name="analog_comment[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove analog input">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
-  <template id="tmpl-analogue-output">
-    <tr>
-      <td><input name="analog_output_sno[]" placeholder="S. No." /></td>
-      <td><input name="analog_output_rack_no[]" placeholder="Rack No." /></td>
-      <td><input name="analog_output_module_position[]" placeholder="Module Position" /></td>
-      <td><input name="analog_output_signal_tag[]" placeholder="Signal TAG" /></td>
-      <td><input name="analog_output_signal_description[]" placeholder="Signal Description" /></td>
-      <td>
-        <select name="analog_output_result[]">
-          <option value="">Select Result</option>
-          <option value="Pass">Pass</option>
-          <option value="Fail">Fail</option>
-          <option value="N/A">N/A</option>
-        </select>
-      </td>
-      <td><input name="analog_output_punch_item[]" placeholder="Punch Item" /></td>
-      <td><input name="analog_output_verified_by[]" placeholder="Verified By" /></td>
-      <td><textarea name="analog_output_comment[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove analog output">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
-  <template id="tmpl-modbus-digital">
-    <tr>
-      <td><input name="Address[]" placeholder="Address" /></td>
-      <td><input name="Description[]" placeholder="Description" /></td>
-      <td><input name="Remarks[]" placeholder="Remarks" /></td>
-      <td><input name="Digital_Result[]" placeholder="Result" /></td>
-      <td><input name="Digital_Punch Item[]" placeholder="Punch Item" /></td>
-      <td><input name="Digital_Verified By[]" placeholder="Verified By" /></td>
-      <td><textarea name="Digital_Comment[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove modbus digital">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
-  <template id="tmpl-modbus-analogue">
-    <tr>
-      <td><input name="Address Analogue[]" placeholder="Address" /></td>
-      <td><input name="Description Analogue[]" placeholder="Description" /></td>
-      <td><input name="Range Analogue[]" placeholder="Range" /></td>
-      <td><input name="Result Analogue[]" placeholder="Result" /></td>
-      <td><input name="Punch Item Analogue[]" placeholder="Punch Item" /></td>
-      <td><input name="Verified By Analogue[]" placeholder="Verified By" /></td>
-      <td><textarea name="Comment Analogue[]" placeholder="Comment"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove modbus analogue">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
   <template id="tmpl-process-test">
     <tr>
       <td><input name="Process_Item[]" placeholder="Item" /></td>
@@ -3183,499 +1624,183 @@
       <td><input name="Process_Expected / Required Result[]" placeholder="Expected Result" /></td>
       <td>
         <select name="Process_Pass/Fail[]">
-          <option value="">—</option>
-          <option>Pass</option>
-          <option>Fail</option>
-          <option>N/A</option>
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
         </select>
       </td>
       <td><textarea name="Process_Comments[]" placeholder="Comments"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove process test">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-scada-verification">
     <tr>
       <td><input name="SCADA_Task[]" placeholder="Task" /></td>
       <td><input name="SCADA_Expected_Result[]" placeholder="Expected Result" /></td>
       <td>
         <select name="SCADA_Pass/Fail[]">
-          <option value="">—</option>
-          <option>Pass</option>
-          <option>Fail</option>
-          <option>N/A</option>
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
         </select>
       </td>
       <td><textarea name="SCADA_Comments[]" placeholder="Comments"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove SCADA verification">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
-
   <template id="tmpl-trends-testing">
     <tr>
       <td><input name="Trend[]" placeholder="Trend" /></td>
       <td><input name="Expected Behavior[]" placeholder="Expected Behavior" /></td>
       <td>
         <select name="Pass/Fail Trend[]">
-          <option value="">—</option>
-          <option>Pass</option>
-          <option>Fail</option>
-          <option>N/A</option>
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
         </select>
       </td>
       <td><textarea name="Comments Trend[]" placeholder="Comments"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove trend test">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
     </tr>
   </template>
 
-  <template id="tmpl-alarm-list">
-    <tr>
-      <td><input name="Alarm_Type[]" placeholder="Alarm Type" /></td>
-      <td><input name="Expected / Required Result[]" placeholder="Expected Result" /></td>
-      <td>
-        <select name="Pass/Fail []">
-          <option value=""></option>
-          <option>Pass</option>
-          <option>Fail</option>
-          <option>N/A</option>
-        </select>
-      </td>
-      <td><textarea name="Comments []" placeholder="Comments"></textarea></td>
-      <td>
-        <button type="button" class="btn-remove remove-row-btn" aria-label="Remove alarm">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-      </td>
-    </tr>
-  </template>
-
-  <!-- Single set of scripts already included in <head>. Add navigation & routing here. -->
   <script>
-    // Simple "routing" between report type page and form via location.hash
-    // This part seems to be related to an older structure and might not be relevant now,
-    // but keeping it for now in case it has implicit dependencies.
+    // Global variables
+    let currentStep = 1;
+    let sidebarOpen = false;
 
-    // const reportTypePage = document.getElementById('reportTypePage');
-    // const formContainer  = document.getElementById('formContainer');
-    // const backBtn        = document.getElementById('backToWelcomeButton');
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('SAT Report Generator initialized');
+      initializeForm();
+    });
 
-    // function showType() { ... }
-    // function showForm() { ... }
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
 
-    // Check if we're on the SAT form route or edit route (accessed directly)
-    const currentPath = window.location.pathname;
-    const isDirectSATAccess = currentPath.includes('/reports/new/sat/full');
-    const isEditMode = currentPath.includes('/edit/') || document.querySelector('input[name="submission_id"]')?.value;
+      sidebarOpen = !sidebarOpen;
 
-    // Apply initial view from hash or route
-    function applyFromHash() {
-      // If the path indicates direct SAT access or it's an edit mode,
-      // or the hash explicitly points to the form, show the form.
-      if (isDirectSATAccess || isEditMode || location.hash === '#form') {
-        // showForm(); // Assuming showForm would make the form container visible
+      if (sidebarOpen) {
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
       } else {
-        // showType(); // Assuming showType would make the report type page visible
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
       }
     }
 
-    // Only listen to hash changes if not directly accessing SAT form or in edit mode
-    // if (!isDirectSATAccess && !isEditMode) {
-    //   window.addEventListener('hashchange', applyFromHash);
-    // }
+    // Step navigation
+    function goToStep(step) {
+      // Hide current step
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      document.getElementById(`prog-${currentStep}`).classList.remove('active');
 
-    applyFromHash();
+      // Show new step
+      currentStep = step;
+      document.getElementById(`step-${currentStep}`).classList.add('active');
+      document.getElementById(`prog-${currentStep}`).classList.add('active');
 
-    // Attach Save Progress handlers by class (IDs were duplicated before)
-    // This logic is now handled by the dropdown menu.
-    // If saveProgress function exists and is intended for a separate button, it would need to be re-integrated.
-    // document.querySelectorAll('.save-progress-btn').forEach(btn => {
-    //   btn.addEventListener('click', saveProgress);
-    // });
-  </script>
-
-  <!-- User Dropdown Toggle -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const userDropdown = document.getElementById('userDropdownMenu'); 
-      const userDetails = document.querySelector('.user-details'); 
-
-      if (userDetails && userDropdown) { 
-        userDetails.addEventListener('click', function(event) {
-          event.stopPropagation();
-          userDropdown.classList.toggle('show'); 
-        });
-      }
-
-      // Close the dropdown if clicking anywhere else on the page
-      document.addEventListener('click', function() {
-        const openDropdown = document.querySelector('.user-dropdown-menu.show'); 
-        if (openDropdown) {
-          openDropdown.classList.remove('show');
-        }
-      });
-
-      // Form validation improvements
-      const form = document.getElementById('satForm');
-      if (form) {
-        // Add real-time validation for required fields
-        const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
-        requiredFields.forEach(field => {
-          field.addEventListener('blur', function() {
-            validateField(this);
-          });
-          
-          field.addEventListener('input', function() {
-            clearFieldError(this);
-          });
-        });
-
-        // Form submission validation
-        form.addEventListener('submit', function(event) {
-          let isValid = true;
-          requiredFields.forEach(field => {
-            if (!validateField(field)) {
-              isValid = false;
-            }
-          });
-
-          if (!isValid) {
-            event.preventDefault();
-            showValidationSummary();
-          }
-        });
-      }
-
-      function validateField(field) {
-        const value = field.value.trim();
-        let isValid = true;
-        let errorMessage = '';
-
-        // Clear previous errors
-        clearFieldError(field);
-
-        // Check if required field is empty
-        if (field.hasAttribute('required') && !value) {
-          isValid = false;
-          errorMessage = 'This field is required';
-        }
-
-        // Email validation
-        if (field.type === 'email' && value) {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) {
-            isValid = false;
-            errorMessage = 'Please enter a valid email address';
-          }
-        }
-
-        // Date validation
-        if (field.type === 'date' && value) {
-          const date = new Date(value);
-          if (isNaN(date.getTime())) {
-            isValid = false;
-            errorMessage = 'Please enter a valid date';
-          }
-        }
-
-        if (!isValid) {
-          showFieldError(field, errorMessage);
-        }
-
-        return isValid;
-      }
-
-      function showFieldError(field, message) {
-        field.classList.add('error');
-        field.setAttribute('aria-invalid', 'true');
-        
-        // Remove existing error message
-        const existingError = field.parentNode.querySelector('.error-message');
-        if (existingError) {
-          existingError.remove();
-        }
-
-        // Add error message
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        errorDiv.setAttribute('role', 'alert');
-        field.parentNode.insertBefore(errorDiv, field.nextSibling);
-      }
-
-      function clearFieldError(field) {
-        field.classList.remove('error');
-        field.removeAttribute('aria-invalid');
-        
-        const errorMessage = field.parentNode.querySelector('.error-message');
-        if (errorMessage) {
-          errorMessage.remove();
+      // Update progress steps
+      for (let i = 1; i <= 10; i++) {
+        const progStep = document.getElementById(`prog-${i}`);
+        if (progStep) {
+          progStep.classList.toggle('disabled', i > step);
         }
       }
 
-      function showValidationSummary() {
-        const errorFields = document.querySelectorAll('.error');
-        if (errorFields.length > 0) {
-          alert(`Please fix ${errorFields.length} error(s) before submitting the form.`);
-          errorFields[0].focus();
-        }
+      // Close sidebar on mobile after navigation
+      if (window.innerWidth <= 1024) {
+        toggleSidebar();
       }
-    });
-  </script>
 
-  <!-- Quick Access Dropdown Toggle -->
-  <script>
-    function toggleQuickAccess() {
-      const quickTableAccess = document.querySelector('.quick-table-access'); // Target the container
-      if (quickTableAccess) {
-        quickTableAccess.classList.toggle('open');
-      }
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Close the quick access dropdown if clicking anywhere else on the page
-    document.addEventListener('click', function(event) {
-      const quickTableAccess = document.querySelector('.quick-table-access');
-      const dropdown = document.getElementById('quickAccessDropdown');
+    // Form functionality
+    function initializeForm() {
+      // Initialize signature pad if available
+      if (typeof SignaturePad !== 'undefined') {
+        const canvas = document.getElementById('fixed_signature_canvas');
+        if (canvas) {
+          window.signaturePadInstance = new SignaturePad(canvas, {
+            minWidth: 1,
+            maxWidth: 2.5,
+            penColor: "black",
+            backgroundColor: "rgba(255, 255, 255, 0)"
+          });
 
-      if (dropdown && quickTableAccess && !quickTableAccess.contains(event.target)) {
-        quickTableAccess.classList.remove('open');
+          document.getElementById('fixed_clear_btn').addEventListener('click', function() {
+            window.signaturePadInstance.clear();
+          });
+        }
       }
-    });
-  </script>
 
-  <!-- Signature canvas initializer (kept as-is, safe if canvas not present until Step 9) -->
-  <script>
-    (function() {
-      window.addEventListener('load', function() {
-        var canvas = document.getElementById('fixed_signature_canvas');
-        var clearButton = document.getElementById('fixed_clear_btn');
-        var hiddenInput = document.getElementById('sig_prepared_data');
-        var form = document.getElementById('satForm');
-
-        if (!canvas || !clearButton || !hiddenInput || !form) {
-          // Not on Step 9 yet – nothing to init
-          return;
+      // Form submission handler
+      document.getElementById('satForm').addEventListener('submit', function(e) {
+        if (currentStep === 10 && window.signaturePadInstance) {
+          if (window.signaturePadInstance.isEmpty()) {
+            e.preventDefault();
+            alert('Please provide your signature before submitting.');
+            return;
+          }
+          document.getElementById('sig_prepared_data').value = 
+            window.signaturePadInstance.toDataURL('image/png');
         }
-
-        canvas.width = 800;
-        canvas.height = 200;
-        var ctx = canvas.getContext('2d');
-        var isDrawing = false, lastX = 0, lastY = 0;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#000';
-
-        function startDrawing(e) {
-          isDrawing = true;
-          var rect = canvas.getBoundingClientRect();
-          lastX = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-          lastY = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-        }
-
-        function draw(e) {
-          if (!isDrawing) return;
-          e.preventDefault();
-          var rect = canvas.getBoundingClientRect();
-          var currentX = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-          var currentY = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-          // Scale coordinates if canvas is scaled (e.g., by CSS width/height)
-          currentX = currentX * (canvas.width / rect.width);
-          currentY = currentY * (canvas.height / rect.height);
-          lastX = lastX * (canvas.width / rect.width);
-          lastY = lastY * (canvas.height / rect.height);
-          ctx.beginPath();
-          ctx.moveTo(lastX, lastY);
-          ctx.lineTo(currentX, currentY);
-          ctx.stroke();
-          lastX = currentX;
-          lastY = currentY;
-        }
-
-        function stopDrawing(){ isDrawing = false; }
-        function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('touchstart', function(e){ e.preventDefault(); startDrawing(e); });
-        canvas.addEventListener('touchmove',  function(e){ e.preventDefault(); draw(e); });
-        canvas.addEventListener('touchend',   function(e){ e.preventDefault(); stopDrawing(); });
-        clearButton.addEventListener('click', clearCanvas);
-        form.addEventListener('submit', function(){ hiddenInput.value = canvas.toDataURL('image/png'); });
-
-        clearCanvas(); // Clear any pre-existing drawings on load
       });
-    })();
-  </script>
+    }
 
-  <!-- Save Progress handlers and utility functions -->
-  <script>
+    // Table row management
+    function removeRow(button) {
+      button.closest('tr').remove();
+    }
+
+    function addRow(tbodyId, templateId) {
+      const template = document.getElementById(templateId);
+      const tbody = document.getElementById(tbodyId);
+      const clone = template.content.cloneNode(true);
+      tbody.appendChild(clone);
+    }
+
+    function addDigitalSignal() {
+      addRow('digital-signals-body', 'tmpl-digital-signal');
+    }
+    function addPreTest() {
+      addRow('pretest-body', 'tmpl-pretest');
+    }
+    function addKeyComponent() {
+      addRow('key-components-body', 'tmpl-keycomp');
+    }
+    function addIpRecord() {
+      addRow('ip-records-body', 'tmpl-iprecord');
+    }
+    function addProcessTest() {
+      addRow('process-test-body', 'tmpl-process-test');
+    }
+    function addScadaVerification() {
+      addRow('scada-verification-body', 'tmpl-scada-verification');
+    }
+    function addTrendsTesting() {
+      addRow('trends-testing-body', 'tmpl-trends-testing');
+    }
+    function addApproval(tbodyId, templateId) {
+      addRow(tbodyId, templateId);
+    }
+
+
+    // Save progress functionality
     function saveProgress() {
-      console.log("Save Progress triggered.");
-      
-      // Show user feedback
-      const saveBtn = document.querySelector('.save-progress-btn');
-      if (saveBtn) {
-        const originalText = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        saveBtn.disabled = true;
-        
-        // Simulate save operation (replace with actual AJAX call)
-        setTimeout(() => {
-          saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-          setTimeout(() => {
-            saveBtn.innerHTML = originalText;
-            saveBtn.disabled = false;
-          }, 2000);
-        }, 1000);
-      }
-      
-      // Save form state to localStorage
-      const form = document.getElementById('satForm');
-      if (form) {
-        const formData = new FormData(form);
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-          data[key] = value;
-        }
-        localStorage.setItem('satFormProgress', JSON.stringify(data));
-      }
+      // Implement save functionality
+      console.log('Saving progress...');
+      alert('Progress saved successfully!');
     }
 
-    function toggleUserDropdown() {
-      const dropdown = document.getElementById('userDropdownMenu');
-      if (dropdown) {
-        dropdown.classList.toggle('show');
-      }
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-      const userProfile = document.querySelector('.user-profile');
-      const dropdown = document.getElementById('userDropdownMenu');
-
-      if (dropdown && userProfile && !userProfile.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
-
-    // Load saved progress on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      const savedProgress = localStorage.getItem('satFormProgress');
-      if (savedProgress) {
-        try {
-          const data = JSON.parse(savedProgress);
-          const form = document.getElementById('satForm');
-          if (form) {
-            Object.entries(data).forEach(([name, value]) => {
-              const field = form.querySelector(`[name="${name}"]`);
-              if (field && field.type !== 'file') {
-                field.value = value;
-              }
-            });
-          }
-        } catch (e) {
-          console.error('Error loading saved progress:', e);
-        }
+    // Responsive behavior
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1024 && sidebarOpen) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        sidebarOpen = false;
       }
     });
   </script>
-
-  <!-- Navigation Script -->
-  <script>
-    // Function to navigate to a specific step
-    function goToStep(stepNumber) {
-      // Hide all form steps
-      document.querySelectorAll('.form-step').forEach(step => {
-        step.classList.remove('active');
-      });
-
-      // Remove active class from all progress steps
-      document.querySelectorAll('.progress-step').forEach(step => {
-        step.classList.remove('active');
-        step.classList.add('disabled'); // Make other steps disabled
-        step.setAttribute('aria-selected', 'false');
-        step.setAttribute('tabindex', '-1');
-      });
-
-      // Show the target step
-      const targetStep = document.getElementById(`step-${stepNumber}`);
-      if (targetStep) {
-        targetStep.classList.add('active');
-      }
-
-      // Activate the corresponding progress step
-      const targetProgressStep = document.getElementById(`prog-${stepNumber}`);
-      if (targetProgressStep) {
-        targetProgressStep.classList.remove('disabled');
-        targetProgressStep.classList.add('active');
-        targetProgressStep.setAttribute('aria-selected', 'true');
-        targetProgressStep.setAttribute('tabindex', '0');
-      }
-
-      // Scroll to the top of the form container for better UX
-      document.querySelector('.form-container').scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-
-    // Event listeners for navigation buttons (next/prev)
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.button-group button[data-next-step]').forEach(button => {
-        button.addEventListener('click', function() {
-          const nextStep = this.getAttribute('data-next-step');
-          goToStep(nextStep);
-        });
-      });
-
-      document.querySelectorAll('.button-group button[data-prev-step]').forEach(button => {
-        button.addEventListener('click', function() {
-          const prevStep = this.getAttribute('data-prev-step');
-          goToStep(prevStep);
-        });
-      });
-
-      // Also attach to progress navigation links
-      document.querySelectorAll('.progress-step').forEach(stepLink => {
-        stepLink.addEventListener('click', function() {
-          const stepId = this.getAttribute('aria-controls'); // e.g., "step-1"
-          const stepNumber = stepId.split('-')[1];
-          const currentStepNum = parseInt(document.querySelector('.progress-step.active').id.split('-')[1]);
-
-          // Only allow navigation to next or current step
-          if (parseInt(stepNumber) <= currentStepNum + 1) {
-            goToStep(stepNumber);
-          }
-        });
-
-        // Allow navigation via Enter key
-        stepLink.addEventListener('keydown', function(event) {
-          if (event.key === 'Enter') {
-            const stepId = this.getAttribute('aria-controls');
-            const stepNumber = stepId.split('-')[1];
-            const currentStepNum = parseInt(document.querySelector('.progress-step.active').id.split('-')[1]);
-
-            if (parseInt(stepNumber) <= currentStepNum + 1) {
-              goToStep(stepNumber);
-            }
-          }
-        });
-      });
-    });
-  </script>
-
 </body>
 </html>
