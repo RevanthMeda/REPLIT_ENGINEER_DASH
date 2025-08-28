@@ -2165,22 +2165,23 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="digital-signals">
-                  <thead>
-                    <tr>
-                      <th style="width: 6%;">S. No.</th>
-                      <th style="width: 8%;">Rack No.</th>
-                      <th style="width: 10%;">Module Position</th>
-                      <th style="width: 12%;">Signal TAG</th>
-                      <th style="width: 30%;">Description</th>
-                      <th style="width: 8%;">Result</th>
-                      <th style="width: 20%;">Punch Item</th>
-                      <th style="width: 12%;">Verified By</th>
-                      <th style="width: 15%;">Comment</th>
-                      <th style="width: 6%;">Action</th>
-                    </tr>
-                  </thead>
+              <div class="table-responsive-wrapper">
+                <div class="table-responsive">
+                  <table class="digital-signals">
+                    <thead>
+                      <tr>
+                        <th class="col-priority-low" style="width: 6%;">S. No.</th>
+                        <th class="col-priority-medium" style="width: 8%;">Rack No.</th>
+                        <th class="col-priority-medium" style="width: 10%;">Module Position</th>
+                        <th class="col-priority-high col-sticky" style="width: 12%;">Signal TAG</th>
+                        <th class="col-priority-high" style="width: 30%;">Description</th>
+                        <th class="col-priority-high" style="width: 8%;">Result</th>
+                        <th class="col-priority-medium" style="width: 20%;">Punch Item</th>
+                        <th class="col-priority-medium" style="width: 12%;">Verified By</th>
+                        <th class="col-priority-low" style="width: 15%;">Comment</th>
+                        <th class="col-priority-high col-sticky-actions" style="width: 6%;">Action</th>
+                      </tr>
+                    </thead>
                   <tbody id="digital-signals-body">
                     {% for s in submission_data.SIGNAL_LISTS %}
                     <tr>
@@ -2234,15 +2235,23 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="digital-outputs">
-                  <thead>
-                    <tr>
-                      <th>S. No.</th><th>Rack No.</th><th>Module Position</th>
-                      <th>Signal TAG</th><th>Description</th><th>Result</th>
-                      <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
+              <div class="table-responsive-wrapper">
+                <div class="table-responsive">
+                  <table class="digital-outputs">
+                    <thead>
+                      <tr>
+                        <th class="col-priority-low">S. No.</th>
+                        <th class="col-priority-medium">Rack No.</th>
+                        <th class="col-priority-medium">Module Position</th>
+                        <th class="col-priority-high col-sticky">Signal TAG</th>
+                        <th class="col-priority-high">Description</th>
+                        <th class="col-priority-high">Result</th>
+                        <th class="col-priority-medium">Punch Item</th>
+                        <th class="col-priority-medium">Verified By</th>
+                        <th class="col-priority-low">Comment</th>
+                        <th class="col-priority-high col-sticky-actions">Action</th>
+                      </tr>
+                    </thead>
                   <tbody id="digital-outputs-body">
                     {% for s in submission_data.DIGITAL_OUTPUTS %}
                     <tr>
@@ -2289,15 +2298,23 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="analogue-inputs">
-                  <thead>
-                    <tr>
-                      <th>S. No.</th><th>Rack No.</th><th>Module Position</th>
-                      <th>Signal TAG</th><th>Description</th><th>Result</th>
-                      <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
+              <div class="table-responsive-wrapper">
+                <div class="table-responsive">
+                  <table class="analogue-inputs">
+                    <thead>
+                      <tr>
+                        <th class="col-priority-low">S. No.</th>
+                        <th class="col-priority-medium">Rack No.</th>
+                        <th class="col-priority-medium">Module Position</th>
+                        <th class="col-priority-high col-sticky">Signal TAG</th>
+                        <th class="col-priority-high">Description</th>
+                        <th class="col-priority-high">Result</th>
+                        <th class="col-priority-medium">Punch Item</th>
+                        <th class="col-priority-medium">Verified By</th>
+                        <th class="col-priority-low">Comment</th>
+                        <th class="col-priority-high col-sticky-actions">Action</th>
+                      </tr>
+                    </thead>
                   <tbody id="analogue-inputs-body">
                     {% for s in submission_data.ANALOGUE_INPUTS %}
                     <tr>
@@ -2351,15 +2368,23 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="analogue-outputs">
-                  <thead>
-                    <tr>
-                      <th>S. No.</th><th>Rack No.</th><th>Module Position</th>
-                      <th>Signal TAG</th><th>Description</th><th>Result</th>
-                      <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
-                    </tr>
-                  </thead>
+              <div class="table-responsive-wrapper">
+                <div class="table-responsive">
+                  <table class="analogue-outputs">
+                    <thead>
+                      <tr>
+                        <th class="col-priority-low">S. No.</th>
+                        <th class="col-priority-medium">Rack No.</th>
+                        <th class="col-priority-medium">Module Position</th>
+                        <th class="col-priority-high col-sticky">Signal TAG</th>
+                        <th class="col-priority-high">Description</th>
+                        <th class="col-priority-high">Result</th>
+                        <th class="col-priority-medium">Punch Item</th>
+                        <th class="col-priority-medium">Verified By</th>
+                        <th class="col-priority-low">Comment</th>
+                        <th class="col-priority-high col-sticky-actions">Action</th>
+                      </tr>
+                    </thead>
                   <tbody id="analogue-outputs-body">
                     {% for s in submission_data.ANALOGUE_OUTPUTS %}
                     <tr>
