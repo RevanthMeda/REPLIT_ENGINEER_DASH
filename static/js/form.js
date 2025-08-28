@@ -409,7 +409,7 @@
 
   function validateField(field) {
     const formGroup = field.closest('.form-section') || field.parentElement;
-    
+
     if (!field.checkValidity()) {
       field.classList.add('invalid-field');
       field.classList.remove('valid');
@@ -442,7 +442,7 @@
 
       errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle" aria-hidden="true"></i> ${message}`;
       errorMsg.style.display = 'flex';
-      
+
       // Announce error to screen readers
       field.setAttribute('aria-invalid', 'true');
       field.setAttribute('aria-describedby', errorMsg.id || '');
@@ -457,7 +457,7 @@
       if (errorMsg) {
         errorMsg.style.display = 'none';
       }
-      
+
       // Remove aria attributes
       field.setAttribute('aria-invalid', 'false');
       field.removeAttribute('aria-describedby');
@@ -513,7 +513,7 @@
         const steps = document.querySelectorAll('.progress-step:not(.disabled)');
         const currentStep = document.querySelector('.progress-step.active');
         const currentIndex = Array.from(steps).indexOf(currentStep);
-        
+
         if (e.shiftKey) {
           // Go to previous step
           const prevIndex = currentIndex > 0 ? currentIndex - 1 : steps.length - 1;
@@ -533,7 +533,7 @@
       step.setAttribute('role', 'tab');
       step.setAttribute('tabindex', step.classList.contains('active') ? '0' : '-1');
       step.setAttribute('aria-selected', step.classList.contains('active').toString());
-      
+
       step.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -1083,186 +1083,234 @@
   // ========== RESPONSIVE TABLE SYSTEM ==========
   function initializeResponsiveTables() {
     const tables = document.querySelectorAll('table');
-    
+
     tables.forEach(table => {
       createMobileCardLayout(table);
-      setupColumnPriority(table);
+      setupColumnPriorities(table);
       setupStickyColumns(table);
       addHeaderTooltips(table);
     });
-    
+
     // Handle window resize
     window.addEventListener('resize', debounce(handleTableResize, 250));
   }
-  
+
   function createMobileCardLayout(table) {
     const tableContainer = table.closest('.table-responsive');
     if (!tableContainer) return;
-    
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
     // Create mobile cards container
     const mobileContainer = document.createElement('div');
     mobileContainer.className = 'mobile-table-cards';
-    
-    // Extract table data
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
     const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
       text: th.textContent.trim(),
       priority: getColumnPriority(th),
-      name: getFieldName(th)
+      index: Array.from(th.parentNode.children).indexOf(th)
     }));
-    
+
     const rows = Array.from(table.querySelectorAll('tbody tr'));
-    
+
     rows.forEach((row, index) => {
       const card = createMobileCard(row, headers, index);
       mobileContainer.appendChild(card);
     });
-    
+
     tableContainer.appendChild(mobileContainer);
-    
-    // Update mobile cards when table changes
+
+    // Watch for table changes and update mobile cards
     const observer = new MutationObserver(() => {
       updateMobileCards(table, mobileContainer, headers);
     });
-    
+
     observer.observe(table.querySelector('tbody'), {
       childList: true,
       subtree: true,
       attributes: true
     });
   }
-  
+
   function createMobileCard(row, headers, index) {
     const card = document.createElement('div');
     card.className = 'mobile-card';
     card.dataset.rowIndex = index;
-    
+
     const cells = Array.from(row.querySelectorAll('td'));
-    
-    // Card header with primary identifier
+
+    // Card header with primary information
     const header = document.createElement('div');
     header.className = 'mobile-card-header';
-    
-    const primaryId = cells[0]?.textContent.trim() || `Item ${index + 1}`;
-    const signalTag = cells[3]?.querySelector('input')?.value || cells[3]?.textContent.trim() || '';
-    
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
     header.innerHTML = `
-      <span class="mobile-card-title">${signalTag || primaryId}</span>
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
       <span class="mobile-card-number">#${primaryId}</span>
     `;
-    
+
     card.appendChild(header);
-    
+
     // Card body with essential fields
     const body = document.createElement('div');
     body.className = 'mobile-card-body';
-    
-    // Essential fields (always visible)
+
+    // Essential fields (high priority columns)
     const essentialFields = document.createElement('div');
     essentialFields.className = 'mobile-essential-fields';
-    
-    const essentialColumns = [1, 2, 4, 5]; // Rack, Position, Tag, Description
-    essentialColumns.forEach(colIndex => {
-      if (cells[colIndex] && headers[colIndex]) {
-        const fieldGroup = createMobileField(headers[colIndex].text, cells[colIndex]);
-        essentialFields.appendChild(fieldGroup);
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
       }
     });
-    
+
     body.appendChild(essentialFields);
-    
-    // Expandable section for less critical fields
+
+    // Expandable section for other fields
     const expandable = document.createElement('div');
     expandable.className = 'mobile-expandable';
-    
+
     const toggle = document.createElement('button');
     toggle.className = 'mobile-expand-toggle';
     toggle.innerHTML = `
       <span>More Details</span>
       <i class="fas fa-chevron-down"></i>
     `;
-    
+
     toggle.addEventListener('click', (e) => {
       e.preventDefault();
       expandable.classList.toggle('expanded');
     });
-    
+
     const expandableContent = document.createElement('div');
     expandableContent.className = 'mobile-expandable-content';
-    
-    // Add remaining fields to expandable section
-    cells.forEach((cell, colIndex) => {
-      if (!essentialColumns.includes(colIndex) && colIndex < cells.length - 1) { // Exclude actions
-        const fieldGroup = createMobileField(headers[colIndex]?.text || `Field ${colIndex}`, cell);
-        expandableContent.appendChild(fieldGroup);
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
       }
     });
-    
+
     expandable.appendChild(toggle);
     expandable.appendChild(expandableContent);
     body.appendChild(expandable);
-    
+
     // Actions
-    const actions = document.createElement('div');
-    actions.className = 'mobile-card-actions';
-    
-    const actionCell = cells[cells.length - 1];
-    if (actionCell) {
-      const actionButtons = actionCell.querySelectorAll('button');
-      actionButtons.forEach(btn => {
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
         const mobileBtn = btn.cloneNode(true);
         mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
         actions.appendChild(mobileBtn);
       });
+
+      body.appendChild(actions);
     }
-    
-    body.appendChild(actions);
+
     card.appendChild(body);
-    
     return card;
   }
-  
-  function createMobileField(label, cell) {
+
+  function createMobileField(label, cell, colIndex) {
     const fieldGroup = document.createElement('div');
     fieldGroup.className = 'mobile-field-group';
-    
+
     const fieldLabel = document.createElement('div');
     fieldLabel.className = 'mobile-field-label';
     fieldLabel.textContent = label;
-    
+
     const fieldValue = document.createElement('div');
     fieldValue.className = 'mobile-field-value';
-    
+
     // Clone the input/content from the cell
     const input = cell.querySelector('input, select, textarea');
     if (input) {
       const clonedInput = input.cloneNode(true);
-      // Sync values between table and mobile card
+
+      // Sync values between original table input and mobile card input
       clonedInput.addEventListener('input', () => {
         input.value = clonedInput.value;
         input.dispatchEvent(new Event('input', { bubbles: true }));
       });
+
       input.addEventListener('input', () => {
         clonedInput.value = input.value;
       });
+
       fieldValue.appendChild(clonedInput);
     } else {
       fieldValue.textContent = cell.textContent.trim();
     }
-    
+
     fieldGroup.appendChild(fieldLabel);
     fieldGroup.appendChild(fieldValue);
-    
+
     return fieldGroup;
   }
-  
-  function setupColumnPriority(table) {
+
+  function setupColumnPriorities(table) {
     const headers = table.querySelectorAll('thead th');
     const rows = table.querySelectorAll('tbody tr');
-    
+
     headers.forEach((header, index) => {
       const priority = getColumnPriority(header);
       header.classList.add(`col-priority-${priority}`);
-      
+
       // Apply same class to all cells in this column
       rows.forEach(row => {
         const cell = row.cells[index];
@@ -1270,102 +1318,59 @@
           cell.classList.add(`col-priority-${priority}`);
         }
       });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
     });
   }
-  
+
   function getColumnPriority(header) {
     const text = header.textContent.toLowerCase();
-    
-    // High priority: essential for identification and action
+
+    // High priority: essential for identification and results
     if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
         text.includes('result') || text.includes('action')) {
       return 'high';
     }
-    
+
     // Medium priority: important but not critical
     if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
         text.includes('punch')) {
       return 'medium';
     }
-    
+
     // Low priority: can be hidden on smaller screens
     return 'low';
   }
-  
-  function setupStickyColumns(table) {
-    const headers = table.querySelectorAll('thead th');
-    const rows = table.querySelectorAll('tbody tr');
-    
-    // Make first column (Signal TAG) sticky on tablet
-    if (headers.length > 3) {
-      headers[3]?.classList.add('col-sticky'); // Signal TAG column
-      rows.forEach(row => {
-        const cell = row.cells[3];
-        if (cell) cell.classList.add('col-sticky');
-      });
-    }
-    
-    // Make last column (Actions) sticky on tablet
-    const lastIndex = headers.length - 1;
-    headers[lastIndex]?.classList.add('col-sticky-actions');
-    rows.forEach(row => {
-      const cell = row.cells[lastIndex];
-      if (cell) cell.classList.add('col-sticky-actions');
-    });
-  }
-  
-  function addHeaderTooltips(table) {
-    const headers = table.querySelectorAll('thead th');
-    
-    headers.forEach(header => {
-      const text = header.textContent.trim();
-      if (text.length > 8) { // Add tooltip for abbreviated headers
-        header.classList.add('header-abbrev');
-        
-        const tooltip = document.createElement('div');
-        tooltip.className = 'header-tooltip';
-        tooltip.textContent = text;
-        
-        header.appendChild(tooltip);
-        
-        // Abbreviate long headers on mobile
-        const abbreviated = abbreviateHeader(text);
-        if (abbreviated !== text) {
-          const abbrevSpan = document.createElement('span');
-          abbrevSpan.className = 'header-abbrev-text';
-          abbrevSpan.textContent = abbreviated;
-          header.innerHTML = '';
-          header.appendChild(abbrevSpan);
-          header.appendChild(tooltip);
-        }
-      }
-    });
-  }
-  
-  function abbreviateHeader(text) {
-    const abbreviations = {
-      'RACK NO.': 'RACK',
-      'MODULE POSITION': 'POS',
-      'SIGNAL TAG': 'TAG',
-      'DESCRIPTION': 'DESC',
-      'PUNCH ITEM': 'PUNCH',
-      'VERIFIED BY': 'VERIFIED',
-      'COMMENT': 'NOTES',
-      'RESULT': 'RES'
-    };
-    
-    return abbreviations[text.toUpperCase()] || text;
-  }
-  
-  function getFieldName(header) {
-    return header.textContent.toLowerCase().replace(/[^a-z0-9]/g, '_');
-  }
-  
+
   function updateMobileCards(table, mobileContainer, headers) {
-    // Re-sync mobile cards with table data
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    // Find existing cards (skip the scroll hint)
     const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
-    
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
     // Add new cards for new rows
     if (rows.length > cards.length) {
       for (let i = cards.length; i < rows.length; i++) {
@@ -1373,36 +1378,40 @@
         mobileContainer.appendChild(card);
       }
     }
-    
-    // Remove excess cards
-    if (cards.length > rows.length) {
-      for (let i = rows.length; i < cards.length; i++) {
-        cards[i].remove();
-      }
-    }
-  }
-  
-  function handleTableResize() {
-    // Refresh table layout on resize
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      const mobileContainer = table.parentElement?.querySelector('.mobile-table-cards');
-      if (mobileContainer) {
-        const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
-          text: th.textContent.trim(),
-          priority: getColumnPriority(th),
-          name: getFieldName(th)
-        }));
-        updateMobileCards(table, mobileContainer, headers);
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
       }
     });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
   }
 
   // ========== FULL-WIDTH TABLE ENHANCEMENTS ==========
   document.addEventListener('DOMContentLoaded', function() {
     // Initialize responsive tables
     initializeResponsiveTables();
-    
+
     // Optimize tables for full-width display
     const tables = document.querySelectorAll('table');
 
@@ -2801,26 +2810,374 @@ async function saveFormProgress() {
 
   // Display version information
   function displayVersionInfo() {
-    // Show version for both new and edit mode
-    const submissionId = document.querySelector('input[name="submission_id"]');
-    const titleElement = document.querySelector('h1');
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
 
-    if (titleElement && !titleElement.querySelector('.version-display')) {
-      let versionText = 'R0'; // Default for new reports
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
 
-      if (submissionId && submissionId.value) {
-        // This is an edit - show current version from revision field
-        const currentRevision = document.querySelector('input[name="revision"]');
-        if (currentRevision && currentRevision.value) {
-          versionText = currentRevision.value;
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
         }
       }
+    });
 
-      const versionSpan = document.createElement('span');
-      versionSpan.className = 'version-display';
-      versionSpan.textContent = ` - Version: ${versionText}`;
-      versionSpan.style.cssText = 'color: #666; font-size: 0.8em; font-weight: normal; margin-left: 10px;';
-      titleElement.appendChild(versionSpan);
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
     }
   }
 
@@ -2829,145 +3186,3702 @@ async function saveFormProgress() {
     const userDetails = document.querySelector('.user-details');
     const userDropdown = document.querySelector('.user-dropdown-menu');
 
-    if (!userDetails || !userDropdown) return;
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
 
-    // Toggle dropdown on click
-    userDetails.addEventListener('click', function(e) {
-      e.stopPropagation();
-      toggleUserDropdown();
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function() {
-      userDropdown.classList.remove('show');
-    });
-
-    // Prevent dropdown from closing when clicking inside it
-    userDropdown.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-  }
-
-  // Global function for dropdown toggle
-  function toggleUserDropdown() {
-    const userDropdown = document.querySelector('.user-dropdown-menu');
-    if (userDropdown) {
-      userDropdown.classList.toggle('show');
-    }
-    // Close quick access if open
-    const quickAccess = document.querySelector('.quick-access-dropdown');
-    if (quickAccess) {
-      quickAccess.classList.remove('show');
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
     }
   }
 
-  // Quick table access toggle
-  function toggleQuickAccess() {
-    const quickTableAccess = document.querySelector('.quick-table-access');
-    const quickAccess = document.querySelector('.quick-access-dropdown');
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
 
-    if (quickTableAccess && quickAccess) {
-      quickTableAccess.classList.toggle('open');
-      quickAccess.classList.toggle('show');
-    }
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
 
-    // Close user dropdown if open
-    const userDropdown = document.querySelector('.user-dropdown-menu');
-    if (userDropdown) {
-      userDropdown.classList.remove('show');
-    }
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
   }
 
-  // Close dropdowns when clicking outside
-  document.addEventListener('click', function(event) {
-    const userProfile = document.querySelector('.user-profile');
-    const quickTableAccess = document.querySelector('.quick-table-access');
-    const userDropdown = document.querySelector('.user-dropdown-menu');
-    const quickDropdown = document.querySelector('.quick-access-dropdown');
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
 
-    // Close user dropdown if clicking outside
-    if (userDropdown && userProfile && !userProfile.contains(event.target)) {
-      userDropdown.classList.remove('show');
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
     }
 
-    // Close quick access if clicking outside
-    if (quickDropdown && quickTableAccess && !quickTableAccess.contains(event.target)) {
-      quickDropdown.classList.remove('show');
-      quickTableAccess.classList.remove('open');
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
     }
-  });
 
-  // Make functions available globally
-  window.toggleUserDropdown = toggleUserDropdown;
-  window.toggleQuickAccess = toggleQuickAccess;
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
 
-// Enhanced full-screen table toggle functionality
-document.addEventListener('click', function(e) {
-  if (e.target.closest('.table-fullscreen-toggle')) {
-    const button = e.target.closest('.table-fullscreen-toggle');
-    const card = button.closest('.card');
+    card.appendChild(header);
 
-    if (card.classList.contains('table-fullscreen')) {
-      // Exit full-screen
-      card.classList.remove('table-fullscreen');
-      button.innerHTML = '<i class="fas fa-expand"></i> Full Screen';
-      document.body.style.overflow = 'auto';
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
     } else {
-      // Enter full-screen
-      card.classList.add('table-fullscreen');
-      button.innerHTML = '<i class="fas fa-compress"></i> Exit Full Screen';
-      document.body.style.overflow = 'hidden';
+      fieldValue.textContent = cell.textContent.trim();
     }
-  }
-});
 
-// Enhanced table action handlers
-document.addEventListener('click', function(e) {
-  // Delete confirmation dialog
-  if (e.target.closest('.delete-btn') || e.target.closest('.remove-row-btn')) {
-    const button = e.target.closest('.delete-btn, .remove-row-btn');
-    const row = button.closest('tr');
-    
-    if (row && confirm('Delete this row? This action cannot be undone.')) {
-      row.classList.add('fade-out');
-      setTimeout(() => {
-        row.remove();
-        saveState();
-      }, 300);
-    }
-  }
-  
-  // Edit functionality (placeholder)
-  if (e.target.closest('.edit-btn')) {
-    const button = e.target.closest('.edit-btn');
-    const row = button.closest('tr');
-    // Focus on first input in row
-    const firstInput = row.querySelector('input, textarea, select');
-    if (firstInput) {
-      firstInput.focus();
-      firstInput.select();
-    }
-  }
-});
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
 
-// Add row functionality
-document.addEventListener('click', function(e) {
-      // Next step
-      if (e.target.closest('[data-next-step]')) {
-        const btn = e.target.closest('[data-next-step]');
-        goToStep(parseInt(btn.dataset.nextStep));
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
       }
-      // Previous step
-      if (e.target.closest('[data-prev-step]')) {
-        const btn = e.target.closest('[data-prev-step]');
-        goToStep(parseInt(btn.dataset.prevStep));
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
       }
-      // Remove row
-      if (e.target.closest('.remove-row-btn')) {
-        const btn = e.target.closest('.remove-row-btn');
-        removeRow(btn);
-        saveState();
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
       }
     });
 
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Display version information
+  function displayVersionInfo() {
+    // This function can be implemented to show version information
+    console.log('SAT Report Generator v2.0');
+  }
+
+  // Setup user dropdown functionality
+  function setupUserDropdown() {
+    const userDetails = document.querySelector('.user-details');
+    const userDropdown = document.querySelector('.user-dropdown-menu');
+
+    if (userDetails && userDropdown) {
+      userDetails.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userDetails.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+    }
+  }
+
+  // Initialize responsive tables with mobile card layout
+  function initializeResponsiveTables() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+      createMobileCardLayout(table);
+      setupColumnPriorities(table);
+      setupStickyColumns(table);
+      addHeaderTooltips(table);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', debounce(handleTableResize, 250));
+  }
+
+  function createMobileCardLayout(table) {
+    const tableContainer = table.closest('.table-responsive');
+    if (!tableContainer) return;
+
+    // Wrap existing table for desktop
+    const desktopWrapper = document.createElement('div');
+    desktopWrapper.className = 'desktop-table-wrapper';
+    table.parentNode.insertBefore(desktopWrapper, table);
+    desktopWrapper.appendChild(table);
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-table-cards';
+
+    // Add scroll hint
+    const scrollHint = document.createElement('div');
+    scrollHint.className = 'mobile-scroll-hint';
+    scrollHint.textContent = '📱 Optimized for mobile viewing';
+    mobileContainer.appendChild(scrollHint);
+
+    // Extract table data and create cards
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+      text: th.textContent.trim(),
+      priority: getColumnPriority(th),
+      index: Array.from(th.parentNode.children).indexOf(th)
+    }));
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((row, index) => {
+      const card = createMobileCard(row, headers, index);
+      mobileContainer.appendChild(card);
+    });
+
+    tableContainer.appendChild(mobileContainer);
+
+    // Watch for table changes and update mobile cards
+    const observer = new MutationObserver(() => {
+      updateMobileCards(table, mobileContainer, headers);
+    });
+
+    observer.observe(table.querySelector('tbody'), {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+
+  function createMobileCard(row, headers, index) {
+    const card = document.createElement('div');
+    card.className = 'mobile-card';
+    card.dataset.rowIndex = index;
+
+    const cells = Array.from(row.querySelectorAll('td'));
+
+    // Card header with primary information
+    const header = document.createElement('div');
+    header.className = 'mobile-card-header';
+
+    // Get primary identifier (usually first non-empty cell or signal tag)
+    let primaryId = `Item ${index + 1}`;
+    let signalTag = '';
+
+    // Look for Signal TAG column (usually around index 3-4)
+    const signalTagCell = cells.find((cell, idx) => {
+      const headerText = headers[idx]?.text.toLowerCase() || '';
+      return headerText.includes('signal') && headerText.includes('tag');
+    });
+
+    if (signalTagCell) {
+      const input = signalTagCell.querySelector('input');
+      signalTag = input ? input.value : signalTagCell.textContent.trim();
+    }
+
+    // Use S.No if available
+    if (cells[0]) {
+      const input = cells[0].querySelector('input');
+      const sno = input ? input.value : cells[0].textContent.trim();
+      if (sno) primaryId = sno;
+    }
+
+    header.innerHTML = `
+      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
+      <span class="mobile-card-number">#${primaryId}</span>
+    `;
+
+    card.appendChild(header);
+
+    // Card body with essential fields
+    const body = document.createElement('div');
+    body.className = 'mobile-card-body';
+
+    // Essential fields (high priority columns)
+    const essentialFields = document.createElement('div');
+    essentialFields.className = 'mobile-essential-fields';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          essentialFields.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    body.appendChild(essentialFields);
+
+    // Expandable section for other fields
+    const expandable = document.createElement('div');
+    expandable.className = 'mobile-expandable';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-expand-toggle';
+    toggle.innerHTML = `
+      <span>More Details</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      expandable.classList.toggle('expanded');
+    });
+
+    const expandableContent = document.createElement('div');
+    expandableContent.className = 'mobile-expandable-content';
+
+    headers.forEach((header, colIndex) => {
+      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
+        const cell = cells[colIndex];
+        if (cell) {
+          const fieldGroup = createMobileField(header.text, cell, colIndex);
+          expandableContent.appendChild(fieldGroup);
+        }
+      }
+    });
+
+    expandable.appendChild(toggle);
+    expandable.appendChild(expandableContent);
+    body.appendChild(expandable);
+
+    // Actions
+    const actionsCell = cells[cells.length - 1];
+    if (actionsCell) {
+      const actions = document.createElement('div');
+      actions.className = 'mobile-card-actions';
+
+      const buttons = actionsCell.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const mobileBtn = btn.cloneNode(true);
+        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
+
+        // Ensure the cloned button maintains functionality
+        if (btn.classList.contains('remove-row-btn')) {
+          mobileBtn.addEventListener('click', () => {
+            // Remove both the original row and the mobile card
+            btn.click();
+            card.remove();
+          });
+        }
+
+        actions.appendChild(mobileBtn);
+      });
+
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function createMobileField(label, cell, colIndex) {
+    const fieldGroup = document.createElement('div');
+    fieldGroup.className = 'mobile-field-group';
+
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'mobile-field-label';
+    fieldLabel.textContent = label;
+
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'mobile-field-value';
+
+    // Clone the input/content from the cell
+    const input = cell.querySelector('input, select, textarea');
+    if (input) {
+      const clonedInput = input.cloneNode(true);
+
+      // Sync values between original table input and mobile card input
+      clonedInput.addEventListener('input', () => {
+        input.value = clonedInput.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', () => {
+        clonedInput.value = input.value;
+      });
+
+      fieldValue.appendChild(clonedInput);
+    } else {
+      fieldValue.textContent = cell.textContent.trim();
+    }
+
+    fieldGroup.appendChild(fieldLabel);
+    fieldGroup.appendChild(fieldValue);
+
+    return fieldGroup;
+  }
+
+  function setupColumnPriorities(table) {
+    const headers = table.querySelectorAll('thead th');
+    const rows = table.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const priority = getColumnPriority(header);
+      header.classList.add(`col-priority-${priority}`);
+
+      // Apply same class to all cells in this column
+      rows.forEach(row => {
+        const cell = row.cells[index];
+        if (cell) {
+          cell.classList.add(`col-priority-${priority}`);
+        }
+      });
+
+      // Add sticky classes for important columns
+      const text = header.textContent.toLowerCase();
+      if (text.includes('signal') && text.includes('tag')) {
+        header.classList.add('col-sticky');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky');
+        });
+      }
+
+      // Make actions column sticky
+      if (text.includes('action') || index === headers.length - 1) {
+        header.classList.add('col-sticky-actions');
+        rows.forEach(row => {
+          const cell = row.cells[index];
+          if (cell) cell.classList.add('col-sticky-actions');
+        });
+      }
+    });
+  }
+
+  function getColumnPriority(header) {
+    const text = header.textContent.toLowerCase();
+
+    // High priority: essential for identification and results
+    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
+        text.includes('result') || text.includes('action')) {
+      return 'high';
+    }
+
+    // Medium priority: important but not critical
+    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
+        text.includes('punch')) {
+      return 'medium';
+    }
+
+    // Low priority: can be hidden on smaller screens
+    return 'low';
+  }
+
+  function updateMobileCards(table, mobileContainer, headers) {
+    // Find existing cards (skip the scroll hint)
+    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Remove excess cards
+    if (cards.length > rows.length) {
+      for (let i = rows.length; i < cards.length; i++) {
+        if (cards[i]) cards[i].remove();
+      }
+    }
+
+    // Add new cards for new rows
+    if (rows.length > cards.length) {
+      for (let i = cards.length; i < rows.length; i++) {
+        const card = createMobileCard(rows[i], headers, i);
+        mobileContainer.appendChild(card);
+      }
+    }
+
+    // Update existing cards
+    cards.forEach((card, index) => {
+      if (rows[index]) {
+        // Update card content if needed
+        const newCard = createMobileCard(rows[index], headers, index);
+        card.replaceWith(newCard);
+      }
+    });
+  }
+
+  function handleTableResize() {
+    // Refresh mobile cards when window resizes
+    setTimeout(() => {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
+        if (mobileContainer) {
+          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
+            text: th.textContent.trim(),
+            priority: getColumnPriority(th),
+            index: Array.from(th.parentNode.children).indexOf(th)
+          }));
+          updateMobileCards(table, mobileContainer, headers);
+        }
+      });
+    }, 100);
+  }
 })();
