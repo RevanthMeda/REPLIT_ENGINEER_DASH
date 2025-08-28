@@ -1405,7 +1405,8 @@
           </button>
 
           <div class="form-section">
-            <h4><i class="fas fa-document"></i> Document Information</h4>
+            <h4><i class="fas fa-file-alt" aria-hidden="true"></i> Document Information</h4>
+            <p class="section-description">Provide the basic identification details for this SAT report</p>
 
           <label for="document_title">Document Title <span class="required">*</span></label>
           <input id="document_title" name="document_title" type="text" required
@@ -1415,13 +1416,25 @@
           <input id="project_reference" name="project_reference" type="text" required
                  placeholder="e.g. PROJ-1234" value="{{ submission_data.PROJECT_REFERENCE }}"/>
 
-          <label for="document_reference">Document Reference</label>
+          <label for="document_reference">
+            Document Reference
+            <span class="tooltip">
+              <i class="fas fa-question-circle tooltip-icon" aria-label="Help"></i>
+              <span class="tooltip-text">Internal document reference number or code (optional)</span>
+            </span>
+          </label>
           <input id="document_reference" name="document_reference" type="text"
+                 placeholder="e.g. DOC-SAT-2024-001"
+                 aria-describedby="doc-ref-help"
                  value="{{ submission_data.DOCUMENT_REFERENCE }}"/>
+          <small id="doc-ref-help" class="field-help">Optional internal reference number for document tracking</small>
 
           <label for="date">Date <span class="required">*</span></label>
           <input id="date" name="date" type="date" required value="{{ submission_data.DATE }}" 
+                 placeholder="Select report date"
+                 aria-describedby="date-help"
                  title="Select the date for this SAT report"/>
+          <small id="date-help" class="field-help">Select the date when this SAT report is being created</small>
 
           <label for="client_name">Client Name</label>
           <input id="client_name" name="client_name" type="text" 
@@ -1431,26 +1444,44 @@
           <input id="revision" name="revision" type="text" 
                  placeholder="e.g., R0, R1, Rev A" value="{{ submission_data.REVISION }}"/>
 
-          <label for="revision_details">Revision Details</label>
+          <label for="revision_details">
+            Revision Details
+            <span class="tooltip">
+              <i class="fas fa-question-circle tooltip-icon" aria-label="Help"></i>
+              <span class="tooltip-text">Brief description of changes made in this revision</span>
+            </span>
+          </label>
           <input id="revision_details" name="revision_details" type="text"
-                 placeholder="Describe what changed in this revision"
+                 placeholder="e.g. Updated test procedures, corrected signal references"
+                 aria-describedby="revision-details-help"
                  value="{{ submission_data.REVISION_DETAILS }}"/>
+          <small id="revision-details-help" class="field-help">Describe the main changes or updates made in this revision</small>
 
           <label for="revision_date">Revision Date</label>
           <input id="revision_date" name="revision_date" type="date"
+                 placeholder="Select revision date"
+                 aria-describedby="revision-date-help"
                  title="Date when this revision was made"
                  value="{{ submission_data.REVISION_DATE }}"/>
+          <small id="revision-date-help" class="field-help">Date when this revision was created (leave blank for initial version)</small>
 
           </div>
 
           <div class="form-section">
-            <h4><i class="fas fa-user"></i> Contact Information</h4>
+            <h4><i class="fas fa-envelope" aria-hidden="true"></i> Contact Information</h4>
+            <p class="section-description">Specify contact details for notifications and communication</p>
             
             <label for="user_email">Your Email <span class="required">*</span></label>
             <input id="user_email" name="user_email" type="email" required
                    placeholder="your.email@company.com" 
+                   aria-describedby="email-help"
                    title="Enter a valid email address for notifications"
                    value="{{ submission_data.USER_EMAIL }}"/>
+            <small id="email-help" class="field-help">This email will receive notifications about report status and approvals</small>
+            <div class="error-message" id="user_email_error" style="display: none;">
+              <i class="fas fa-exclamation-triangle"></i>
+              Please enter a valid email address
+            </div>
           </div>
 
           <div class="button-group">

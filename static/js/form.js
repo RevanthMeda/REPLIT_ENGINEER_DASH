@@ -408,39 +408,140 @@
   }
 
   function validateField(field) {
+    const formGroup = field.closest('.form-section') || field.parentElement;
+    
     if (!field.checkValidity()) {
       field.classList.add('invalid-field');
+      field.classList.remove('valid');
+      formGroup.classList.add('has-error');
+      formGroup.classList.remove('has-success');
 
       // Find or create error message
-      let errorMsg = field.nextElementSibling;
-      if (!errorMsg || !errorMsg.classList.contains('error')) {
-        errorMsg = document.createElement('span');
-        errorMsg.classList.add('error');
-        field.parentNode.insertBefore(errorMsg, field.nextSibling);
+      let errorMsg = field.parentElement.querySelector('.error-message');
+      if (!errorMsg) {
+        errorMsg = document.createElement('div');
+        errorMsg.classList.add('error-message');
+        field.parentElement.appendChild(errorMsg);
       }
 
-      // Set appropriate error message
+      // Set appropriate error message with icon
+      let message = '';
       if (field.validity.valueMissing) {
-        errorMsg.textContent = 'This field is required';
+        message = 'This field is required';
       } else if (field.validity.typeMismatch) {
-        errorMsg.textContent = `Please enter a valid ${field.type}`;
+        if (field.type === 'email') {
+          message = 'Please enter a valid email address';
+        } else {
+          message = `Please enter a valid ${field.type}`;
+        }
       } else if (field.validity.patternMismatch) {
-        errorMsg.textContent = 'Please enter a value in the required format';
+        message = 'Please enter a value in the required format';
       } else {
-        errorMsg.textContent = 'Invalid value';
+        message = 'Invalid value';
       }
 
-      // Show error message
-      errorMsg.style.display = 'block';
+      errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle" aria-hidden="true"></i> ${message}`;
+      errorMsg.style.display = 'flex';
+      
+      // Announce error to screen readers
+      field.setAttribute('aria-invalid', 'true');
+      field.setAttribute('aria-describedby', errorMsg.id || '');
     } else {
       field.classList.remove('invalid-field');
+      field.classList.add('valid');
+      formGroup.classList.remove('has-error');
+      formGroup.classList.add('has-success');
 
       // Hide error message
-      const errorMsg = field.nextElementSibling;
-      if (errorMsg && errorMsg.classList.contains('error')) {
+      const errorMsg = field.parentElement.querySelector('.error-message');
+      if (errorMsg) {
         errorMsg.style.display = 'none';
       }
+      
+      // Remove aria attributes
+      field.setAttribute('aria-invalid', 'false');
+      field.removeAttribute('aria-describedby');
     }
+  }
+
+  // Enhanced real-time validation
+  function setupRealtimeValidation() {
+    document.querySelectorAll('input[required], textarea[required], select[required]').forEach(field => {
+      // Validate on blur (when user leaves field)
+      field.addEventListener('blur', function() {
+        if (this.value.trim() !== '') {
+          validateField(this);
+        }
+      });
+
+      // Clear errors on input (as user types)
+      field.addEventListener('input', function() {
+        if (this.classList.contains('invalid-field') && this.checkValidity()) {
+          validateField(this);
+        }
+      });
+
+      // Special handling for email fields
+      if (field.type === 'email') {
+        field.addEventListener('input', function() {
+          // Real-time email validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (this.value && !emailRegex.test(this.value)) {
+            this.setCustomValidity('Please enter a valid email address');
+          } else {
+            this.setCustomValidity('');
+          }
+        });
+      }
+    });
+  }
+
+  // Enhanced keyboard navigation
+  function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(e) {
+      // Allow Ctrl+Enter to submit form from any field
+      if (e.ctrlKey && e.key === 'Enter') {
+        const form = document.getElementById('satForm');
+        if (form) {
+          form.dispatchEvent(new Event('submit'));
+        }
+      }
+
+      // Enhanced tab navigation for progress steps
+      if (e.key === 'Tab' && e.ctrlKey) {
+        e.preventDefault();
+        const steps = document.querySelectorAll('.progress-step:not(.disabled)');
+        const currentStep = document.querySelector('.progress-step.active');
+        const currentIndex = Array.from(steps).indexOf(currentStep);
+        
+        if (e.shiftKey) {
+          // Go to previous step
+          const prevIndex = currentIndex > 0 ? currentIndex - 1 : steps.length - 1;
+          goToStep(parseInt(steps[prevIndex].id.split('-')[1]));
+        } else {
+          // Go to next step
+          const nextIndex = currentIndex < steps.length - 1 ? currentIndex + 1 : 0;
+          goToStep(parseInt(steps[nextIndex].id.split('-')[1]));
+        }
+      }
+    });
+  }
+
+  // Progress step keyboard navigation
+  function makeProgressStepsAccessible() {
+    document.querySelectorAll('.progress-step').forEach((step, index) => {
+      step.setAttribute('role', 'tab');
+      step.setAttribute('tabindex', step.classList.contains('active') ? '0' : '-1');
+      step.setAttribute('aria-selected', step.classList.contains('active').toString());
+      
+      step.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const stepNumber = parseInt(this.id.split('-')[1]);
+          goToStep(stepNumber);
+        }
+      });
+    });
   }
 
   function setupFieldValidation() {
@@ -2182,6 +2283,9 @@ async function saveFormProgress() {
     setupFileInputs();
     improveSignaturePad();
     setupFieldValidation(); // Added this line to initialize field validation
+    setupRealtimeValidation(); // Add real-time validation
+    setupKeyboardNavigation(); // Add keyboard navigation
+    makeProgressStepsAccessible(); // Add accessibility features
     setupCsrfRefresh();
     setupSaveProgressButtons();
     initializeIOBuilder(); // Add I/O builder initialization
@@ -2205,6 +2309,15 @@ async function saveFormProgress() {
 
     // Initialize user dropdown
     setupUserDropdown();
+
+    // Announce form readiness to screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-10000px';
+    announcement.textContent = 'SAT Report form loaded. Use Tab to navigate, Ctrl+Tab to switch between steps.';
+    document.body.appendChild(announcement);
   });
 
   // Setup save progress buttons
