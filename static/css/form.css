@@ -3125,7 +3125,115 @@ input[type="file"]:hover {
 .module-config-section h4,
 .modbus-config-section h4 {
     color: var(--primary);
+    margin-bottom: 16px;
+}
+
+/* Generated Tables Styles */
+.generation-summary {
+    background: #e8f5e8;
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    padding: 16px;
     margin-bottom: 20px;
+}
+
+.generation-summary h4 {
+    color: #2e7d32;
+    margin-bottom: 12px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.summary-item .label {
+    font-weight: 600;
+    color: #333;
+}
+
+.summary-item .value {
+    font-weight: 700;
+    color: #2e7d32;
+    background: #c8e6c9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.table-section {
+    margin-bottom: 30px;
+}
+
+.table-section h5 {
+    color: var(--primary);
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 8px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.io-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 14px;
+}
+
+.io-table thead {
+    background: var(--primary);
+    color: white;
+}
+
+.io-table th,
+.io-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.io-table th {
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.io-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.io-table tbody tr:hover {
+    background: #e3f2fd;
+}
+
+.io-table td {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+#generation_results {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+} 20px;
     border-bottom: 2px solid var(--primary);
     padding-bottom: 8px;
 }

@@ -126,16 +126,43 @@ def lookup_module():
             if not spec:
                 spec = ModuleSpec(company=company, model=model)
                 db.session.add(spec)
+            
+            try:
+                # Update with web data
+                for key, value in web_spec.items():
+                    if hasattr(spec, key) and value is not None:
+                        setattr(spec, key, value)
 
-            # Update with web data
-            for key, value in web_spec.items():
-                if hasattr(spec, key) and value is not None:
-                    setattr(spec, key, value)
+                spec.verified = True
+                db.session.commit()
 
-            spec.verified = True
-            db.session.commit()
-
-            return jsonify({'success': True, 'module': spec.to_dict(), 'source': 'web'})
+                return jsonify({'success': True, 'module': spec.to_dict(), 'source': 'web'})
+            except Exception as db_error:
+                current_app.logger.warning(f"Database update failed: {db_error}")
+                db.session.rollback()
+                
+                # If there's a constraint violation, try to fetch the existing record
+                if "unique constraint" in str(db_error).lower():
+                    existing_spec = ModuleSpec.query.filter_by(company=company, model=model).first()
+                    if existing_spec:
+                        return jsonify({'success': True, 'module': existing_spec.to_dict(), 'source': 'database'})
+                
+                # Return the web spec data directly without saving
+                fallback_spec = {
+                    'company': company,
+                    'model': model,
+                    'description': web_spec.get('description', f'{company} {model}'),
+                    'digital_inputs': web_spec.get('digital_inputs', 0),
+                    'digital_outputs': web_spec.get('digital_outputs', 0),
+                    'analog_inputs': web_spec.get('analog_inputs', 0),
+                    'analog_outputs': web_spec.get('analog_outputs', 0),
+                    'voltage_range': web_spec.get('voltage_range', '24 VDC'),
+                    'current_range': web_spec.get('current_range', '4-20mA'),
+                    'verified': False,
+                    'total_channels': (web_spec.get('digital_inputs', 0) + web_spec.get('digital_outputs', 0) + 
+                                     web_spec.get('analog_inputs', 0) + web_spec.get('analog_outputs', 0))
+                }
+                return jsonify({'success': True, 'module': fallback_spec, 'source': 'web'})
 
         # Return empty spec for manual entry
         fallback_spec = {
@@ -290,103 +317,7 @@ def get_hardcoded_module_specs():
         }
     }
 
-@io_builder_bp.route('/api/module-lookup', methods=['POST'])
-@login_required
-def module_lookup():
-    """Look up module specifications"""
-    try:
-        data = request.get_json()
-        company = data.get('company', '').upper()
-        model = data.get('model', '').upper()
-        
-        if not company or not model:
-            return jsonify({'success': False, 'error': 'Company and model are required'})
-        
-        # First check database for existing module
-        existing_module = ModuleSpec.query.filter_by(
-            company=company,
-            model=model
-        ).first()
-        
-        if existing_module:
-            return jsonify({
-                'success': True,
-                'source': 'database',
-                'module': {
-                    'company': existing_module.company,
-                    'model': existing_module.model,
-                    'description': existing_module.description,
-                    'digital_inputs': existing_module.digital_inputs,
-                    'digital_outputs': existing_module.digital_outputs,
-                    'analog_inputs': existing_module.analog_inputs,
-                    'analog_outputs': existing_module.analog_outputs,
-                    'total_channels': (existing_module.digital_inputs + existing_module.digital_outputs + 
-                                     existing_module.analog_inputs + existing_module.analog_outputs),
-                    'voltage_range': getattr(existing_module, 'voltage_range', '24 VDC'),
-                    'current_range': getattr(existing_module, 'current_range', '4-20mA')
-                }
-            })
-        
-        # If not in database, try web scraping (simplified for demo)
-        try:
-            # Simulate web lookup with common modules
-            common_modules = {
-                ('ABB', 'DI810'): {'digital_inputs': 16, 'digital_outputs': 0, 'analog_inputs': 0, 'analog_outputs': 0},
-                ('ABB', 'DO810'): {'digital_inputs': 0, 'digital_outputs': 16, 'analog_inputs': 0, 'analog_outputs': 0},
-                ('ABB', 'AI810'): {'digital_inputs': 0, 'digital_outputs': 0, 'analog_inputs': 8, 'analog_outputs': 0},
-                ('ABB', 'AO810'): {'digital_inputs': 0, 'digital_outputs': 0, 'analog_inputs': 0, 'analog_outputs': 8},
-                ('SIEMENS', 'SM1221'): {'digital_inputs': 16, 'digital_outputs': 0, 'analog_inputs': 0, 'analog_outputs': 0},
-                ('SIEMENS', 'SM1222'): {'digital_inputs': 0, 'digital_outputs': 16, 'analog_inputs': 0, 'analog_outputs': 0},
-                ('SIEMENS', 'SM1231'): {'digital_inputs': 0, 'digital_outputs': 0, 'analog_inputs': 8, 'analog_outputs': 0},
-                ('SIEMENS', 'SM1232'): {'digital_inputs': 0, 'digital_outputs': 0, 'analog_inputs': 0, 'analog_outputs': 8}
-            }
-            
-            module_key = (company, model)
-            if module_key in common_modules:
-                spec = common_modules[module_key]
-                
-                # Save to database for future use
-                new_module = ModuleSpec(
-                    company=company,
-                    model=model,
-                    description=f"{company} {model}",
-                    digital_inputs=spec['digital_inputs'],
-                    digital_outputs=spec['digital_outputs'],
-                    analog_inputs=spec['analog_inputs'],
-                    analog_outputs=spec['analog_outputs']
-                )
-                db.session.add(new_module)
-                db.session.commit()
-                
-                return jsonify({
-                    'success': True,
-                    'source': 'web',
-                    'module': {
-                        'company': company,
-                        'model': model,
-                        'description': f"{company} {model}",
-                        'digital_inputs': spec['digital_inputs'],
-                        'digital_outputs': spec['digital_outputs'],
-                        'analog_inputs': spec['analog_inputs'],
-                        'analog_outputs': spec['analog_outputs'],
-                        'total_channels': sum(spec.values()),
-                        'voltage_range': '24 VDC',
-                        'current_range': '4-20mA'
-                    }
-                })
-        except Exception as web_error:
-            current_app.logger.warning(f"Web lookup failed: {web_error}")
-        
-        # Return manual entry prompt
-        return jsonify({
-            'success': False,
-            'error': f'Module {company} {model} not found. Please enter specifications manually.',
-            'require_manual': True
-        })
-        
-    except Exception as e:
-        current_app.logger.error(f"Error in module lookup: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @io_builder_bp.route('/api/generate-io-table', methods=['POST'])
 @login_required

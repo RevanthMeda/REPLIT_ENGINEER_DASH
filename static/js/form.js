@@ -2308,23 +2308,138 @@ async function saveFormProgress() {
       const data = await response.json();
 
       if (data.success) {
-        populateIOTables(data.tables);
-        showGenerationStatus(`Successfully generated ${data.summary.total_digital_inputs + data.summary.total_digital_outputs + data.summary.total_analog_inputs + data.summary.total_analog_outputs + data.summary.total_modbus_digital + data.summary.total_modbus_analog} signals`, 'success');
+        showGenerationStatus('I/O tables generated successfully!', 'success');
+        displayGeneratedTables(data.tables, data.summary);
 
-        // Move to next step automatically
-        setTimeout(() => {
-          goToStep(7); // Go to I/O Testing step
-        }, 2000);
+        // Store generated data for potential export
+        window.generatedIOData = data;
+
+        // Enable export button if available
+        const exportBtn = document.getElementById('export_tables_btn');
+        if (exportBtn) {
+          exportBtn.disabled = false;
+        }
       } else {
         showGenerationStatus(`Error: ${data.error}`, 'error');
       }
     } catch (error) {
       console.error('Generation error:', error);
-      showGenerationStatus('Error connecting to generation service', 'error');
+      showGenerationStatus('Failed to generate I/O tables. Please try again.', 'error');
     } finally {
-      generateBtn.textContent = '📋 Generate I/O Tables';
+      generateBtn.textContent = '📊 Generate Tables';
       generateBtn.disabled = false;
     }
+  }
+
+  function displayGeneratedTables(tables, summary) {
+    const resultsContainer = document.getElementById('generation_results');
+    if (!resultsContainer) return;
+
+    let html = `
+      <div class="generation-summary">
+        <h4>Generation Summary</h4>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">Digital Inputs:</span>
+            <span class="value">${summary.total_digital_inputs || 0}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Digital Outputs:</span>
+            <span class="value">${summary.total_digital_outputs || 0}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Analog Inputs:</span>
+            <span class="value">${summary.total_analog_inputs || 0}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Analog Outputs:</span>
+            <span class="value">${summary.total_analog_outputs || 0}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Modbus Digital:</span>
+            <span class="value">${summary.total_modbus_digital || 0}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Modbus Analog:</span>
+            <span class="value">${summary.total_modbus_analog || 0}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Digital Inputs Table
+    if (tables.digital_inputs && tables.digital_inputs.length > 0) {
+      html += generateTableHTML('Digital Inputs', tables.digital_inputs, [
+        'sno', 'rack_no', 'module_position', 'signal_tag', 'signal_description', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    // Digital Outputs Table
+    if (tables.digital_outputs && tables.digital_outputs.length > 0) {
+      html += generateTableHTML('Digital Outputs', tables.digital_outputs, [
+        'sno', 'rack_no', 'module_position', 'signal_tag', 'signal_description', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    // Analog Inputs Table
+    if (tables.analog_inputs && tables.analog_inputs.length > 0) {
+      html += generateTableHTML('Analog Inputs', tables.analog_inputs, [
+        'sno', 'rack_no', 'module_position', 'signal_tag', 'signal_description', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    // Analog Outputs Table
+    if (tables.analog_outputs && tables.analog_outputs.length > 0) {
+      html += generateTableHTML('Analog Outputs', tables.analog_outputs, [
+        'sno', 'rack_no', 'module_position', 'signal_tag', 'signal_description', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    // Modbus Digital Table
+    if (tables.modbus_digital && tables.modbus_digital.length > 0) {
+      html += generateTableHTML('Modbus Digital', tables.modbus_digital, [
+        'address', 'description', 'remarks', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    // Modbus Analog Table
+    if (tables.modbus_analog && tables.modbus_analog.length > 0) {
+      html += generateTableHTML('Modbus Analog', tables.modbus_analog, [
+        'address', 'description', 'range', 'result', 'punch_item', 'verified_by', 'comment'
+      ]);
+    }
+
+    resultsContainer.innerHTML = html;
+    resultsContainer.classList.remove('hidden');
+  }
+
+  function generateTableHTML(title, data, columns) {
+    let html = `
+      <div class="table-section">
+        <h5>${title} (${data.length} entries)</h5>
+        <div class="table-responsive">
+          <table class="io-table">
+            <thead>
+              <tr>`;
+
+    // Generate headers
+    columns.forEach(col => {
+      html += `<th>${col.replace('_', ' ').toUpperCase()}</th>`;
+    });
+
+    html += `</tr></thead><tbody>`;
+
+    // Generate rows
+    data.forEach(row => {
+      html += '<tr>';
+      columns.forEach(col => {
+        html += `<td>${row[col] || ''}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div></div>';
+    return html;
   }
 
   async function previewTables() {
@@ -2760,7 +2875,7 @@ async function saveFormProgress() {
   // Initialize email selection functionality
   function initializeEmailSelection() {
     console.log('Initializing email selection...');
-    
+
     // Fetch users by role
     fetch('/api/get-users-by-role')
       .then(response => {
@@ -2798,11 +2913,11 @@ async function saveFormProgress() {
   // Populate email selector dropdowns
   function populateEmailSelectors(users) {
     console.log('Populating email selectors with:', users);
-    
+
     // Automation Manager (TM role users)
     const techManagerSelect = document.getElementById('approver_1_select');
     const techManagerInput = document.getElementById('approver_1_email');
-    
+
     if (techManagerSelect && techManagerInput) {
       console.log('Found AM selector, TM users:', users.TM);
       // Clear existing options except the first one
@@ -2843,7 +2958,7 @@ async function saveFormProgress() {
     // Project Manager (PM role users)
     const pmSelect = document.getElementById('approver_2_select');
     const pmInput = document.getElementById('approver_2_email');
-    
+
     if (pmSelect && pmInput) {
       console.log('Found PM selector, PM users:', users.PM);
       // Clear existing options except the first one
@@ -2884,7 +2999,7 @@ async function saveFormProgress() {
     // Client (All users can be clients, but primarily show admins and engineers)
     const clientSelect = document.getElementById('approver_3_select');
     const clientInput = document.getElementById('approver_3_email');
-    
+
     if (clientSelect && clientInput) {
       // Clear existing options except the first one
       const firstOption = clientSelect.querySelector('option');
@@ -2915,379 +3030,6 @@ async function saveFormProgress() {
         if (this.value) {
           clientInput.value = this.value;
           console.log('Updated Client input to:', this.value);
-        }
-      });
-    }
-  }
-
-  // Display version information
-  function displayVersionInfo() {
-    // This function can be implemented to show version information
-    console.log('SAT Report Generator v2.0');
-  }
-
-  // Setup user dropdown functionality
-  function setupUserDropdown() {
-    const userDetails = document.querySelector('.user-details');
-    const userDropdown = document.querySelector('.user-dropdown-menu');
-
-    if (userDetails && userDropdown) {
-      userDetails.addEventListener('click', function(e) {
-        e.stopPropagation();
-        userDropdown.classList.toggle('show');
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!userDetails.contains(e.target)) {
-          userDropdown.classList.remove('show');
-        }
-      });
-    }
-  }
-
-  // Initialize responsive tables with mobile card layout
-  function initializeResponsiveTables() {
-    const tables = document.querySelectorAll('table');
-
-    tables.forEach(table => {
-      createMobileCardLayout(table);
-      setupColumnPriorities(table);
-      setupStickyColumns(table);
-      addHeaderTooltips(table);
-    });
-
-    // Handle window resize
-    window.addEventListener('resize', debounce(handleTableResize, 250));
-  }
-
-  function createMobileCardLayout(table) {
-    const tableContainer = table.closest('.table-responsive');
-    if (!tableContainer) return;
-
-    // Wrap existing table for desktop
-    const desktopWrapper = document.createElement('div');
-    desktopWrapper.className = 'desktop-table-wrapper';
-    table.parentNode.insertBefore(desktopWrapper, table);
-    desktopWrapper.appendChild(table);
-
-    // Create mobile cards container
-    const mobileContainer = document.createElement('div');
-    mobileContainer.className = 'mobile-table-cards';
-
-    // Add scroll hint
-    const scrollHint = document.createElement('div');
-    scrollHint.className = 'mobile-scroll-hint';
-    scrollHint.textContent = '📱 Optimized for mobile viewing';
-    mobileContainer.appendChild(scrollHint);
-
-    // Extract table data and create cards
-    const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
-      text: th.textContent.trim(),
-      priority: getColumnPriority(th),
-      index: Array.from(th.parentNode.children).indexOf(th)
-    }));
-
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-    rows.forEach((row, index) => {
-      const card = createMobileCard(row, headers, index);
-      mobileContainer.appendChild(card);
-    });
-
-    tableContainer.appendChild(mobileContainer);
-
-    // Watch for table changes and update mobile cards
-    const observer = new MutationObserver(() => {
-      updateMobileCards(table, mobileContainer, headers);
-    });
-
-    observer.observe(table.querySelector('tbody'), {
-      childList: true,
-      subtree: true,
-      attributes: true
-    });
-  }
-
-  function createMobileCard(row, headers, index) {
-    const card = document.createElement('div');
-    card.className = 'mobile-card';
-    card.dataset.rowIndex = index;
-
-    const cells = Array.from(row.querySelectorAll('td'));
-
-    // Card header with primary information
-    const header = document.createElement('div');
-    header.className = 'mobile-card-header';
-
-    // Get primary identifier (usually first non-empty cell or signal tag)
-    let primaryId = `Item ${index + 1}`;
-    let signalTag = '';
-
-    // Look for Signal TAG column (usually around index 3-4)
-    const signalTagCell = cells.find((cell, idx) => {
-      const headerText = headers[idx]?.text.toLowerCase() || '';
-      return headerText.includes('signal') && headerText.includes('tag');
-    });
-
-    if (signalTagCell) {
-      const input = signalTagCell.querySelector('input');
-      signalTag = input ? input.value : signalTagCell.textContent.trim();
-    }
-
-    // Use S.No if available
-    if (cells[0]) {
-      const input = cells[0].querySelector('input');
-      const sno = input ? input.value : cells[0].textContent.trim();
-      if (sno) primaryId = sno;
-    }
-
-    header.innerHTML = `
-      <span class="mobile-card-title">${signalTag || 'Signal'}</span>
-      <span class="mobile-card-number">#${primaryId}</span>
-    `;
-
-    card.appendChild(header);
-
-    // Card body with essential fields
-    const body = document.createElement('div');
-    body.className = 'mobile-card-body';
-
-    // Essential fields (high priority columns)
-    const essentialFields = document.createElement('div');
-    essentialFields.className = 'mobile-essential-fields';
-
-    headers.forEach((header, colIndex) => {
-      if (header.priority === 'high' && colIndex < cells.length - 1) { // Exclude actions column
-        const cell = cells[colIndex];
-        if (cell) {
-          const fieldGroup = createMobileField(header.text, cell, colIndex);
-          essentialFields.appendChild(fieldGroup);
-        }
-      }
-    });
-
-    body.appendChild(essentialFields);
-
-    // Expandable section for other fields
-    const expandable = document.createElement('div');
-    expandable.className = 'mobile-expandable';
-
-    const toggle = document.createElement('button');
-    toggle.className = 'mobile-expand-toggle';
-    toggle.innerHTML = `
-      <span>More Details</span>
-      <i class="fas fa-chevron-down"></i>
-    `;
-
-    toggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      expandable.classList.toggle('expanded');
-    });
-
-    const expandableContent = document.createElement('div');
-    expandableContent.className = 'mobile-expandable-content';
-
-    headers.forEach((header, colIndex) => {
-      if (header.priority !== 'high' && colIndex < cells.length - 1) { // Exclude actions column
-        const cell = cells[colIndex];
-        if (cell) {
-          const fieldGroup = createMobileField(header.text, cell, colIndex);
-          expandableContent.appendChild(fieldGroup);
-        }
-      }
-    });
-
-    expandable.appendChild(toggle);
-    expandable.appendChild(expandableContent);
-    body.appendChild(expandable);
-
-    // Actions
-    const actionsCell = cells[cells.length - 1];
-    if (actionsCell) {
-      const actions = document.createElement('div');
-      actions.className = 'mobile-card-actions';
-
-      const buttons = actionsCell.querySelectorAll('button');
-      buttons.forEach(btn => {
-        const mobileBtn = btn.cloneNode(true);
-        mobileBtn.className = `mobile-action-btn ${btn.classList.contains('remove-row-btn') ? 'delete' : 'edit'}`;
-
-        // Ensure the cloned button maintains functionality
-        if (btn.classList.contains('remove-row-btn')) {
-          mobileBtn.addEventListener('click', () => {
-            // Remove both the original row and the mobile card
-            btn.click();
-            card.remove();
-          });
-        }
-
-        actions.appendChild(mobileBtn);
-      });
-
-      body.appendChild(actions);
-    }
-
-    card.appendChild(body);
-    return card;
-  }
-
-  function createMobileField(label, cell, colIndex) {
-    const fieldGroup = document.createElement('div');
-    fieldGroup.className = 'mobile-field-group';
-
-    const fieldLabel = document.createElement('div');
-    fieldLabel.className = 'mobile-field-label';
-    fieldLabel.textContent = label;
-
-    const fieldValue = document.createElement('div');
-    fieldValue.className = 'mobile-field-value';
-
-    // Clone the input/content from the cell
-    const input = cell.querySelector('input, select, textarea');
-    if (input) {
-      const clonedInput = input.cloneNode(true);
-
-      // Sync values between original table input and mobile card input
-      clonedInput.addEventListener('input', () => {
-        input.value = clonedInput.value;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-
-      input.addEventListener('input', () => {
-        clonedInput.value = input.value;
-      });
-
-      fieldValue.appendChild(clonedInput);
-    } else {
-      fieldValue.textContent = cell.textContent.trim();
-    }
-
-    fieldGroup.appendChild(fieldLabel);
-    fieldGroup.appendChild(fieldValue);
-
-    return fieldGroup;
-  }
-
-  function setupColumnPriorities(table) {
-    const headers = table.querySelectorAll('thead th');
-    const rows = table.querySelectorAll('tbody tr');
-
-    headers.forEach((header, index) => {
-      const priority = getColumnPriority(header);
-      header.classList.add(`col-priority-${priority}`);
-
-      // Apply same class to all cells in this column
-      rows.forEach(row => {
-        const cell = row.cells[index];
-        if (cell) {
-          cell.classList.add(`col-priority-${priority}`);
-        }
-      });
-
-      // Add sticky classes for important columns
-      const text = header.textContent.toLowerCase();
-      if (text.includes('signal') && text.includes('tag')) {
-        header.classList.add('col-sticky');
-        rows.forEach(row => {
-          const cell = row.cells[index];
-          if (cell) cell.classList.add('col-sticky');
-        });
-      }
-
-      // Make actions column sticky
-      if (text.includes('action') || index === headers.length - 1) {
-        header.classList.add('col-sticky-actions');
-        rows.forEach(row => {
-          const cell = row.cells[index];
-          if (cell) cell.classList.add('col-sticky-actions');
-        });
-      }
-    });
-  }
-
-  function getColumnPriority(header) {
-    const text = header.textContent.toLowerCase();
-
-    // High priority: essential for identification and results
-    if (text.includes('signal') || text.includes('tag') || text.includes('description') || 
-        text.includes('result') || text.includes('action')) {
-      return 'high';
-    }
-
-    // Medium priority: important but not critical
-    if (text.includes('rack') || text.includes('position') || text.includes('verified') || 
-        text.includes('punch')) {
-      return 'medium';
-    }
-
-    // Low priority: can be hidden on smaller screens
-    return 'low';
-  }
-
-  function updateMobileCards(table, mobileContainer, headers) {
-    // Find existing cards (skip the scroll hint)
-    const cards = Array.from(mobileContainer.querySelectorAll('.mobile-card'));
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-    // Remove excess cards
-    if (cards.length > rows.length) {
-      for (let i = rows.length; i < cards.length; i++) {
-        if (cards[i]) cards[i].remove();
-      }
-    }
-
-    // Add new cards for new rows
-    if (rows.length > cards.length) {
-      for (let i = cards.length; i < rows.length; i++) {
-        const card = createMobileCard(rows[i], headers, i);
-        mobileContainer.appendChild(card);
-      }
-    }
-
-    // Update existing cards
-    cards.forEach((card, index) => {
-      if (rows[index]) {
-        // Update card content if needed
-        const newCard = createMobileCard(rows[index], headers, index);
-        card.replaceWith(newCard);
-      }
-    });
-  }
-
-  function handleTableResize() {
-    // Refresh mobile cards when window resizes
-    setTimeout(() => {
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        const mobileContainer = table.closest('.table-responsive')?.querySelector('.mobile-table-cards');
-        if (mobileContainer) {
-          const headers = Array.from(table.querySelectorAll('thead th')).map(th => ({
-            text: th.textContent.trim(),
-            priority: getColumnPriority(th),
-            index: Array.from(th.parentNode.children).indexOf(th)
-          }));
-          updateMobileCards(table, mobileContainer, headers);
-        }
-      });
-    }, 100);
-  }
-
-  // Setup user dropdown functionality
-  function setupUserDropdown() {
-    const userDetails = document.querySelector('.user-details');
-    const userDropdown = document.querySelector('.user-dropdown-menu');
-
-    if (userDetails && userDropdown) {
-      userDetails.addEventListener('click', function(e) {
-        e.stopPropagation();
-        userDropdown.classList.toggle('show');
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!userDetails.contains(e.target)) {
-          userDropdown.classList.remove('show');
         }
       });
     }
