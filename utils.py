@@ -1333,3 +1333,18 @@ def generate_sat_report(data):
     """Generate SAT report (placeholder)"""
     print("Generating SAT report...")
     return {"success": True, "filename": "SAT_Report_Final.docx"}
+
+def get_unread_count():
+    """Get unread notification count for current user"""
+    try:
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            from models import Notification
+            count = Notification.query.filter_by(
+                user_email=current_user.email, 
+                read=False
+            ).count()
+            return count
+    except Exception as e:
+        print(f"Error getting unread count: {e}")
+    return 0
