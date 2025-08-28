@@ -2759,18 +2759,27 @@ async function saveFormProgress() {
 
   // Initialize email selection functionality
   function initializeEmailSelection() {
+    console.log('Initializing email selection...');
+    
     // Fetch users by role
     fetch('/api/get-users-by-role')
-      .then(response => response.json())
+      .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+      })
       .then(data => {
+        console.log('Received user data:', data);
         if (data.success) {
+          console.log('Users by role:', data.users);
           populateEmailSelectors(data.users);
         } else {
           console.error('Failed to fetch users:', data.error);
+          alert('Failed to load user list. Please refresh the page.');
         }
       })
       .catch(error => {
         console.error('Error fetching users:', error);
+        alert('Error loading user list. Please check your connection and refresh.');
       });
 
     // Set up event listeners for email selectors
@@ -2788,9 +2797,12 @@ async function saveFormProgress() {
 
   // Populate email selector dropdowns
   function populateEmailSelectors(users) {
+    console.log('Populating email selectors with:', users);
+    
     // Technical Manager (TM role users)
     const techManagerSelect = document.getElementById('approver_1_select');
-    if (techManagerSelect && users.TM) {
+    if (techManagerSelect) {
+      console.log('Found TM selector, TM users:', users.TM);
       // Clear existing options except the first one
       const firstOption = techManagerSelect.querySelector('option');
       techManagerSelect.innerHTML = '';
@@ -2798,17 +2810,30 @@ async function saveFormProgress() {
         techManagerSelect.appendChild(firstOption);
       }
 
-      users.TM.forEach(user => {
+      if (users.TM && users.TM.length > 0) {
+        users.TM.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.email;
+          option.textContent = `${user.name} (${user.email})`;
+          techManagerSelect.appendChild(option);
+          console.log('Added TM option:', user.name, user.email);
+        });
+      } else {
+        console.log('No TM users found');
         const option = document.createElement('option');
-        option.value = user.email;
-        option.textContent = `${user.name} (${user.email})`;
+        option.value = '';
+        option.textContent = 'No Technical Managers found';
+        option.disabled = true;
         techManagerSelect.appendChild(option);
-      });
+      }
+    } else {
+      console.error('Technical Manager select element not found');
     }
 
     // Project Manager (PM role users)
     const pmSelect = document.getElementById('approver_2_select');
-    if (pmSelect && users.PM) {
+    if (pmSelect) {
+      console.log('Found PM selector, PM users:', users.PM);
       // Clear existing options except the first one
       const firstOption = pmSelect.querySelector('option');
       pmSelect.innerHTML = '';
@@ -2816,12 +2841,24 @@ async function saveFormProgress() {
         pmSelect.appendChild(firstOption);
       }
 
-      users.PM.forEach(user => {
+      if (users.PM && users.PM.length > 0) {
+        users.PM.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.email;
+          option.textContent = `${user.name} (${user.email})`;
+          pmSelect.appendChild(option);
+          console.log('Added PM option:', user.name, user.email);
+        });
+      } else {
+        console.log('No PM users found');
         const option = document.createElement('option');
-        option.value = user.email;
-        option.textContent = `${user.name} (${user.email})`;
+        option.value = '';
+        option.textContent = 'No Project Managers found';
+        option.disabled = true;
         pmSelect.appendChild(option);
-      });
+      }
+    } else {
+      console.error('Project Manager select element not found');
     }
 
     // Client (All users can be clients, but primarily show admins and engineers)

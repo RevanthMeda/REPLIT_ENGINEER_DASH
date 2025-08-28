@@ -87,13 +87,24 @@ def create_app(config_class=Config):
             }
 
             for user in users:
-                if user.role in users_by_role:
-                    users_by_role[user.role].append({
-                        'name': user.full_name,
-                        'email': user.email
-                    })
+                user_data = {
+                    'name': user.full_name,
+                    'email': user.email
+                }
+                
+                # Map database roles to frontend role categories
+                if user.role == 'Admin':
+                    users_by_role['Admin'].append(user_data)
+                elif user.role == 'Engineer':
+                    users_by_role['Engineer'].append(user_data)
+                elif user.role in ['TM', 'Technical Manager', 'Tech Manager']:
+                    users_by_role['TM'].append(user_data)
+                elif user.role in ['PM', 'Project Manager', 'Project_Manager']:
+                    users_by_role['PM'].append(user_data)
 
-            app.logger.info(f"Users by role: {users_by_role}")
+            app.logger.info(f"Found {len(users)} total users")
+            app.logger.info(f"Users by role: TM={len(users_by_role['TM'])}, PM={len(users_by_role['PM'])}, Admin={len(users_by_role['Admin'])}, Engineer={len(users_by_role['Engineer'])}")
+            
             return jsonify({'success': True, 'users': users_by_role})
         except Exception as e:
             app.logger.error(f"Error in get_users_by_role endpoint: {e}")
