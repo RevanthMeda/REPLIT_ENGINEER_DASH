@@ -729,6 +729,11 @@
     </div>
 
     <div class="header-actions">
+      <button type="button" class="header-btn secondary" onclick="showQuickActions()">
+        <i class="fas fa-bolt"></i>
+        <span class="btn-text">Quick Actions</span>
+      </button>
+
       <button type="button" class="header-btn secondary" onclick="saveProgress()">
         <i class="fas fa-save"></i>
         <span class="btn-text">Save Progress</span>
@@ -1385,6 +1390,169 @@
             </div>
           </fieldset>
 
+          <!-- Step 8 — I/O Testing -->
+          <fieldset class="form-step" id="step-8">
+            <div class="step-header">
+              <h1 class="step-legend">
+                <i class="fas fa-play-circle"></i>
+                Step 8 — I/O Testing
+              </h1>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">
+                <span>Digital Signals Configuration</span>
+                <button type="button" class="header-btn primary" onclick="generateIOTablesFromBuilder()">
+                  <i class="fas fa-magic"></i> Auto-Generate from I/O Builder
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>S.No</th><th>Rack</th><th>Pos</th><th>Signal TAG</th><th>Description</th>
+                        <th>Result</th><th>Punch</th><th>Verified</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="digital-signals-body">
+                      {% for signal in submission_data.DIGITAL_SIGNALS %}
+                      <tr>
+                        <td><input name="digital_s_no[]" value="{{ signal.S_No }}"/></td>
+                        <td><input name="digital_rack[]" value="{{ signal.Rack }}"/></td>
+                        <td><input name="digital_pos[]" value="{{ signal.Pos }}"/></td>
+                        <td><input name="digital_signal_tag[]" value="{{ signal.Signal_TAG }}"/></td>
+                        <td><input name="digital_description[]" value="{{ signal.Description }}"/></td>
+                        <td>
+                          <select name="digital_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="digital_punch[]" value="{{ signal.Punch }}"/></td>
+                        <td><input name="digital_verified[]" value="{{ signal.Verified }}"/></td>
+                        <td><input name="digital_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addDigitalSignal()">
+                  <i class="fas fa-plus"></i> Add Digital Signal
+                </button>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">
+                <span>Analogue Input Signals</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>S.No</th><th>Rack No</th><th>Module Position</th><th>Signal TAG</th><th>Description</th>
+                        <th>Result</th><th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="analogue-inputs-body">
+                      {% for signal in submission_data.ANALOGUE_INPUT_SIGNALS %}
+                      <tr>
+                        <td><input name="analogue_input_s_no[]" value="{{ signal.S_No }}"/></td>
+                        <td><input name="analogue_input_rack_no[]" value="{{ signal.Rack_No }}"/></td>
+                        <td><input name="analogue_input_module_position[]" value="{{ signal.Module_Position }}"/></td>
+                        <td><input name="analogue_input_signal_tag[]" value="{{ signal.Signal_TAG }}"/></td>
+                        <td><input name="analogue_input_description[]" value="{{ signal.Description }}"/></td>
+                        <td>
+                          <select name="analogue_input_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="analogue_input_punch_item[]" value="{{ signal.Punch_Item }}"/></td>
+                        <td><input name="analogue_input_verified_by[]" value="{{ signal.Verified_by }}"/></td>
+                        <td><input name="analogue_input_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addAnalogueInput()">
+                  <i class="fas fa-plus"></i> Add Analogue Input
+                </button>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">
+                <span>Analogue Output Signals</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>S.No</th><th>Rack No</th><th>Module Position</th><th>Signal TAG</th><th>Description</th>
+                        <th>Result</th><th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="analogue-outputs-body">
+                      {% for signal in submission_data.ANALOGUE_OUTPUT_SIGNALS %}
+                      <tr>
+                        <td><input name="analogue_output_s_no[]" value="{{ signal.S_No }}"/></td>
+                        <td><input name="analogue_output_rack_no[]" value="{{ signal.Rack_No }}"/></td>
+                        <td><input name="analogue_output_module_position[]" value="{{ signal.Module_Position }}"/></td>
+                        <td><input name="analogue_output_signal_tag[]" value="{{ signal.Signal_TAG }}"/></td>
+                        <td><input name="analogue_output_description[]" value="{{ signal.Description }}"/></td>
+                        <td>
+                          <select name="analogue_output_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="analogue_output_punch_item[]" value="{{ signal.Punch_Item }}"/></td>
+                        <td><input name="analogue_output_verified_by[]" value="{{ signal.Verified_by }}"/></td>
+                        <td><input name="analogue_output_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addAnalogueOutput()">
+                  <i class="fas fa-plus"></i> Add Analogue Output
+                </button>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(7)">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(9)">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </fieldset>
+
           <!-- Step 9 — Process, Alarms & Images -->
           <fieldset class="form-step" id="step-9">
             <div class="step-header">
@@ -1658,6 +1826,63 @@
     </tr>
   </template>
 
+  <template id="tmpl-digital-signal">
+    <tr>
+      <td><input name="digital_s_no[]" placeholder="S.No" /></td>
+      <td><input name="digital_rack[]" placeholder="Rack" /></td>
+      <td><input name="digital_pos[]" placeholder="Pos" /></td>
+      <td><input name="digital_signal_tag[]" placeholder="Signal TAG" /></td>
+      <td><input name="digital_description[]" placeholder="Description" /></td>
+      <td>
+        <select name="digital_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="digital_punch[]" placeholder="Punch" /></td>
+      <td><input name="digital_verified[]" placeholder="Verified" /></td>
+      <td><input name="digital_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
+  <template id="tmpl-analogue-input">
+    <tr>
+      <td><input name="analogue_input_s_no[]" placeholder="S.No" /></td>
+      <td><input name="analogue_input_rack_no[]" placeholder="Rack No" /></td>
+      <td><input name="analogue_input_module_position[]" placeholder="Module Position" /></td>
+      <td><input name="analogue_input_signal_tag[]" placeholder="Signal TAG" /></td>
+      <td><input name="analogue_input_description[]" placeholder="Description" /></td>
+      <td>
+        <select name="analogue_input_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="analogue_input_punch_item[]" placeholder="Punch Item" /></td>
+      <td><input name="analogue_input_verified_by[]" placeholder="Verified By" /></td>
+      <td><input name="analogue_input_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
+  <template id="tmpl-analogue-output">
+    <tr>
+      <td><input name="analogue_output_s_no[]" placeholder="S.No" /></td>
+      <td><input name="analogue_output_rack_no[]" placeholder="Rack No" /></td>
+      <td><input name="analogue_output_module_position[]" placeholder="Module Position" /></td>
+      <td><input name="analogue_output_signal_tag[]" placeholder="Signal TAG" /></td>
+      <td><input name="analogue_output_description[]" placeholder="Description" /></td>
+      <td>
+        <select name="analogue_output_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="analogue_output_punch_item[]" placeholder="Punch Item" /></td>
+      <td><input name="analogue_output_verified_by[]" placeholder="Verified By" /></td>
+      <td><input name="analogue_output_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
   <script>
     // Global variables
     let currentStep = 1;
@@ -1783,6 +2008,69 @@
       addRow(tbodyId, templateId);
     }
 
+    function addAnalogueInput() {
+      addRow('analogue-inputs-body', 'tmpl-analogue-input');
+    }
+
+    function addAnalogueOutput() {
+      addRow('analogue-outputs-body', 'tmpl-analogue-output');
+    }
+
+    // Quick Actions functionality
+    function showQuickActions() {
+      const actions = [
+        'Jump to Step 8 (I/O Testing)',
+        'Auto-fill test data',
+        'Validate all forms',
+        'Preview report',
+        'Export current data'
+      ];
+      
+      let message = 'Quick Actions:\n\n';
+      actions.forEach((action, index) => {
+        message += `${index + 1}. ${action}\n`;
+      });
+      
+      const choice = prompt(message + '\nEnter number (1-5):');
+      
+      switch(choice) {
+        case '1':
+          goToStep(8);
+          break;
+        case '2':
+          alert('Auto-fill feature coming soon!');
+          break;
+        case '3':
+          validateAllForms();
+          break;
+        case '4':
+          alert('Preview feature coming soon!');
+          break;
+        case '5':
+          alert('Export feature coming soon!');
+          break;
+        default:
+          if (choice !== null) alert('Invalid choice');
+      }
+    }
+
+    function validateAllForms() {
+      const form = document.getElementById('satForm');
+      const invalidFields = form.querySelectorAll(':invalid');
+      
+      if (invalidFields.length === 0) {
+        alert('All forms are valid!');
+      } else {
+        alert(`Found ${invalidFields.length} invalid fields. Please check your inputs.`);
+        invalidFields[0].focus();
+      }
+    }
+
+    function generateIOTablesFromBuilder() {
+      if (confirm('This will auto-populate I/O tables from your Step 5 configuration. Continue?')) {
+        alert('I/O Builder integration coming soon! For now, use the Add buttons to manually add signals.');
+      }
+    }
 
     // Save progress functionality
     function saveProgress() {
