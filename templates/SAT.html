@@ -1543,6 +1543,143 @@
               </div>
             </div>
 
+            <div class="data-card">
+              <div class="card-header">
+                <span>Digital Output Signals</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>S.No</th><th>Rack No</th><th>Module Position</th><th>Signal TAG</th><th>Description</th>
+                        <th>Result</th><th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="digital-outputs-body">
+                      {% for signal in submission_data.DIGITAL_OUTPUT_SIGNALS %}
+                      <tr>
+                        <td><input name="digital_output_s_no[]" value="{{ signal.S_No }}"/></td>
+                        <td><input name="digital_output_rack_no[]" value="{{ signal.Rack_No }}"/></td>
+                        <td><input name="digital_output_module_position[]" value="{{ signal.Module_Position }}"/></td>
+                        <td><input name="digital_output_signal_tag[]" value="{{ signal.Signal_TAG }}"/></td>
+                        <td><input name="digital_output_description[]" value="{{ signal.Description }}"/></td>
+                        <td>
+                          <select name="digital_output_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="digital_output_punch_item[]" value="{{ signal.Punch_Item }}"/></td>
+                        <td><input name="digital_output_verified_by[]" value="{{ signal.Verified_by }}"/></td>
+                        <td><input name="digital_output_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addDigitalOutput()">
+                  <i class="fas fa-plus"></i> Add Digital Output
+                </button>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">
+                <span>Modbus Digital Signals</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Address</th><th>Description</th><th>Remarks</th><th>Result</th>
+                        <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="modbus-digital-body">
+                      {% for signal in submission_data.MODBUS_DIGITAL_SIGNALS %}
+                      <tr>
+                        <td><input name="modbus_digital_address[]" value="{{ signal.Address }}"/></td>
+                        <td><input name="modbus_digital_description[]" value="{{ signal.Description }}"/></td>
+                        <td><input name="modbus_digital_remarks[]" value="{{ signal.Remarks }}"/></td>
+                        <td>
+                          <select name="modbus_digital_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="modbus_digital_punch_item[]" value="{{ signal.Punch_Item }}"/></td>
+                        <td><input name="modbus_digital_verified_by[]" value="{{ signal.Verified_by }}"/></td>
+                        <td><input name="modbus_digital_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addModbusDigital()">
+                  <i class="fas fa-plus"></i> Add Modbus Digital
+                </button>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="card-header">
+                <span>Modbus Analogue Signals</span>
+              </div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Address</th><th>Description</th><th>Range</th><th>Result</th>
+                        <th>Punch Item</th><th>Verified By</th><th>Comment</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="modbus-analogue-body">
+                      {% for signal in submission_data.MODBUS_ANALOGUE_SIGNALS %}
+                      <tr>
+                        <td><input name="modbus_analogue_address[]" value="{{ signal.Address }}"/></td>
+                        <td><input name="modbus_analogue_description[]" value="{{ signal.Description }}"/></td>
+                        <td><input name="modbus_analogue_range[]" value="{{ signal.Range }}"/></td>
+                        <td>
+                          <select name="modbus_analogue_result[]">
+                            <option value="Pass" {% if signal.Result=='Pass' %}selected{% endif %}>Pass</option>
+                            <option value="Fail" {% if signal.Result=='Fail' %}selected{% endif %}>Fail</option>
+                            <option value="N/A" {% if signal.Result=='N/A' %}selected{% endif %}>N/A</option>
+                          </select>
+                        </td>
+                        <td><input name="modbus_analogue_punch_item[]" value="{{ signal.Punch_Item }}"/></td>
+                        <td><input name="modbus_analogue_verified_by[]" value="{{ signal.Verified_by }}"/></td>
+                        <td><input name="modbus_analogue_comment[]" value="{{ signal.Comment }}"/></td>
+                        <td>
+                          <button type="button" class="btn-remove" onclick="removeRow(this)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <button type="button" class="btn btn-add" onclick="addModbusAnalogue()">
+                  <i class="fas fa-plus"></i> Add Modbus Analogue
+                </button>
+              </div>
+            </div>
+
             <div class="btn-group">
               <button type="button" class="btn btn-secondary" onclick="goToStep(7)">
                 <i class="fas fa-arrow-left"></i> Previous
@@ -1883,6 +2020,59 @@
     </tr>
   </template>
 
+  <template id="tmpl-digital-output">
+    <tr>
+      <td><input name="digital_output_s_no[]" placeholder="S.No" /></td>
+      <td><input name="digital_output_rack_no[]" placeholder="Rack No" /></td>
+      <td><input name="digital_output_module_position[]" placeholder="Module Position" /></td>
+      <td><input name="digital_output_signal_tag[]" placeholder="Signal TAG" /></td>
+      <td><input name="digital_output_description[]" placeholder="Description" /></td>
+      <td>
+        <select name="digital_output_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="digital_output_punch_item[]" placeholder="Punch Item" /></td>
+      <td><input name="digital_output_verified_by[]" placeholder="Verified By" /></td>
+      <td><input name="digital_output_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
+  <template id="tmpl-modbus-digital">
+    <tr>
+      <td><input name="modbus_digital_address[]" placeholder="Address" /></td>
+      <td><input name="modbus_digital_description[]" placeholder="Description" /></td>
+      <td><input name="modbus_digital_remarks[]" placeholder="Remarks" /></td>
+      <td>
+        <select name="modbus_digital_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="modbus_digital_punch_item[]" placeholder="Punch Item" /></td>
+      <td><input name="modbus_digital_verified_by[]" placeholder="Verified By" /></td>
+      <td><input name="modbus_digital_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
+  <template id="tmpl-modbus-analogue">
+    <tr>
+      <td><input name="modbus_analogue_address[]" placeholder="Address" /></td>
+      <td><input name="modbus_analogue_description[]" placeholder="Description" /></td>
+      <td><input name="modbus_analogue_range[]" placeholder="Range" /></td>
+      <td>
+        <select name="modbus_analogue_result[]">
+          <option value="Pass">Pass</option> <option value="Fail">Fail</option> <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input name="modbus_analogue_punch_item[]" placeholder="Punch Item" /></td>
+      <td><input name="modbus_analogue_verified_by[]" placeholder="Verified By" /></td>
+      <td><input name="modbus_analogue_comment[]" placeholder="Comment" /></td>
+      <td><button type="button" class="btn-remove" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
+    </tr>
+  </template>
+
   <script>
     // Global variables
     let currentStep = 1;
@@ -2014,6 +2204,18 @@
 
     function addAnalogueOutput() {
       addRow('analogue-outputs-body', 'tmpl-analogue-output');
+    }
+
+    function addDigitalOutput() {
+      addRow('digital-outputs-body', 'tmpl-digital-output');
+    }
+
+    function addModbusDigital() {
+      addRow('modbus-digital-body', 'tmpl-modbus-digital');
+    }
+
+    function addModbusAnalogue() {
+      addRow('modbus-analogue-body', 'tmpl-modbus-analogue');
     }
 
     // Quick Actions functionality
