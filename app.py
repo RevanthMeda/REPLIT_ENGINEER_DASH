@@ -11,18 +11,11 @@ from config import Config
 # Initialize CSRF protection globally
 csrf = CSRFProtect()
 
-# Import all required modules with error handling
+# Import only essential modules - lazy load others
 try:
-    from models import db, User, SystemSettings, Report, SATReport, FDSReport, HDSReport, SiteSurveyReport, SDSReport, FATReport, init_db, import_json_to_db, test_db_connection, ModuleSpec, Notification
+    from models import db, User, init_db
     from auth import init_auth
-    from routes.main import main_bp
-    from routes.approval import approval_bp
-    from routes.status import status_bp
-    from routes.auth import auth_bp
-    from routes.dashboard import dashboard_bp
-    from routes.reports import reports_bp
-    from routes.notifications import notifications_bp
-    from routes.io_builder import io_builder_bp
+    # Lazy import blueprints to reduce startup time
 except ImportError as e:
     print(f"❌ Import error: {e}")
     sys.exit(1)
@@ -48,15 +41,8 @@ def create_app(config_class=Config):
         traceback.print_exc()
         db_initialized = False
 
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, 
-        format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('application.log')
-        ]
-    )
+    # Simplified logging for better performance
+    logging.basicConfig(level=logging.WARNING)
 
     # Add CSRF token to g for access in templates
     @app.before_request
@@ -163,15 +149,27 @@ def create_app(config_class=Config):
     def legacy_generate_sat():
         return redirect(url_for('reports.new_sat'))
 
-    # Register blueprints 
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
-    app.register_blueprint(reports_bp, url_prefix='/reports')
-    app.register_blueprint(notifications_bp, url_prefix='/notifications')
-    app.register_blueprint(io_builder_bp, url_prefix='/io-builder')
-    app.register_blueprint(main_bp)
-    app.register_blueprint(approval_bp, url_prefix='/approve')
-    app.register_blueprint(status_bp, url_prefix='/status')
+    # Lazy import and register blueprints for faster startup
+    def register_blueprints():
+        from routes.auth import auth_bp
+        from routes.dashboard import dashboard_bp
+        from routes.reports import reports_bp
+        from routes.notifications import notifications_bp
+        from routes.io_builder import io_builder_bp
+        from routes.main import main_bp
+        from routes.approval import approval_bp
+        from routes.status import status_bp
+        
+        app.register_blueprint(auth_bp, url_prefix='/auth')
+        app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+        app.register_blueprint(reports_bp, url_prefix='/reports')
+        app.register_blueprint(notifications_bp, url_prefix='/notifications')
+        app.register_blueprint(io_builder_bp, url_prefix='/io-builder')
+        app.register_blueprint(main_bp)
+        app.register_blueprint(approval_bp, url_prefix='/approve')
+        app.register_blueprint(status_bp, url_prefix='/status')
+    
+    register_blueprints()
 
     # Error handlers
     @app.errorhandler(404)
@@ -193,11 +191,9 @@ def create_app(config_class=Config):
     def page_not_found(e):
         return render_template('404.html'), 404
 
-    # Log response information
+    # Minimal response logging for performance
     @app.after_request
     def log_response(response):
-        """Log all responses"""
-        app.logger.info(f"Sending response: {response.status}")
         return response
 
     if not db_initialized:

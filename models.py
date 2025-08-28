@@ -10,6 +10,9 @@ import secrets
 
 db = SQLAlchemy()
 
+# Lazy loading flag to prevent heavy operations on import
+_db_initialized = False
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 

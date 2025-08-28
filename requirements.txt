@@ -1,3 +1,4 @@
+
 flask==2.2.3
 python-dotenv==1.0.0
 docxtpl==0.16.7
@@ -12,17 +13,3 @@ psycopg2-binary
 beautifulsoup4
 requests
 itsdangerous
-beautifulsoup4
-docx
-docxtpl==0.16.7
-flask==2.2.3
-flask-login
-flask-sqlalchemy
-flask-wtf==1.1.1
-itsdangerous
-pillow>=10.4.0
-psycopg2-binary
-python-docx
-python-dotenv==1.0.0
-requests
-werkzeug==2.2.3
