@@ -329,7 +329,7 @@ def approve_user(user_id):
     user = User.query.get_or_404(user_id)
     role = request.form.get('role')
 
-    if role not in ['Admin', 'Engineer', 'TM', 'PM']:
+    if role not in ['Admin', 'Engineer', 'Automation Manager', 'PM']:
         flash('Invalid role selection.', 'error')
         return redirect(url_for('dashboard.user_management'))
 
@@ -382,6 +382,34 @@ def enable_user(user_id):
         db.session.rollback()
         current_app.logger.error(f"Failed to enable user {user.full_name} ({user_id}): {e}")
         flash('Failed to enable user.', 'error')
+
+    return redirect(url_for('dashboard.user_management'))
+
+@dashboard_bp.route('/change-user-role/<int:user_id>', methods=['POST'])
+@admin_required
+def change_user_role(user_id):
+    """Change a user's role"""
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get('role')
+
+    if user.email == current_user.email:
+        flash('You cannot change your own role.', 'error')
+        return redirect(url_for('dashboard.user_management'))
+
+    if new_role not in ['Admin', 'Engineer', 'Automation Manager', 'PM']:
+        flash('Invalid role selection.', 'error')
+        return redirect(url_for('dashboard.user_management'))
+
+    old_role = user.role
+    user.role = new_role
+
+    try:
+        db.session.commit()
+        flash(f'User {user.full_name} role changed from {old_role} to {new_role}.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Failed to change role for user {user.full_name} ({user_id}): {e}")
+        flash('Failed to change user role.', 'error')
 
     return redirect(url_for('dashboard.user_management'))
 

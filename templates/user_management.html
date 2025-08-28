@@ -803,15 +803,28 @@
                                                         <option value="Admin">Admin</option>
                                                         <option value="Engineer">Engineer</option>
                                                         <option value="Automation Manager">Automation Manager</option>
-                                                        <option value="PM">Project Manager</option>
+                                                        <option value="PM">PM</option>
                                                     </select>
                                                     <button type="submit" class="approve-btn" onclick="return confirmApproval('{{ user.full_name }}', this.form.role.value)">
                                                         <i class="fa fa-check"></i> Approve
                                                     </button>
                                                 </form>
                                             {% elif user.status == 'Active' and user.email != current_user.email %}
+                                                <form method="POST" action="{{ url_for('dashboard.change_user_role', user_id=user.id) }}" style="display: inline;">
+                                                    <select name="role" required class="role-select">
+                                                        <option value="{{ user.role }}" selected>{{ user.role }}</option>
+                                                        {% for role in ['Admin', 'Engineer', 'Automation Manager', 'PM'] %}
+                                                            {% if role != user.role %}
+                                                                <option value="{{ role }}">{{ role }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" class="approve-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);" onclick="return confirmRoleChange('{{ user.full_name }}', this.form.role.value)">
+                                                        <i class="fa fa-user-edit"></i> Change Role
+                                                    </button>
+                                                </form>
                                                 <form method="POST" action="{{ url_for('dashboard.disable_user', user_id=user.id) }}" style="display: inline;">
-                                                    <button type="submit" class="approve-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="return confirmDisable('{{ user.full_name }}')">
+                                                    <button type="submit" class="approve-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); margin-left: 4px;" onclick="return confirmDisable('{{ user.full_name }}')">
                                                         <i class="fa fa-ban"></i> Disable
                                                     </button>
                                                 </form>
@@ -888,6 +901,10 @@
         function confirmDelete(userName) {
             return confirm('⚠️ PERMANENTLY DELETE ' + userName + '?\n\n❌ This action CANNOT be undone!\n❌ All their data and reports will be lost!\n\nType \'DELETE\' below to confirm this irreversible action.') && 
                    prompt('To confirm deletion of ' + userName + ', type DELETE:') === 'DELETE';
+        }
+
+        function confirmRoleChange(userName, newRole) {
+            return confirm('Change ' + userName + '\'s role to ' + newRole + '?\n\nThis will immediately update their system permissions.');
         }
 
         // Button functionality

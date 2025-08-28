@@ -30,7 +30,7 @@ def register():
             flash('All fields are required.', 'error')
             return render_template('register.html')
 
-        if requested_role not in ['Engineer', 'TM', 'PM']:
+        if requested_role not in ['Engineer', 'Automation Manager', 'PM']:
             flash('Invalid role selection.', 'error')
             return render_template('register.html')
 

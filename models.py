@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=True)  # Admin, Engineer, TM, PM
+    role = db.Column(db.String(30), nullable=True)  # Admin, Engineer, Automation Manager, PM
     status = db.Column(db.String(20), default='Pending')  # Pending, Active, Disabled
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     requested_role = db.Column(db.String(20), nullable=True)
