@@ -22034,3 +22034,290 @@ NameError: name 'setup_approval_workflow_db' is not defined. Did you mean: 'setu
 [2025-08-27 13:38:59,744] INFO in _internal: 172.31.88.34 - - [27/Aug/2025 13:38:59] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
 [2025-08-27 13:38:59,890] INFO in app: Sending response: 304 NOT MODIFIED
 [2025-08-27 13:38:59,891] INFO in _internal: 172.31.88.34 - - [27/Aug/2025 13:38:59] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:27:01,798] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.94.34:5000
+[2025-08-27 15:27:01,798] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-08-27 15:27:02,789] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:27:02,790] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:02] "[32mGET / HTTP/1.1[0m" 302 -
+[2025-08-27 15:27:02,958] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:02,959] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:02] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:27:03,386] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:03,386] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:03] "GET /static/css/form.css HTTP/1.1" 200 -
+[2025-08-27 15:27:03,549] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:03,549] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:03] "GET /static/cully.png HTTP/1.1" 200 -
+[2025-08-27 15:27:09,925] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:09,926] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:09] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:27:10,100] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:10,101] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:10] "GET /static/css/form.css HTTP/1.1" 200 -
+[2025-08-27 15:27:10,314] INFO in app: Sending response: 200 OK
+[2025-08-27 15:27:10,314] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:10] "GET /static/cully.png HTTP/1.1" 200 -
+[2025-08-27 15:27:11,277] INFO in app: Sending response: 404 NOT FOUND
+[2025-08-27 15:27:11,277] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:27:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+[2025-08-27 15:29:33,512] INFO in app: Sending response: 200 OK
+[2025-08-27 15:29:33,512] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:33] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:29:33,678] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:33,678] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:33] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:29:33,817] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:33,817] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:33] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:29:39,966] INFO in app: Sending response: 200 OK
+[2025-08-27 15:29:39,966] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:39] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:29:40,150] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:40,151] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:40] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:29:40,242] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:40,242] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:40] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:29:51,872] INFO in app: Sending response: 200 OK
+[2025-08-27 15:29:51,873] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:51] "POST /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:29:52,039] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:52,039] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:52] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:29:52,158] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:29:52,159] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:29:52] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:01,024] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:01,025] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:01] "POST /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:30:01,186] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:01,187] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:01] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:01,310] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:01,310] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:01] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:09,869] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:09,871] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:09] "POST /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:30:10,026] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:10,027] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:10] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:10,137] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:10,138] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:10] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:13,730] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:13,730] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:13] "GET /auth/register HTTP/1.1" 200 -
+[2025-08-27 15:30:13,912] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:13,913] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:13] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:13,915] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:13,916] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:13] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:17,887] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:17,888] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:17] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:30:18,098] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:18,099] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:18] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:18,167] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:18,167] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:18] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:31,316] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:31,317] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:31] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:30:31,495] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:31,496] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:31] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:31,595] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:31,596] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:31] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:41,101] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:41,102] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:41] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:30:41,269] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:41,270] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:41] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:41,391] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:41,391] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:41] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:43,326] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:43,327] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:43] "POST /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:30:43,494] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:43,495] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:43] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:43,599] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:43,599] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:43] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:49,496] INFO in app: Sending response: 308 PERMANENT REDIRECT
+[2025-08-27 15:30:49,496] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:49] "[32mGET /dashboard HTTP/1.1[0m" 308 -
+[2025-08-27 15:30:49,651] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:30:49,652] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:49] "[32mGET /dashboard/ HTTP/1.1[0m" 302 -
+[2025-08-27 15:30:49,806] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:49,806] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:49] "GET /auth/login?next=%2Fdashboard%2F HTTP/1.1" 200 -
+[2025-08-27 15:30:50,007] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:50,007] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:50] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:50,081] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:50,082] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:50] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:59,518] INFO in app: Sending response: 200 OK
+[2025-08-27 15:30:59,519] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:59] "POST /auth/login?next=%2Fdashboard%2F HTTP/1.1" 200 -
+[2025-08-27 15:30:59,755] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:59,755] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:59] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:30:59,808] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:30:59,808] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:30:59] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:18,362] INFO in app: Sending response: 200 OK
+[2025-08-27 15:31:18,363] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:18] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:31:18,528] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:18,528] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:18] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:18,655] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:18,656] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:18] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:47,768] INFO in app: Sending response: 200 OK
+[2025-08-27 15:31:47,768] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:47] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:31:48,005] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:48,005] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:48] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:48,045] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:48,046] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:48] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:59,030] INFO in app: Sending response: 200 OK
+[2025-08-27 15:31:59,031] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:59] "POST /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:31:59,255] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:59,255] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:59] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:31:59,312] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:31:59,312] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:31:59] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:08,400] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:08,406] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:08] "[32mPOST /auth/login HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:08,576] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:08,578] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:08] "GET /dashboard/admin HTTP/1.1" 200 -
+[2025-08-27 15:32:08,790] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:08,791] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:08] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:08,874] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:08,875] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:08] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:08,931] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:08,933] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:08] "GET /dashboard/db-status HTTP/1.1" 200 -
+[2025-08-27 15:32:12,460] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:12,461] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:12] "[32mGET /auth/logout HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:12,613] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:12,615] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:12] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:32:12,845] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:12,845] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:12] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:12,913] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:12,915] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:12] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:14,680] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:14,681] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:14] "GET /auth/register HTTP/1.1" 200 -
+[2025-08-27 15:32:14,909] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:14,910] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:14] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:14,911] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:14,911] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:14] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:32,593] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:32,594] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:32] "POST /auth/register HTTP/1.1" 200 -
+[2025-08-27 15:32:32,778] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:32,778] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:32] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:32,784] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:32,784] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:32] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:34,413] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:34,413] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:34] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:32:34,646] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:34,646] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:34] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:34,700] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:34,700] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:34] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:40,513] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:40,514] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:40] "[32mPOST /auth/login HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:40,676] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:40,678] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:40] "GET /dashboard/admin HTTP/1.1" 200 -
+[2025-08-27 15:32:40,904] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:40,905] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:40] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:40,976] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:40,977] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:40] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:41,057] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:41,058] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:41] "GET /dashboard/db-status HTTP/1.1" 200 -
+[2025-08-27 15:32:45,258] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:45,260] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:45] "[32mPOST /dashboard/approve-user/2 HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:45,445] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:45,447] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:45] "GET /dashboard/user-management HTTP/1.1" 200 -
+[2025-08-27 15:32:46,648] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:46,649] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:46] "GET /dashboard/admin HTTP/1.1" 200 -
+[2025-08-27 15:32:46,843] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:46,843] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:46] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:46,928] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:46,929] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:46] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:46,999] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:47,000] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:47] "GET /dashboard/db-status HTTP/1.1" 200 -
+[2025-08-27 15:32:49,106] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:49,107] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:49] "[32mGET /auth/logout HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:49,257] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:49,258] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:49] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-27 15:32:49,487] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:49,488] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:49] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:49,548] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:49,548] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:49] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:51,297] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:51,297] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:51] "GET /auth/login HTTP/1.1" 200 -
+[2025-08-27 15:32:51,505] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:51,505] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:51] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:51,566] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:32:51,566] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:51] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:32:59,593] INFO in app: Sending response: 302 FOUND
+[2025-08-27 15:32:59,595] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:59] "[32mPOST /auth/login HTTP/1.1[0m" 302 -
+[2025-08-27 15:32:59,765] INFO in app: Sending response: 200 OK
+[2025-08-27 15:32:59,776] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:32:59] "GET /dashboard/engineer HTTP/1.1" 200 -
+[2025-08-27 15:33:00,018] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:00,019] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:00] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:00,073] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:00,074] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:00] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:09,194] INFO in app: Sending response: 200 OK
+[2025-08-27 15:33:09,195] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:09] "GET /notifications/notifications HTTP/1.1" 200 -
+[2025-08-27 15:33:09,429] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:09,429] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:09] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:09,488] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:09,489] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:09] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:11,195] INFO in app: Sending response: 200 OK
+[2025-08-27 15:33:11,197] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:11] "GET /io-builder/ HTTP/1.1" 200 -
+[2025-08-27 15:33:11,425] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:11,426] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:11] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:11,492] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:11,493] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:11] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:12,634] INFO in app: Sending response: 200 OK
+[2025-08-27 15:33:12,635] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:12] "GET /dashboard/my-reports HTTP/1.1" 200 -
+[2025-08-27 15:33:12,858] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:12,859] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:12] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:12,908] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:12,908] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:12] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:14,292] INFO in app: Sending response: 200 OK
+[2025-08-27 15:33:14,293] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:14] "GET /dashboard/engineer HTTP/1.1" 200 -
+[2025-08-27 15:33:14,542] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:14,542] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:14] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:33:14,593] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:33:14,594] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:33:14] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:34:47,715] INFO in app: Sending response: 200 OK
+[2025-08-27 15:34:47,716] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:47] "GET /reports/new HTTP/1.1" 200 -
+[2025-08-27 15:34:47,956] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:34:47,957] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:47] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:34:48,011] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:34:48,013] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:48] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:34:52,515] ERROR in reports: Error rendering SAT form: 'submission_data' is undefined
+[2025-08-27 15:34:52,547] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:52] "[35m[1mGET /reports/new/sat/full HTTP/1.1[0m" 500 -
+[2025-08-27 15:34:52,795] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:52] "GET /reports/new/sat/full?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+[2025-08-27 15:34:52,795] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:52] "GET /reports/new/sat/full?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+[2025-08-27 15:34:53,125] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:53] "GET /reports/new/sat/full?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+[2025-08-27 15:34:53,353] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:53] "[36mGET /reports/new/sat/full?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:34:57,601] INFO in app: Sending response: 200 OK
+[2025-08-27 15:34:57,602] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:57] "GET /dashboard/engineer HTTP/1.1" 200 -
+[2025-08-27 15:34:57,859] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:34:57,860] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:57] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:34:57,914] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:34:57,914] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:34:57] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:01,698] INFO in app: Sending response: 200 OK
+[2025-08-27 15:35:01,700] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:01] "GET /dashboard/my-reports HTTP/1.1" 200 -
+[2025-08-27 15:35:01,915] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:01,915] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:01] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:01,958] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:01,958] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:01] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:05,884] INFO in app: Sending response: 200 OK
+[2025-08-27 15:35:05,885] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:05] "GET /io-builder/ HTTP/1.1" 200 -
+[2025-08-27 15:35:06,109] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:06,110] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:06] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:06,178] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:06,178] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:06] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:23,200] INFO in io_builder: Searching web for module: ABB AI810
+[2025-08-27 15:35:23,201] INFO in io_builder: Simulating web search for: ABB AI810
+[2025-08-27 15:35:23,201] INFO in io_builder: Found hardcoded spec for ABB_AI810
+[2025-08-27 15:35:23,237] INFO in app: Sending response: 200 OK
+[2025-08-27 15:35:23,239] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:23] "POST /io-builder/api/module-lookup HTTP/1.1" 200 -
+[2025-08-27 15:35:28,044] INFO in app: Sending response: 200 OK
+[2025-08-27 15:35:28,048] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:28] "GET /notifications/notifications HTTP/1.1" 200 -
+[2025-08-27 15:35:28,285] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:28,286] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:28] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:28,313] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:28,314] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:28] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:33,353] INFO in app: Sending response: 200 OK
+[2025-08-27 15:35:33,354] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:33] "GET /io-builder/ HTTP/1.1" 200 -
+[2025-08-27 15:35:33,585] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:33,585] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:33] "[36mGET /static/css/form.css HTTP/1.1[0m" 304 -
+[2025-08-27 15:35:33,617] INFO in app: Sending response: 304 NOT MODIFIED
+[2025-08-27 15:35:33,617] INFO in _internal: 172.31.94.34 - - [27/Aug/2025 15:35:33] "[36mGET /static/cully.png HTTP/1.1[0m" 304 -
+[2025-08-28 09:01:54,728] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.79.2:5000
+[2025-08-28 09:01:54,728] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-08-28 09:01:55,612] INFO in app: Sending response: 302 FOUND
+[2025-08-28 09:01:55,613] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:55] "[32mGET / HTTP/1.1[0m" 302 -
+[2025-08-28 09:01:55,768] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:55,768] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:55] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-28 09:01:56,102] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:56,261] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:56,337] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:56] "GET /static/css/form.css HTTP/1.1" 200 -
+[2025-08-28 09:01:56,337] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:56] "GET /static/cully.png HTTP/1.1" 200 -
+[2025-08-28 09:01:59,525] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:59,526] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:59] "GET /auth/welcome HTTP/1.1" 200 -
+[2025-08-28 09:01:59,742] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:59,743] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:59] "GET /static/css/form.css HTTP/1.1" 200 -
+[2025-08-28 09:01:59,870] INFO in app: Sending response: 200 OK
+[2025-08-28 09:01:59,871] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:01:59] "GET /static/cully.png HTTP/1.1" 200 -
+[2025-08-28 09:02:00,661] INFO in app: Sending response: 404 NOT FOUND
+[2025-08-28 09:02:00,661] INFO in _internal: 172.31.79.2 - - [28/Aug/2025 09:02:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
