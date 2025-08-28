@@ -51,7 +51,7 @@ def admin():
 
     # Get recent users (last 5)
     recent_users = User.query.order_by(User.created_date.desc()).limit(5).all()
-    
+
     # Get actual pending users (users who need approval)
     pending_users_list = User.query.filter_by(status='Pending').order_by(User.created_date.desc()).limit(5).all()
 
@@ -482,13 +482,14 @@ def create_report():
 @dashboard_bp.route('/db-status')
 @login_required
 def db_status():
-    """API endpoint for database status check"""
+    """Check database connection status"""
     try:
-        db_connected = test_db_connection()
-        return jsonify({'connected': db_connected})
+        # Try to connect to database
+        db.engine.connect().close()
+        return jsonify({'status': 'connected', 'message': 'Database connection successful'})
     except Exception as e:
         current_app.logger.error(f"Database status check failed: {e}")
-        return jsonify({'connected': False}), 200
+        return jsonify({'status': 'error', 'message': f'Database connection failed: {str(e)}'}), 500
 
 @dashboard_bp.route('/dashboard/api/admin/users')
 @admin_required
@@ -506,7 +507,7 @@ def api_admin_users():
                 'status': user.status,
                 'created_date': user.created_date.isoformat() if user.created_date else None
             })
-        
+
         return jsonify({
             'success': True,
             'users': users_data
@@ -522,7 +523,7 @@ def api_admin_reports():
     try:
         reports = Report.query.order_by(Report.created_at.desc()).limit(50).all()
         reports_data = []
-        
+
         for report in reports:
             # Get report title from SAT data if available
             title = 'Untitled Report'
@@ -533,7 +534,7 @@ def api_admin_reports():
                     title = data.get('context', {}).get('DOCUMENT_TITLE', 'Untitled Report')
                 except:
                     pass
-            
+
             # Determine status
             status = 'pending'
             if report.approvals_json:
@@ -549,7 +550,7 @@ def api_admin_reports():
                         status = "partially_approved"
                 except:
                     pass
-            
+
             reports_data.append({
                 'id': report.id,
                 'title': title,
@@ -557,7 +558,7 @@ def api_admin_reports():
                 'status': status,
                 'created_at': report.created_at.isoformat() if report.created_at else None
             })
-        
+
         return jsonify({
             'success': True,
             'reports': reports_data
@@ -573,7 +574,7 @@ def api_admin_settings():
     try:
         storage_location = SystemSettings.get_setting('default_storage_location', '/outputs/')
         company_logo = SystemSettings.get_setting('company_logo', 'static/cully.png')
-        
+
         return jsonify({
             'success': True,
             'settings': {
@@ -594,7 +595,7 @@ def api_admin_stats():
         total_users = len(users)
         pending_users = len([u for u in users if u.status == 'Pending'])
         total_reports = Report.query.count()
-        
+
         return jsonify({
             'success': True,
             'stats': {

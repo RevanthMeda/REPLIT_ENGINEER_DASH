@@ -314,6 +314,36 @@ def test_db_connection():
         print(f"Database connection failed: {e}")
         return False
 
+def create_admin_user(email='admin@cullyautomation.com', password='admin123', full_name='System Administrator'):
+    """Create admin user manually - useful for new database setup"""
+    try:
+        # Check if admin already exists
+        existing_admin = User.query.filter_by(email=email).first()
+        if existing_admin:
+            print(f"Admin user {email} already exists")
+            return existing_admin
+        
+        # Create new admin user
+        admin_user = User(
+            email=email,
+            full_name=full_name,
+            role='Admin',
+            status='Active'
+        )
+        admin_user.set_password(password)
+        db.session.add(admin_user)
+        db.session.commit()
+        
+        print(f"✅ Admin user created successfully: {email}")
+        print(f"   Password: {password}")
+        print("   ⚠️  Please change the password after first login!")
+        return admin_user
+        
+    except Exception as e:
+        print(f"❌ Error creating admin user: {e}")
+        db.session.rollback()
+        return None
+
 class ModuleSpec(db.Model):
     __tablename__ = 'module_specs'
 

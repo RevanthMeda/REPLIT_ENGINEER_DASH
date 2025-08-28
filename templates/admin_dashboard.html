@@ -944,20 +944,32 @@
         async function checkDatabaseStatus() {
             try {
                 const response = await fetch('/dashboard/db-status');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 const data = await response.json();
 
-                const badge = document.getElementById('db-status-badge');
-                const indicators = document.querySelectorAll('.status-indicator');
+                const statusElement = document.getElementById('db-status');
+                const statusDot = document.getElementById('db-status-dot');
 
-                if (data.connected) {
-                    badge.className = 'status-badge status-connected';
-                    badge.innerHTML = '<div class="status-indicator" style="background: #059669;"></div> Connected';
+                if (data.status === 'connected') {
+                    statusElement.textContent = 'Connected';
+                    statusElement.className = 'status-badge connected';
+                    statusDot.className = 'status-dot connected';
                 } else {
-                    badge.className = 'status-badge status-disconnected';
-                    badge.innerHTML = '<div class="status-indicator" style="background: #dc2626;"></div> Disconnected';
+                    statusElement.textContent = 'Disconnected';
+                    statusElement.className = 'status-badge disconnected';
+                    statusDot.className = 'status-dot disconnected';
                 }
             } catch (error) {
-                console.log('Database status check failed:', error);
+                console.error('Database status check failed:', error);
+                const statusElement = document.getElementById('db-status');
+                const statusDot = document.getElementById('db-status-dot');
+                if (statusElement && statusDot) {
+                    statusElement.textContent = 'Error';
+                    statusElement.className = 'status-badge disconnected';
+                    statusDot.className = 'status-dot disconnected';
+                }
             }
         }
 
