@@ -2221,11 +2221,9 @@
     // Quick Actions functionality
     function showQuickActions() {
       const actions = [
-        'Jump to Step 8 (I/O Testing)',
-        'Auto-fill test data',
-        'Validate all forms',
-        'Preview report',
-        'Export current data'
+        'Dashboard',
+        'Help & Support',
+        'Logout'
       ];
       
       let message = 'Quick Actions:\n\n';
@@ -2233,23 +2231,19 @@
         message += `${index + 1}. ${action}\n`;
       });
       
-      const choice = prompt(message + '\nEnter number (1-5):');
+      const choice = prompt(message + '\nEnter number (1-3):');
       
       switch(choice) {
         case '1':
-          goToStep(8);
+          window.location.href = "{{ url_for('dashboard.engineer') }}";
           break;
         case '2':
-          alert('Auto-fill feature coming soon!');
+          alert('Help & Support:\n\nFor technical assistance, please contact:\n- Email: support@cullyautomation.com\n- Documentation: Available in the user manual\n- Training: Contact your system administrator');
           break;
         case '3':
-          validateAllForms();
-          break;
-        case '4':
-          alert('Preview feature coming soon!');
-          break;
-        case '5':
-          alert('Export feature coming soon!');
+          if (confirm('Are you sure you want to logout?')) {
+            window.location.href = "{{ url_for('auth.logout') }}";
+          }
           break;
         default:
           if (choice !== null) alert('Invalid choice');
