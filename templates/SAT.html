@@ -862,6 +862,255 @@
     .modal-btn-danger:hover {
       background: #dc2626;
     }
+
+    /* I/O Builder Styles */
+    .hidden {
+      display: none !important;
+    }
+
+    .spec-display {
+      background: rgba(77, 208, 225, 0.1);
+      border: 1px solid var(--cully-primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 4px;
+    }
+
+    .spec-item label {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .spec-item span {
+      font-weight: 700;
+      color: var(--cully-primary);
+    }
+
+    .manual-override {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .manual-override h5 {
+      color: #d68910;
+      margin-bottom: 16px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      align-items: center;
+    }
+
+    .generation-actions {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      align-items: center;
+    }
+
+    .generation-status {
+      padding: 12px;
+      border-radius: 6px;
+      margin: 12px 0;
+      font-weight: 600;
+    }
+
+    .generation-status.info {
+      background: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+      border: 1px solid #17a2b8;
+    }
+
+    .generation-status.success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid #28a745;
+    }
+
+    .generation-status.error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid #dc3545;
+    }
+
+    .module-item, .range-item {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-header, .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .module-header h5, .range-header h6 {
+      margin: 0;
+      color: var(--cully-primary);
+      font-weight: 600;
+    }
+
+    .module-details, .range-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .module-details span, .range-details span {
+      background: rgba(77, 208, 225, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .remove-module-btn, .remove-range-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .remove-module-btn:hover, .remove-range-btn:hover {
+      background: #c82333;
+    }
+
+    .help-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(248, 249, 250, 0.8);
+      border-radius: 6px;
+      border-left: 4px solid var(--cully-primary);
+    }
+
+    .no-modules, .no-ranges {
+      text-align: center;
+      color: var(--text-secondary);
+      font-style: italic;
+      padding: 20px;
+      background: rgba(248, 249, 250, 0.5);
+      border-radius: 6px;
+      margin: 12px 0;
+    }
+
+    .module-stats {
+      background: rgba(77, 208, 225, 0.05);
+      border: 1px solid rgba(77, 208, 225, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-item label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .stat-item input {
+      padding: 6px 8px;
+      font-size: 14px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+
+    .source-indicator {
+      margin-bottom: 12px;
+    }
+
+    .source-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .source-badge.source-database {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+    }
+
+    .source-badge.source-web {
+      background: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+    }
+
+    .source-badge.source-manual {
+      background: rgba(255, 193, 7, 0.1);
+      color: #d68910;
+    }
+
+    .manual-entry-message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .spec-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-actions, .generation-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .module-details, .range-details {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
   </style>
 </head>
 
@@ -1338,10 +1587,103 @@
                       <input type="number" id="module_position" min="1" value="1">
                     </div>
                   </div>
-                  <button type="button" class="btn btn-primary" onclick="addModule()">
-                    <i class="fas fa-plus"></i> Add Module
-                  </button>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="module_starting_sno">Starting S.No:</label>
+                      <input type="number" id="module_starting_sno" min="1" value="1">
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="lookup_module_btn" onclick="lookupModule()">
+                      <i class="fas fa-search"></i> Lookup Module
+                    </button>
+                    <button type="button" class="btn btn-primary" id="add_module_btn" onclick="addModule()" disabled>
+                      <i class="fas fa-plus"></i> Add Module
+                    </button>
+                  </div>
+
+                  <!-- Module Specification Display -->
+                  <div id="module_spec_display" class="spec-display hidden">
+                    <h5>Module Specifications</h5>
+                    <div class="spec-grid">
+                      <div class="spec-item">
+                        <label>Description:</label>
+                        <span id="spec_description">-</span>
+                      </div>
+                      <div class="spec-item">
+                        <label>Digital Inputs:</label>
+                        <span id="spec_di">0</span>
+                      </div>
+                      <div class="spec-item">
+                        <label>Digital Outputs:</label>
+                        <span id="spec_do">0</span>
+                      </div>
+                      <div class="spec-item">
+                        <label>Analog Inputs:</label>
+                        <span id="spec_ai">0</span>
+                      </div>
+                      <div class="spec-item">
+                        <label>Analog Outputs:</label>
+                        <span id="spec_ao">0</span>
+                      </div>
+                      <div class="spec-item">
+                        <label>Total Channels:</label>
+                        <span id="spec_total">0</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Manual Override Section -->
+                  <div id="manual_override" class="manual-override hidden">
+                    <h5>Manual Entry / Override</h5>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="manual_di">Digital Inputs:</label>
+                        <input type="number" id="manual_di" min="0" value="">
+                      </div>
+                      <div class="form-group">
+                        <label for="manual_do">Digital Outputs:</label>
+                        <input type="number" id="manual_do" min="0" value="">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="manual_ai">Analog Inputs:</label>
+                        <input type="number" id="manual_ai" min="0" value="">
+                      </div>
+                      <div class="form-group">
+                        <label for="manual_ao">Analog Outputs:</label>
+                        <input type="number" id="manual_ao" min="0" value="">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Configured Modules Display -->
                   <div id="modules_container"></div>
+
+                  <!-- Module Statistics -->
+                  <div class="module-stats hidden">
+                    <h5>Module Summary</h5>
+                    <div class="stats-grid">
+                      <div class="stat-item">
+                        <label>Total Modules:</label>
+                        <input type="text" id="total_modules" readonly value="0">
+                      </div>
+                      <div class="stat-item">
+                        <label>Digital Modules:</label>
+                        <input type="text" id="digital_modules" readonly value="0">
+                      </div>
+                      <div class="stat-item">
+                        <label>Analog Modules:</label>
+                        <input type="text" id="analog_modules" readonly value="0">
+                      </div>
+                      <div class="stat-item">
+                        <label>Mixed Modules:</label>
+                        <input type="text" id="mixed_modules" readonly value="0">
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1379,10 +1721,35 @@
                     <input type="text" id="modbus_range" placeholder="e.g., 0-65535, 4-20mA">
                   </div>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="addModbusRange()">
+                <button type="button" class="btn btn-primary" id="add_modbus_btn" onclick="addModbusRange()">
                   <i class="fas fa-plus"></i> Add Modbus Range
                 </button>
                 <div id="modbus_ranges_container"></div>
+              </div>
+            </div>
+
+            <!-- Generation Status and Actions -->
+            <div class="data-card">
+              <div class="card-header">
+                <span>I/O Table Generation</span>
+              </div>
+              <div class="card-body">
+                <div id="generation_status" class="generation-status hidden">
+                  <span id="status_text">Ready to generate tables...</span>
+                </div>
+                
+                <div class="generation-actions">
+                  <button type="button" class="btn btn-secondary" id="preview_tables_btn" onclick="previewTables()" disabled>
+                    <i class="fas fa-eye"></i> Preview Tables
+                  </button>
+                  <button type="button" class="btn btn-primary" id="generate_tables_btn" onclick="generateIOTables()" disabled>
+                    <i class="fas fa-table"></i> Generate I/O Tables
+                  </button>
+                </div>
+
+                <p class="help-text">
+                  Configure at least one module or Modbus range above, then click "Generate I/O Tables" to populate the testing forms in Step 8.
+                </p>
               </div>
             </div>
             <div class="btn-group">
