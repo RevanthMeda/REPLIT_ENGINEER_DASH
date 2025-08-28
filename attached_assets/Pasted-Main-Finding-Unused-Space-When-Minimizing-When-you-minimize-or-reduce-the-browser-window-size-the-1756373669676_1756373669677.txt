@@ -1,0 +1,45 @@
+Main Finding: Unused Space When Minimizing
+When you minimize or reduce the browser window size, there is significant empty space—especially at the top and sides of the SAT Report Generator interface. This unused space is not dynamically adjusted or repurposed to display more table data. As a result:
+
+The progress bar and section headers remain oversized.
+
+Data tables get squeezed into a smaller section, requiring horizontal scrolling to see all columns.
+
+Some columns and content become hidden or hard to access, instead of the table using available space efficiently.
+
+Recommendation:
+To improve usability and maximize available screen area:
+
+The layout should responsively reorganize or shrink header elements (like the progress bar and step titles) when the window is minimized.
+
+The freed-up space should be allocated to the main working/data area (tables, forms, etc.), ensuring users always see more data—even on smaller screens or minimized windows.
+
+Consider collapsible headers or progressive disclosure for the progress bar and action buttons when space is tight.
+
+Additional UI Issues & Improvements
+Table Responsiveness:
+
+The current approach relies on horizontal scrolling, which hides data. Switch to a responsive or stacked table, or enable column pinning.
+
+On smaller screens, show only essential columns and let others be viewed on demand.
+
+Content Density & Padding:
+
+Large paddings and oversized cards reduce information density. Reduce padding for content sections and especially for headers to reveal more data “above the fold.”
+
+Visual Hierarchy & Actions:
+
+Anchor frequently used actions (like “Save Progress” or “Add Digital Signal”) closer to the area being edited. On small screens, use a floating button or drawer.
+
+Use smaller buttons and tighter layouts when on tablets or narrow desktop windows.
+
+Mobile Optimization:
+
+The site appears to be only partially mobile-optimized. Consider a mobile-first responsive design, with key actions always visible and tables displayed as lists/cards.
+
+Consistency:
+
+Ensure all labels, headings, and controls scale smoothly at every resolution and do not overlap or become truncated.
+
+Maintain consistency in font size and button styles across screen sizes.
+
