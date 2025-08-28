@@ -978,6 +978,37 @@
             }
 
             container.innerHTML = html;
+
+            // Apply table enhancements after content is loaded
+            document.querySelectorAll('.users-table').forEach(table => {
+                setupStickyColumns(table);
+                addHeaderTooltips(table);
+            });
+        }
+
+        function setupStickyColumns(table) {
+            // Add sticky column functionality
+            const headers = table.querySelectorAll('thead th');
+            headers.forEach((header, index) => {
+                const text = header.textContent.toLowerCase();
+                if (text.includes('signal') && text.includes('tag')) {
+                    header.style.position = 'sticky';
+                    header.style.left = '0';
+                    header.style.zIndex = '10';
+                    header.style.backgroundColor = 'var(--admin-primary)';
+                }
+            });
+        }
+
+        function addHeaderTooltips(table) {
+            // Add tooltips to table headers
+            const headers = table.querySelectorAll('thead th');
+            headers.forEach(header => {
+                const text = header.textContent.trim();
+                if (text.length > 10) {
+                    header.title = text;
+                }
+            });
         }
     </script>
 </body>
