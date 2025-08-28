@@ -2801,7 +2801,9 @@ async function saveFormProgress() {
     
     // Automation Manager (TM role users)
     const techManagerSelect = document.getElementById('approver_1_select');
-    if (techManagerSelect) {
+    const techManagerInput = document.getElementById('approver_1_email');
+    
+    if (techManagerSelect && techManagerInput) {
       console.log('Found AM selector, TM users:', users.TM);
       // Clear existing options except the first one
       const firstOption = techManagerSelect.querySelector('option');
@@ -2826,13 +2828,23 @@ async function saveFormProgress() {
         option.disabled = true;
         techManagerSelect.appendChild(option);
       }
+
+      // Add event listener to update input when selection changes
+      techManagerSelect.addEventListener('change', function() {
+        if (this.value) {
+          techManagerInput.value = this.value;
+          console.log('Updated AM input to:', this.value);
+        }
+      });
     } else {
-      console.error('Automation Manager select element not found');
+      console.error('Automation Manager select or input element not found');
     }
 
     // Project Manager (PM role users)
     const pmSelect = document.getElementById('approver_2_select');
-    if (pmSelect) {
+    const pmInput = document.getElementById('approver_2_email');
+    
+    if (pmSelect && pmInput) {
       console.log('Found PM selector, PM users:', users.PM);
       // Clear existing options except the first one
       const firstOption = pmSelect.querySelector('option');
@@ -2857,13 +2869,23 @@ async function saveFormProgress() {
         option.disabled = true;
         pmSelect.appendChild(option);
       }
+
+      // Add event listener to update input when selection changes
+      pmSelect.addEventListener('change', function() {
+        if (this.value) {
+          pmInput.value = this.value;
+          console.log('Updated PM input to:', this.value);
+        }
+      });
     } else {
-      console.error('Project Manager select element not found');
+      console.error('Project Manager select or input element not found');
     }
 
     // Client (All users can be clients, but primarily show admins and engineers)
     const clientSelect = document.getElementById('approver_3_select');
-    if (clientSelect) {
+    const clientInput = document.getElementById('approver_3_email');
+    
+    if (clientSelect && clientInput) {
       // Clear existing options except the first one
       const firstOption = clientSelect.querySelector('option');
       clientSelect.innerHTML = '';
@@ -2885,6 +2907,14 @@ async function saveFormProgress() {
           });
 
           clientSelect.appendChild(optgroup);
+        }
+      });
+
+      // Add event listener to update input when selection changes
+      clientSelect.addEventListener('change', function() {
+        if (this.value) {
+          clientInput.value = this.value;
+          console.log('Updated Client input to:', this.value);
         }
       });
     }
