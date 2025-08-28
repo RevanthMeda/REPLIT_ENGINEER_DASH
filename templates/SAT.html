@@ -1080,7 +1080,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="reviewed_by_tech_lead">Reviewed by (Technical Manager)</label>
+                  <label for="reviewed_by_tech_lead">Reviewed by (Automation Manager)</label>
                   <input type="text" id="reviewed_by_tech_lead" name="reviewed_by_tech_lead"
                          value="{{ submission_data.get('REVIEWED_BY_TECH_LEAD', '') }}"/>
                 </div>
@@ -1110,15 +1110,13 @@
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="approver_1_email">
-                      <i class="fa fa-user"></i> Technical Manager Email
-                    </label>
+                    <label for="approver_1_select"><i class="fas fa-user-cog"></i> Automation Manager Email</label>
                     <select id="approver_1_select" style="margin-bottom: 8px;">
-                      <option value="">Select Technical Manager...</option>
+                      <option value="">Select Automation Manager...</option>
                     </select>
                     <input type="email" id="approver_1_email" name="approver_1_email"
                            value="{{ submission_data.get('approver_1_email', '') }}" required
-                           placeholder="technical.lead@company.com or enter custom email"/>
+                           placeholder="automation.manager@company.com or enter custom email"/>
                   </div>
 
                   <div class="form-group">
@@ -2465,7 +2463,7 @@
 
     function executeQuickAction(action) {
       closeQuickActions();
-      
+
       switch(action) {
         case 'dashboard':
           window.location.href = "{{ url_for('dashboard.engineer') }}";
@@ -2506,7 +2504,7 @@
     function validateAllForms() {
       const form = document.getElementById('satForm');
       const invalidFields = form.querySelectorAll(':invalid');
-      
+
       if (invalidFields.length === 0) {
         alert('All forms are valid!');
       } else {

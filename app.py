@@ -97,7 +97,7 @@ def create_app(config_class=Config):
                     users_by_role['Admin'].append(user_data)
                 elif user.role == 'Engineer':
                     users_by_role['Engineer'].append(user_data)
-                elif user.role in ['TM', 'Technical Manager', 'Tech Manager']:
+                elif user.role in ['TM', 'Technical Manager', 'Tech Manager', 'Automation Manager']:
                     users_by_role['TM'].append(user_data)
                 elif user.role in ['PM', 'Project Manager', 'Project_Manager']:
                     users_by_role['PM'].append(user_data)

@@ -2799,10 +2799,10 @@ async function saveFormProgress() {
   function populateEmailSelectors(users) {
     console.log('Populating email selectors with:', users);
     
-    // Technical Manager (TM role users)
+    // Automation Manager (TM role users)
     const techManagerSelect = document.getElementById('approver_1_select');
     if (techManagerSelect) {
-      console.log('Found TM selector, TM users:', users.TM);
+      console.log('Found AM selector, TM users:', users.TM);
       // Clear existing options except the first one
       const firstOption = techManagerSelect.querySelector('option');
       techManagerSelect.innerHTML = '';
@@ -2816,18 +2816,18 @@ async function saveFormProgress() {
           option.value = user.email;
           option.textContent = `${user.name} (${user.email})`;
           techManagerSelect.appendChild(option);
-          console.log('Added TM option:', user.name, user.email);
+          console.log('Added AM option:', user.name, user.email);
         });
       } else {
-        console.log('No TM users found');
+        console.log('No AM users found');
         const option = document.createElement('option');
         option.value = '';
-        option.textContent = 'No Technical Managers found';
+        option.textContent = 'No Automation Managers found';
         option.disabled = true;
         techManagerSelect.appendChild(option);
       }
     } else {
-      console.error('Technical Manager select element not found');
+      console.error('Automation Manager select element not found');
     }
 
     // Project Manager (PM role users)

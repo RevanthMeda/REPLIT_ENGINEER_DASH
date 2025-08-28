@@ -158,7 +158,7 @@ def approve_submission(submission_id, stage):
                                 except Exception as e:
                                     current_app.logger.error(f"Error loading from alternate path: {e}")
                 
-                # Load Tech Lead signature (stage 1) with better error handling
+                # Load Automation Manager signature (stage 1) with better error handling
                 tech_lead_approval = next((a for a in approvals if a["stage"] == 1), None)
                 if tech_lead_approval:
                     sig_fn = tech_lead_approval.get("signature")
@@ -168,19 +168,19 @@ def approve_submission(submission_id, stage):
                             sig_fn += '.png'
                             
                         sig_path = os.path.join(current_app.config['SIGNATURES_FOLDER'], sig_fn)
-                        current_app.logger.info(f"Tech Lead signature path: {os.path.abspath(sig_path)}")
+                        current_app.logger.info(f"Automation Manager signature path: {os.path.abspath(sig_path)}")
                         current_app.logger.info(f"File exists: {os.path.exists(sig_path)}")
                         
                         if os.path.exists(sig_path):
                             try:
                                 file_size = os.path.getsize(sig_path)
-                                current_app.logger.info(f"Tech Lead signature file size: {file_size} bytes")
+                                current_app.logger.info(f"Automation Manager signature file size: {file_size} bytes")
                                 
                                 if file_size > 0:
                                     tech_lead_sig = InlineImage(tpl, sig_path, width=Mm(40))
-                                    current_app.logger.info(f"Successfully loaded Tech Lead signature")
+                                    current_app.logger.info(f"Successfully loaded Automation Manager signature")
                             except Exception as e:
-                                current_app.logger.error(f"Error loading Tech Lead signature: {e}")
+                                current_app.logger.error(f"Error loading Automation Manager signature: {e}")
                                 tech_lead_sig = ""
                         else:
                             # Try alternate paths
@@ -191,7 +191,7 @@ def approve_submission(submission_id, stage):
                                 if os.path.exists(alt_path):
                                     try:
                                         tech_lead_sig = InlineImage(tpl, alt_path, width=Mm(40))
-                                        current_app.logger.info(f"Used alternate path for Tech Lead signature: {alt_path}")
+                                        current_app.logger.info(f"Used alternate path for Automation Manager signature: {alt_path}")
                                         break
                                     except Exception as e:
                                         current_app.logger.error(f"Error loading from alt path: {e}")
@@ -250,7 +250,7 @@ def approve_submission(submission_id, stage):
                         current_app.logger.error(f"Error formatting timestamp: {e}")
                         return ""
                 
-                # Format Tech Lead approval date
+                # Format Automation Manager approval date
                 if tech_lead_approval and tech_lead_approval.get("timestamp"):
                     tech_lead_date = format_iso_timestamp(tech_lead_approval.get("timestamp"))
                 
