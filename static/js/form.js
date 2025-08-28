@@ -2677,6 +2677,51 @@ async function saveFormProgress() {
     });
   }
 
+  // Column management functions
+  window.toggleAllColumns = function(button) {
+    const table = button.closest('.table-responsive').querySelector('table');
+    const hiddenCols = table.querySelectorAll('.col-priority-low, .col-priority-medium');
+    
+    hiddenCols.forEach(col => {
+      col.style.display = col.style.display === 'none' ? '' : 'none';
+    });
+    
+    button.innerHTML = hiddenCols[0]?.style.display === 'none' ? 
+      '<i class="fas fa-columns"></i> Show All Columns' : 
+      '<i class="fas fa-eye-slash"></i> Hide Extra Columns';
+  };
+
+  window.toggleEssentialColumns = function(button) {
+    const table = button.closest('.table-responsive').querySelector('table');
+    const nonEssentialCols = table.querySelectorAll('.col-priority-low, .col-priority-medium');
+    const essentialCols = table.querySelectorAll('.col-priority-high');
+    
+    const isShowingEssential = nonEssentialCols[0]?.style.display === 'none';
+    
+    if (isShowingEssential) {
+      // Show all columns
+      nonEssentialCols.forEach(col => col.style.display = '');
+      button.innerHTML = '<i class="fas fa-eye"></i> Essential Only';
+    } else {
+      // Show only essential columns
+      nonEssentialCols.forEach(col => col.style.display = 'none');
+      button.innerHTML = '<i class="fas fa-columns"></i> Show All Columns';
+    }
+  };
+
+  // Utility function for debouncing
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
   // Expose public methods
   window.startProcess = startProcess;
   window.showSATForm = showSATForm;
