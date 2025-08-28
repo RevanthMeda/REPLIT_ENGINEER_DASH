@@ -1,0 +1,40 @@
+What Is Happening
+The progress bar/steps at the top remain quite clear, but the UI uses a lot of empty space and large paddings that don’t adjust to the smaller window. The currently active step (I/O Testing) is highlighted well but is also oversized compared to the available screen space.
+
+The "Digital Signals" table header and structure do not reflow or stack. On smaller screens, you’re forced to scroll horizontally to view the full table, and columns quickly become hidden or truncated.
+
+Buttons and controls (like "Save Progress," "Full Screen," and “Add Digital Signal”) remain visible—they anchor well—but the actual digital signal data is quickly lost when space is minimized.
+
+There is no “responsive” transformation to alternate layouts (such as collapsing columns, stacking rows, or using expandable card views per signal).
+
+Key Issues
+Poor Responsiveness: The layout is not adaptive—major UI elements keep their size, but data table content is hidden requiring horizontal scroll.
+
+Loss of Data Visibility: You can’t meaningfully view or interact with many signals at once when the screen is minimized or if used on a tablet or mobile device.
+
+UI Inefficiency: Lots of unused whitespace at the top limits practical working area for data entry/review.
+
+Recommendations
+Implement a Responsive Table/Grid:
+
+Use libraries (like DataTables, AG Grid, Tabulator) or CSS frameworks (Bootstrap, Tailwind, Material UI) with built-in responsive tables.
+
+On small screens, auto-hide less-critical columns or let users expand rows for details.
+
+Alternative: Stack each signal entry vertically as a “card” or expandable section.
+
+Reduce Header and Padding Size for Small Screens:
+
+Dynamically adjust top-level nav/progress bar size and padding on smaller screens to free up space.
+
+Sticky/Floating Actions:
+
+Keep frequently used actions (Add, Save, etc.) always visible, but ensure they don’t overlap table data or hide columns.
+
+Highlight or Pin Essential Columns:
+
+Make sure columns like “Signal Tag” or “Actions” remain visible as you scroll horizontally or on narrow screens.
+
+Test Mobile Experience:
+
+If this tool may be used on tablets/phones, build and test a mobile-specific view.
