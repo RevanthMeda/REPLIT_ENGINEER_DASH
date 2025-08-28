@@ -798,6 +798,7 @@
                                         <div class="user-actions">
                                             {% if user.status == 'Pending' %}
                                                 <form method="POST" action="{{ url_for('dashboard.approve_user', user_id=user.id) }}" style="display: inline;">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                                     <select name="role" required class="role-select">
                                                         <option value="{{ user.requested_role }}" selected>{{ user.requested_role }}</option>
                                                         <option value="Admin">Admin</option>
@@ -811,6 +812,7 @@
                                                 </form>
                                             {% elif user.status == 'Active' and user.email != current_user.email %}
                                                 <form method="POST" action="{{ url_for('dashboard.change_user_role', user_id=user.id) }}" style="display: inline;">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                                     <select name="role" required class="role-select">
                                                         <option value="{{ user.role }}" selected>{{ user.role }}</option>
                                                         {% for role in ['Admin', 'Engineer', 'Automation Manager', 'PM'] %}
@@ -824,12 +826,14 @@
                                                     </button>
                                                 </form>
                                                 <form method="POST" action="{{ url_for('dashboard.disable_user', user_id=user.id) }}" style="display: inline;">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                                     <button type="submit" class="approve-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); margin-left: 4px;" onclick="return confirmDisable('{{ user.full_name }}')">
                                                         <i class="fa fa-ban"></i> Disable
                                                     </button>
                                                 </form>
                                             {% elif user.status == 'Disabled' %}
                                                 <form method="POST" action="{{ url_for('dashboard.enable_user', user_id=user.id) }}" style="display: inline;">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                                     <button type="submit" class="approve-btn" onclick="return confirmEnable('{{ user.full_name }}')">
                                                         <i class="fa fa-check"></i> Enable
                                                     </button>
@@ -838,6 +842,7 @@
 
                                             {% if user.email != current_user.email %}
                                                 <form method="POST" action="{{ url_for('dashboard.delete_user', user_id=user.id) }}" style="display: inline;">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                                     <button type="submit" class="approve-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); margin-left: 4px;" onclick="return confirmDelete('{{ user.full_name }}')">
                                                         <i class="fa fa-trash"></i> Delete
                                                     </button>
