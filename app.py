@@ -5,7 +5,7 @@ import logging
 import traceback
 from flask import Flask, g, request, render_template, jsonify, make_response, redirect, url_for
 from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
-from flask_login import current_user
+from flask_login import current_user, login_required
 from config import Config
 
 # Initialize CSRF protection globally
@@ -73,11 +73,12 @@ def create_app(config_class=Config):
 
     # API endpoint for getting users by role
     @app.route('/api/get-users-by-role')
+    @login_required
     def get_users_by_role():
-        """Get users grouped by role for form dropdowns"""
+        """API endpoint to get users grouped by role for dropdowns"""
         try:
-            from models import User
-
+            # Only get active users
+            users = User.query.filter_by(status='Active').all()
             users_by_role = {
                 'Admin': [],
                 'Engineer': [],
@@ -85,23 +86,15 @@ def create_app(config_class=Config):
                 'PM': []
             }
 
-            # Get all active users with proper error handling
-            try:
-                active_users = User.query.filter_by(status='Active').all()
+            for user in users:
+                if user.role in users_by_role:
+                    users_by_role[user.role].append({
+                        'name': user.full_name,
+                        'email': user.email
+                    })
 
-                for user in active_users:
-                    if user.role in users_by_role:
-                        users_by_role[user.role].append({
-                            'name': user.full_name or user.email.split('@')[0] or 'Unknown',
-                            'email': user.email
-                        })
-
-                return jsonify({'success': True, 'users': users_by_role})
-
-            except Exception as db_error:
-                app.logger.warning(f"Database query failed, returning empty users: {db_error}")
-                return jsonify({'success': True, 'users': users_by_role})
-
+            app.logger.info(f"Users by role: {users_by_role}")
+            return jsonify({'success': True, 'users': users_by_role})
         except Exception as e:
             app.logger.error(f"Error in get_users_by_role endpoint: {e}")
             return jsonify({'success': False, 'error': 'Unable to fetch users at this time'}), 500
@@ -159,7 +152,7 @@ def create_app(config_class=Config):
         from routes.main import main_bp
         from routes.approval import approval_bp
         from routes.status import status_bp
-        
+
         app.register_blueprint(auth_bp, url_prefix='/auth')
         app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
         app.register_blueprint(reports_bp, url_prefix='/reports')
@@ -168,7 +161,7 @@ def create_app(config_class=Config):
         app.register_blueprint(main_bp)
         app.register_blueprint(approval_bp, url_prefix='/approve')
         app.register_blueprint(status_bp, url_prefix='/status')
-    
+
     register_blueprints()
 
     # Error handlers
