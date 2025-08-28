@@ -423,6 +423,34 @@
       transform: translateY(0);
     }
 
+    /* Form Sections */
+    .form-section {
+      background: rgba(248, 250, 252, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .form-section h4 {
+      color: var(--cully-primary);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-description {
+      background: rgba(77, 208, 225, 0.1);
+      border-left: 4px solid var(--cully-primary);
+      padding: 16px;
+      margin: 16px 0 24px 0;
+      border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+      color: var(--text-secondary);
+    }
+
     .step-legend {
       font-size: 1.75rem;
       font-weight: 700;
@@ -1043,6 +1071,51 @@
       background: rgba(30, 64, 175, 0.05);
     }
 
+    /* Form Validation Styles */
+    .error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .error-message::before {
+      content: "⚠";
+      font-size: 14px;
+    }
+
+    /* Required field styling improvements */
+    .required {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    /* Form field focus improvements */
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--cully-primary);
+      box-shadow: 0 0 0 3px rgba(77, 208, 225, 0.2);
+      transform: translateY(-1px);
+    }
+
+    /* Placeholder styling */
+    input::placeholder, textarea::placeholder {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    /* Tooltip styling */
+    [title] {
+      cursor: help;
+    }
+
     /* Checklist Styling */
     .checklist-container {
       background: white;
@@ -1323,9 +1396,16 @@
             Step 1 — Basic Information
           </legend>
 
+          <div class="step-description">
+            <p>Please provide the basic information about your SAT report. Fields marked with <span class="required">*</span> are required.</p>
+          </div>
+
           <button type="button" class="btn-secondary save-progress-btn">
             <i class="fa fa-save"></i> Save Progress
           </button>
+
+          <div class="form-section">
+            <h4><i class="fas fa-document"></i> Document Information</h4>
 
           <label for="document_title">Document Title <span class="required">*</span></label>
           <input id="document_title" name="document_title" type="text" required
@@ -1340,25 +1420,38 @@
                  value="{{ submission_data.DOCUMENT_REFERENCE }}"/>
 
           <label for="date">Date <span class="required">*</span></label>
-          <input id="date" name="date" type="date" required value="{{ submission_data.DATE }}"/>
+          <input id="date" name="date" type="date" required value="{{ submission_data.DATE }}" 
+                 title="Select the date for this SAT report"/>
 
           <label for="client_name">Client Name</label>
-          <input id="client_name" name="client_name" type="text" value="{{ submission_data.CLIENT_NAME }}"/>
+          <input id="client_name" name="client_name" type="text" 
+                 placeholder="Enter client/company name" value="{{ submission_data.CLIENT_NAME }}"/>
 
           <label for="revision">Revision</label>
-          <input id="revision" name="revision" type="text" value="{{ submission_data.REVISION }}"/>
+          <input id="revision" name="revision" type="text" 
+                 placeholder="e.g., R0, R1, Rev A" value="{{ submission_data.REVISION }}"/>
 
           <label for="revision_details">Revision Details</label>
           <input id="revision_details" name="revision_details" type="text"
+                 placeholder="Describe what changed in this revision"
                  value="{{ submission_data.REVISION_DETAILS }}"/>
 
           <label for="revision_date">Revision Date</label>
           <input id="revision_date" name="revision_date" type="date"
+                 title="Date when this revision was made"
                  value="{{ submission_data.REVISION_DATE }}"/>
 
-          <label for="user_email">Your Email <span class="required">*</span></label>
-          <input id="user_email" name="user_email" type="email" required
-                 placeholder="you@company.com" value="{{ submission_data.USER_EMAIL }}"/>
+          </div>
+
+          <div class="form-section">
+            <h4><i class="fas fa-user"></i> Contact Information</h4>
+            
+            <label for="user_email">Your Email <span class="required">*</span></label>
+            <input id="user_email" name="user_email" type="email" required
+                   placeholder="your.email@company.com" 
+                   title="Enter a valid email address for notifications"
+                   value="{{ submission_data.USER_EMAIL }}"/>
+          </div>
 
           <div class="button-group">
             <button type="button" class="btn-primary" data-next-step="2">
@@ -3105,24 +3198,129 @@
   <!-- User Dropdown Toggle -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const userDropdown = document.getElementById('userDropdownMenu'); // Changed to target the menu itself
-      const userDetails = document.querySelector('.user-details'); // Target the clickable area
+      const userDropdown = document.getElementById('userDropdownMenu'); 
+      const userDetails = document.querySelector('.user-details'); 
 
-      if (userDetails && userDropdown) { // Check if both elements exist
+      if (userDetails && userDropdown) { 
         userDetails.addEventListener('click', function(event) {
-          // Prevent event from bubbling up to the document if clicking inside dropdown
           event.stopPropagation();
-          userDropdown.classList.toggle('show'); // Use 'show' class as per typical dropdown patterns
+          userDropdown.classList.toggle('show'); 
         });
       }
 
       // Close the dropdown if clicking anywhere else on the page
       document.addEventListener('click', function() {
-        const openDropdown = document.querySelector('.user-dropdown-menu.show'); // Check for 'show' class
+        const openDropdown = document.querySelector('.user-dropdown-menu.show'); 
         if (openDropdown) {
           openDropdown.classList.remove('show');
         }
       });
+
+      // Form validation improvements
+      const form = document.getElementById('satForm');
+      if (form) {
+        // Add real-time validation for required fields
+        const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        requiredFields.forEach(field => {
+          field.addEventListener('blur', function() {
+            validateField(this);
+          });
+          
+          field.addEventListener('input', function() {
+            clearFieldError(this);
+          });
+        });
+
+        // Form submission validation
+        form.addEventListener('submit', function(event) {
+          let isValid = true;
+          requiredFields.forEach(field => {
+            if (!validateField(field)) {
+              isValid = false;
+            }
+          });
+
+          if (!isValid) {
+            event.preventDefault();
+            showValidationSummary();
+          }
+        });
+      }
+
+      function validateField(field) {
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+
+        // Clear previous errors
+        clearFieldError(field);
+
+        // Check if required field is empty
+        if (field.hasAttribute('required') && !value) {
+          isValid = false;
+          errorMessage = 'This field is required';
+        }
+
+        // Email validation
+        if (field.type === 'email' && value) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            isValid = false;
+            errorMessage = 'Please enter a valid email address';
+          }
+        }
+
+        // Date validation
+        if (field.type === 'date' && value) {
+          const date = new Date(value);
+          if (isNaN(date.getTime())) {
+            isValid = false;
+            errorMessage = 'Please enter a valid date';
+          }
+        }
+
+        if (!isValid) {
+          showFieldError(field, errorMessage);
+        }
+
+        return isValid;
+      }
+
+      function showFieldError(field, message) {
+        field.classList.add('error');
+        field.setAttribute('aria-invalid', 'true');
+        
+        // Remove existing error message
+        const existingError = field.parentNode.querySelector('.error-message');
+        if (existingError) {
+          existingError.remove();
+        }
+
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        errorDiv.setAttribute('role', 'alert');
+        field.parentNode.insertBefore(errorDiv, field.nextSibling);
+      }
+
+      function clearFieldError(field) {
+        field.classList.remove('error');
+        field.removeAttribute('aria-invalid');
+        
+        const errorMessage = field.parentNode.querySelector('.error-message');
+        if (errorMessage) {
+          errorMessage.remove();
+        }
+      }
+
+      function showValidationSummary() {
+        const errorFields = document.querySelectorAll('.error');
+        if (errorFields.length > 0) {
+          alert(`Please fix ${errorFields.length} error(s) before submitting the form.`);
+          errorFields[0].focus();
+        }
+      }
     });
   </script>
 
@@ -3212,17 +3410,40 @@
     })();
   </script>
 
-  <!-- Save Progress handlers - now integrated into the dropdown, but this ensures
-       any direct calls to saveProgress are still functional if needed elsewhere -->
+  <!-- Save Progress handlers and utility functions -->
   <script>
-    // Placeholder for saveProgress function if it exists and needs to be defined globally
-    // or imported. Assumes it's defined elsewhere or will be.
     function saveProgress() {
       console.log("Save Progress triggered.");
-      // Actual save logic would go here, e.g., sending data via AJAX
+      
+      // Show user feedback
+      const saveBtn = document.querySelector('.save-progress-btn');
+      if (saveBtn) {
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        // Simulate save operation (replace with actual AJAX call)
+        setTimeout(() => {
+          saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+          setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+          }, 2000);
+        }, 1000);
+      }
+      
+      // Save form state to localStorage
+      const form = document.getElementById('satForm');
+      if (form) {
+        const formData = new FormData(form);
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+          data[key] = value;
+        }
+        localStorage.setItem('satFormProgress', JSON.stringify(data));
+      }
     }
 
-    // User dropdown toggle function
     function toggleUserDropdown() {
       const dropdown = document.getElementById('userDropdownMenu');
       if (dropdown) {
@@ -3237,6 +3458,27 @@
 
       if (dropdown && userProfile && !userProfile.contains(event.target)) {
         dropdown.classList.remove('show');
+      }
+    });
+
+    // Load saved progress on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedProgress = localStorage.getItem('satFormProgress');
+      if (savedProgress) {
+        try {
+          const data = JSON.parse(savedProgress);
+          const form = document.getElementById('satForm');
+          if (form) {
+            Object.entries(data).forEach(([name, value]) => {
+              const field = form.querySelector(`[name="${name}"]`);
+              if (field && field.type !== 'file') {
+                field.value = value;
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error loading saved progress:', e);
+        }
       }
     });
   </script>
