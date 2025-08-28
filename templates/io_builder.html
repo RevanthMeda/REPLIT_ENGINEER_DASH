@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -357,9 +356,75 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 20px;
         }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .spec-item label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .spec-item span {
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .source-indicator {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .source-database {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+
+        .source-web {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        .source-manual {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
 
         .form-group {
             display: flex;
@@ -543,7 +608,7 @@
                     Notifications
                 </a>
             </div>
-            
+
             <div class="user-info">
                 <div class="user-avatar">
                     {{ current_user.full_name[0] if current_user and current_user.full_name else 'U' }}
@@ -681,19 +746,19 @@
                     <div class="spec-grid">
                         <div class="spec-item">
                             <label>Digital Inputs:</label>
-                            <input type="number" id="digital_inputs" min="0" value="0">
+                            <span id="digital_inputs">0</span>
                         </div>
                         <div class="spec-item">
                             <label>Digital Outputs:</label>
-                            <input type="number" id="digital_outputs" min="0" value="0">
+                            <span id="digital_outputs">0</span>
                         </div>
                         <div class="spec-item">
                             <label>Analog Inputs:</label>
-                            <input type="number" id="analog_inputs" min="0" value="0">
+                            <span id="analog_inputs">0</span>
                         </div>
                         <div class="spec-item">
                             <label>Analog Outputs:</label>
-                            <input type="number" id="analog_outputs" min="0" value="0">
+                            <span id="analog_outputs">0</span>
                         </div>
                     </div>
                 </div>
@@ -721,6 +786,7 @@
 
         function showModuleBuilder() {
             document.getElementById('moduleBuilder').style.display = 'block';
+            document.getElementById('moduleSpecs').style.display = 'none'; // Hide specs when opening builder
         }
 
         function showModbusBuilder() {
@@ -753,20 +819,31 @@
             .then(data => {
                 if (data.success) {
                     const module = data.module;
-                    document.getElementById('digital_inputs').value = module.digital_inputs || 0;
-                    document.getElementById('digital_outputs').value = module.digital_outputs || 0;
-                    document.getElementById('analog_inputs').value = module.analog_inputs || 0;
-                    document.getElementById('analog_outputs').value = module.analog_outputs || 0;
+                    document.getElementById('digital_inputs').innerText = module.digital_inputs || 0;
+                    document.getElementById('digital_outputs').innerText = module.digital_outputs || 0;
+                    document.getElementById('analog_inputs').innerText = module.analog_inputs || 0;
+                    document.getElementById('analog_outputs').innerText = module.analog_outputs || 0;
 
                     document.getElementById('moduleSpecs').style.display = 'block';
                 } else {
                     alert('Module not found. Please enter specifications manually.');
+                    // Clear previous specs and show the section for manual entry
+                    document.getElementById('digital_inputs').innerText = '0';
+                    document.getElementById('digital_outputs').innerText = '0';
+                    document.getElementById('analog_inputs').innerText = '0';
+                    document.getElementById('analog_outputs').innerText = '0';
                     document.getElementById('moduleSpecs').style.display = 'block';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error looking up module. Please try again.');
+                // Ensure specs section is shown even on error, with default values
+                document.getElementById('digital_inputs').innerText = '0';
+                document.getElementById('digital_outputs').innerText = '0';
+                document.getElementById('analog_inputs').innerText = '0';
+                document.getElementById('analog_outputs').innerText = '0';
+                document.getElementById('moduleSpecs').style.display = 'block';
             })
             .finally(() => {
                 btn.innerHTML = '<i class="fa fa-search"></i> Lookup Module Specs';
@@ -780,6 +857,13 @@
             const rack_no = document.getElementById('rack_no').value;
             const module_position = document.getElementById('module_position').value;
 
+            // Ensure that the specification values are taken from the displayed spans
+            const digital_inputs = parseInt(document.getElementById('digital_inputs').innerText) || 0;
+            const digital_outputs = parseInt(document.getElementById('digital_outputs').innerText) || 0;
+            const analog_inputs = parseInt(document.getElementById('analog_inputs').innerText) || 0;
+            const analog_outputs = parseInt(document.getElementById('analog_outputs').innerText) || 0;
+
+
             if (!company || !model) {
                 alert('Please fill in all required fields');
                 return;
@@ -790,10 +874,10 @@
                 model,
                 rack_no,
                 module_position,
-                digital_inputs: parseInt(document.getElementById('digital_inputs').value) || 0,
-                digital_outputs: parseInt(document.getElementById('digital_outputs').value) || 0,
-                analog_inputs: parseInt(document.getElementById('analog_inputs').value) || 0,
-                analog_outputs: parseInt(document.getElementById('analog_outputs').value) || 0
+                digital_inputs,
+                digital_outputs,
+                analog_inputs,
+                analog_outputs
             };
 
             modules.push(module);
@@ -809,6 +893,11 @@
         function clearForm() {
             document.getElementById('moduleForm').reset();
             document.getElementById('moduleSpecs').style.display = 'none';
+            // Reset spec values to default
+            document.getElementById('digital_inputs').innerText = '0';
+            document.getElementById('digital_outputs').innerText = '0';
+            document.getElementById('analog_inputs').innerText = '0';
+            document.getElementById('analog_outputs').innerText = '0';
         }
 
         function generateTables() {
