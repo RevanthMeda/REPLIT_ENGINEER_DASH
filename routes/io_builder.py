@@ -1,11 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, render_template
 from flask_login import login_required, current_user
-import requests
-from bs4 import BeautifulSoup
-import re
 from models import db, ModuleSpec
-import time
-from urllib.parse import quote
 
 io_builder_bp = Blueprint('io_builder', __name__)
 
@@ -189,9 +184,6 @@ def search_module_web(company, model):
         if not vendor_config:
             return None
 
-        # Construct search query
-        search_query = f"{vendor_config['search_domain']} {model} datasheet specifications"
-
         current_app.logger.info(f"Simulating web search for: {company} {model}")
         hardcoded_specs = get_hardcoded_module_specs()
         key = f"{company.upper()}_{model.upper()}"
@@ -202,7 +194,7 @@ def search_module_web(company, model):
         else:
             # Handle specific modules mentioned by user
             if model.upper() == 'DA501':
-                current_app.logger.info(f"Found DA501 module specification")
+                current_app.logger.info("Found DA501 module specification")
                 return {
                     'description': '16 Channel Digital Input, 24VDC; 4 Analog Input, U, I, RTD; 2 Analog Output, U, I; 8 Configurable DI/DO, 24VDC 0.5A',
                     'digital_inputs': 24,  # 16 DI + 8 configurable as DI

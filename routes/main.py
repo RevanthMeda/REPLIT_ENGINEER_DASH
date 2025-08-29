@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, send_file, current_app
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, current_app
 from flask_login import current_user
 from auth import login_required
 import json
@@ -13,12 +13,12 @@ except ImportError as e:
     db = None
     Report = None
     SATReport = None
-    test_db_connection = lambda: False
+    def test_db_connection():
+    return False
 
 try:
-    from utils import (load_submissions, save_submissions, send_edit_link,
-                  setup_approval_workflow, process_table_rows, handle_image_removals,
-                  allowed_file, save_uploaded_file, generate_sat_report as create_docx_from_template)
+    from utils import (send_edit_link,
+                  process_table_rows, handle_image_removals)
 except ImportError as e:
     print(f"Warning: Could not import utils: {e}")
     generate_sat_report = None

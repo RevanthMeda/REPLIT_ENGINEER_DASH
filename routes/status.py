@@ -1,12 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, current_app, send_file
 import os
 from utils import load_submissions, convert_to_pdf
-from docx import Document
-from docx.shared import Inches
 from docxtpl import InlineImage
 from datetime import datetime
 import tempfile
-from docx import Document as DocxTemplate # Alias to avoid conflict if Document is used elsewhere
 from flask_login import current_user
 
 status_bp = Blueprint('status', __name__)

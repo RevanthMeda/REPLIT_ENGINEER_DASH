@@ -3,17 +3,14 @@ import json
 import logging
 import smtplib
 from email.message import EmailMessage
-from PIL import Image
 from docx import Document
 from docx.oxml import parse_xml
 from flask import current_app, url_for
 import time
-import re
 from werkzeug.utils import secure_filename
 import uuid
 import platform
 import tempfile
-import shutil
 from contextlib import contextmanager
 from datetime import datetime
 
@@ -292,7 +289,7 @@ def save_submissions(submissions):
             try:
                 f.seek(0)
                 old_data = f.read()
-            except:
+            except Exception:
                 old_data = "{}"
 
             try:
@@ -380,27 +377,7 @@ def send_email(to_email, subject, html_content, text_content=None):
             time.sleep(2)
     return False
 
-def create_approval_notification(approver_email, submission_id, stage, document_title):
-    """Create notification for approval request"""
-    try:
-        from models import Notification
-        from flask import url_for
 
-        title = f"Approval Required - Stage {stage}"
-        message = f"SAT Report '{document_title}' requires your approval."
-        action_url = url_for('approval.approve_submission', submission_id=submission_id, stage=stage, _external=True)
-
-        return Notification.create_notification(
-            user_email=approver_email,
-            title=title,
-            message=message,
-            notification_type='approval_request',
-            submission_id=submission_id,
-            action_url=action_url
-        )
-    except Exception as e:
-        current_app.logger.error(f"Failed to create approval notification: {e}")
-        return False
 
 def create_status_update_notification(user_email, submission_id, status, document_title, approver_name):
     """Create notification for status updates"""
@@ -1256,95 +1233,28 @@ def allowed_file(filename):
         return False
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-import json
-import os
-from datetime import datetime
+
 
 # This section seems to be a remnant or duplicate and is being kept for completeness as per instructions
 # but the functions are redundant with the ones defined above.
 # If these were truly meant to be distinct, they would need to be differentiated.
 # For now, assuming they are duplicates of the more comprehensive versions above.
 
-def load_submissions():
-    """Load submissions from JSON file"""
-    try:
-        submissions_file = 'data/submissions.json'
-        if os.path.exists(submissions_file):
-            with open(submissions_file, 'r') as f:
-                return json.load(f)
-        return []
-    except Exception as e:
-        print(f"Error loading submissions: {e}")
-        return []
 
-def save_submissions(submissions):
-    """Save submissions to JSON file"""
-    try:
-        submissions_file = 'data/submissions.json'
-        os.makedirs(os.path.dirname(submissions_file), exist_ok=True)
-        with open(submissions_file, 'w') as f:
-            json.dump(submissions, f, indent=2)
-        return True
-    except Exception as e:
-        print(f"Error saving submissions: {e}")
-        return False
 
-def send_edit_link(email, edit_link):
-    """Send edit link via email (placeholder)"""
-    print(f"Would send edit link to {email}: {edit_link}")
-    return True
 
-def setup_approval_workflow(submission_data):
-    """Setup approval workflow (placeholder)"""
-    return {"status": "pending", "approvers": []}
 
-def process_table_rows(table_data):
-    """Process table rows (placeholder)"""
-    return table_data
 
-def handle_image_removals(removed_images):
-    """Handle image removals (placeholder)"""
-    for image in removed_images:
-        try:
-            if os.path.exists(image):
-                os.remove(image)
-        except Exception as e:
-            print(f"Error removing image {image}: {e}")
 
-def allowed_file(filename):
-    """Check if file extension is allowed"""
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx'}
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-def save_uploaded_file(file, upload_folder):
-    """Save uploaded file"""
-    try:
-        os.makedirs(upload_folder, exist_ok=True)
-        filename = file.filename
-        filepath = os.path.join(upload_folder, filename)
-        file.save(filepath)
-        return filepath
-    except Exception as e:
-        print(f"Error saving file: {e}")
-        return None
 
-def generate_sat_report(data):
-    """Generate SAT report (placeholder)"""
-    print("Generating SAT report...")
-    return {"success": True, "filename": "SAT_Report_Final.docx"}
 
-def get_unread_count():
-    """Get unread notification count for current user"""
-    try:
-        from flask_login import current_user
-        if current_user.is_authenticated:
-            from models import Notification
-            count = Notification.query.filter_by(
-                user_email=current_user.email, 
-                read=False
-            ).count()
-            return count
-    except Exception as e:
-        print(f"Error getting unread count: {e}")
-    return 0
+
+
+
+
+
+
+
+
+

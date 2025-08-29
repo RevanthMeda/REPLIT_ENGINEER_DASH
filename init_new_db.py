@@ -8,15 +8,14 @@ Run this after updating your DATABASE_URL in .env
 import os
 import sys
 from dotenv import load_dotenv
+from app import create_app
+from models import db, create_admin_user
 
 # Load environment variables
 load_dotenv()
 
 # Add current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from app import create_app
-from models import db, init_db, create_admin_user, User
 
 def initialize_new_database():
     """Initialize new database with tables and admin user"""

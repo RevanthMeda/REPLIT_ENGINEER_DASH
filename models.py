@@ -1,12 +1,9 @@
 import os
-import json
-from datetime import datetime, timedelta
-from flask import current_app
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import URLSafeTimedSerializer
-import secrets
+
 
 db = SQLAlchemy()
 
@@ -203,7 +200,7 @@ def init_db(app):
                 app.logger.warning(f"Could not create admin user: {user_error}")
                 try:
                     db.session.rollback()
-                except:
+                except Exception:
                     pass
 
             # Initialize system settings
@@ -226,7 +223,7 @@ def init_db(app):
                 app.logger.warning(f"Could not create system settings: {settings_error}")
                 try:
                     db.session.rollback()
-                except:
+                except Exception:
                     pass
 
         app.logger.info("Database initialized successfully")
@@ -240,7 +237,6 @@ def init_db(app):
 def import_json_to_db():
     """One-time import of existing JSON submissions to database"""
     import json
-    import uuid
 
     submissions_file = 'data/submissions.json'
     archived_file = 'data/submissions.archived.json'

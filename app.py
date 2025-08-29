@@ -3,10 +3,10 @@ import sys
 import signal
 import logging
 import traceback
-from flask import Flask, g, request, render_template, jsonify, make_response, redirect, url_for
+from flask import Flask, g, request, render_template, jsonify, redirect, url_for
 from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 from flask_login import current_user, login_required
-from config import Config
+from config import config
 
 # Initialize CSRF protection globally
 csrf = CSRFProtect()
@@ -20,7 +20,8 @@ except ImportError as e:
     print(f"❌ Import error: {e}")
     sys.exit(1)
 
-def create_app(config_class=Config):
+def create_app(config_class_name='default'):
+    config_class = config[config_class_name]
     """Create and configure Flask application"""
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -224,7 +225,7 @@ if __name__ == '__main__':
         # Print startup information
         print("🚀 Starting SAT Report Generator...")
         print(f"Debug Mode: {app.config.get('DEBUG', True)}")
-        print(f"Running on http://0.0.0.0:5000")
+        print("Running on http://0.0.0.0:5000")
 
         # Create required directories if they don't exist
         try:

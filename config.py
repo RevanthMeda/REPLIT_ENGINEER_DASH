@@ -1,6 +1,5 @@
 import os
-import logging
-from datetime import timedelta
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -95,7 +94,7 @@ class ProductionConfig(Config):
 
         # Log to syslog in production
         import logging
-        from logging.handlers import SysLogHandler
+from logging.handlers import SysLogHandler
         syslog_handler = SysLogHandler()
         syslog_handler.setLevel(logging.WARNING)
         app.logger.addHandler(syslog_handler)

@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from auth import admin_required, role_required
-from models import db, User, Report, Notification, SystemSettings, test_db_connection
-from utils import get_unread_count
-import json
+from models import db, User, Report, SystemSettings, test_db_connection
+
+
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -36,7 +36,6 @@ def admin():
 
     # Calculate user statistics
     total_users = len(users)
-    active_users = len([u for u in users if u.status == 'Active'])
     pending_users_count = len([u for u in users if u.status == 'Pending'])
 
     # Get unread notifications count
@@ -49,9 +48,6 @@ def admin():
         current_app.logger.warning(f"Could not get unread count for admin: {e}")
         unread_count = 0
 
-    # Get recent users (last 5)
-    recent_users = User.query.order_by(User.created_date.desc()).limit(5).all()
-
     # Get actual pending users (users who need approval)
     pending_users_list = User.query.filter_by(status='Pending').order_by(User.created_date.desc()).limit(5).all()
 
@@ -62,12 +58,12 @@ def admin():
         # Add basic report info for display
         for report in recent_reports:
             if hasattr(report, 'sat_report') and report.sat_report:
-                import json
+                
                 try:
                     data = json.loads(report.sat_report.data_json)
                     report.document_title = data.get('context', {}).get('DOCUMENT_TITLE', 'Untitled Report')
                     report.project_reference = data.get('context', {}).get('PROJECT_REFERENCE', 'N/A')
-                except:
+                except Exception:
                     report.document_title = 'Untitled Report'
                     report.project_reference = 'N/A'
 
@@ -84,7 +80,7 @@ def admin():
                             report.status = "partially_approved"
                         else:
                             report.status = "pending"
-                    except:
+                    except Exception:
                         report.status = "pending"
                 else:
                     report.status = "pending"
@@ -98,7 +94,6 @@ def admin():
         recent_reports = []
 
     # System status
-    system_status = "Online" if db_connected else "Offline"
 
     # Get settings
     company_logo = SystemSettings.get_setting('company_logo', 'static/cully.png')
@@ -119,8 +114,8 @@ def admin():
 @role_required(['Engineer'])
 def engineer():
     """Engineer dashboard"""
-    from models import Report, Notification
-    import json
+    from models import Report
+    
 
     # Get unread notifications count
     try:
@@ -168,8 +163,8 @@ def engineer():
 @role_required(['TM'])
 def tm():
     """Technical Manager dashboard"""
-    from models import Report, Notification
-    import json
+    from models import Report
+    
 
     # Get unread notifications count
     try:
@@ -254,8 +249,8 @@ def tm():
 @role_required(['PM'])
 def pm():
     """Project Manager dashboard"""
-    from models import Report, Notification
-    import json
+    from models import Report
+    
 
     # Get unread notifications count
     try:
@@ -529,17 +524,17 @@ def api_admin_reports():
             title = 'Untitled Report'
             if hasattr(report, 'sat_report') and report.sat_report:
                 try:
-                    import json
+                    
                     data = json.loads(report.sat_report.data_json)
                     title = data.get('context', {}).get('DOCUMENT_TITLE', 'Untitled Report')
-                except:
+                except Exception:
                     pass
 
             # Determine status
             status = 'pending'
             if report.approvals_json:
                 try:
-                    import json
+                    
                     approvals = json.loads(report.approvals_json)
                     statuses = [a.get("status", "pending") for a in approvals]
                     if "rejected" in statuses:
@@ -548,7 +543,7 @@ def api_admin_reports():
                         status = "approved"
                     elif any(s == "approved" for s in statuses):
                         status = "partially_approved"
-                except:
+                except Exception:
                     pass
 
             reports_data.append({
@@ -613,7 +608,7 @@ def api_admin_stats():
 def my_reports():
     """View engineer's own reports"""
     from models import Report, SATReport
-    import json
+    
 
     # Get reports created by current user
     reports = Report.query.filter_by(user_email=current_user.email).order_by(Report.updated_at.desc()).all()

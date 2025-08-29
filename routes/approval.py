@@ -9,9 +9,7 @@ from utils import (
     save_submissions,
     send_approval_link,
     notify_completion,
-    convert_to_pdf,
-    send_client_final_document,
-    get_safe_output_path
+    convert_to_pdf
 )
 
 approval_bp = Blueprint('approval', __name__)
@@ -138,7 +136,7 @@ def approve_submission(submission_id, stage):
                                 sig_prepared = InlineImage(tpl, sig_path, width=Mm(40))
                                 current_app.logger.info("Successfully created InlineImage for preparer signature")
                             else:
-                                current_app.logger.error(f"Signature file exists but is empty (0 bytes)")
+                                current_app.logger.error("Signature file exists but is empty (0 bytes)")
                         except Exception as e:
                             current_app.logger.error(f"Error loading preparer signature: {e}", exc_info=True)
                     else:
@@ -178,7 +176,7 @@ def approve_submission(submission_id, stage):
                                 
                                 if file_size > 0:
                                     tech_lead_sig = InlineImage(tpl, sig_path, width=Mm(40))
-                                    current_app.logger.info(f"Successfully loaded Automation Manager signature")
+                                    current_app.logger.info("Successfully loaded Automation Manager signature")
                             except Exception as e:
                                 current_app.logger.error(f"Error loading Automation Manager signature: {e}")
                                 tech_lead_sig = ""
@@ -216,7 +214,7 @@ def approve_submission(submission_id, stage):
                                 
                                 if file_size > 0:
                                     pm_sig = InlineImage(tpl, sig_path, width=Mm(40))
-                                    current_app.logger.info(f"Successfully loaded PM signature")
+                                    current_app.logger.info("Successfully loaded PM signature")
                             except Exception as e:
                                 current_app.logger.error(f"Error loading PM signature: {e}")
                                 pm_sig = ""

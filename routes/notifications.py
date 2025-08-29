@@ -1,9 +1,7 @@
-from flask import Blueprint, render_template, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app
 from flask_login import current_user
 from models import db, Notification
 from auth import login_required
-import json
-from datetime import datetime
 
 try:
     from models import db, Notification

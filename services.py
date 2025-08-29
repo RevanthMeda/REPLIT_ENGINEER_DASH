@@ -3,12 +3,11 @@ Service Layer for Business Logic
 Separates route handling from business logic for better maintainability
 """
 
-import os
 import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
-from werkzeug.exceptions import BadRequest, NotFound
+from datetime import datetime, timedelta
+from typing import Dict, List, Any
+from werkzeug.exceptions import NotFound
 from flask import current_app
 from models import db, User, Report, SATReport, SystemSettings, Notification
 from utils import send_email_notification, generate_report_document
@@ -219,7 +218,7 @@ class ReportService:
         try:
             approvals = json.loads(report.approvals_json)
             return approvals.get('stage') == stage
-        except:
+        except Exception:
             return False
 
 
@@ -344,7 +343,7 @@ class DashboardService:
             try:
                 db.session.execute('SELECT 1')
                 db_status = 'Connected'
-            except:
+            except Exception:
                 db_status = 'Disconnected'
             
             return {
@@ -453,7 +452,7 @@ class SystemService:
             
             # Delete old read notifications
             old_notifications = Notification.query.filter(
-                Notification.read == True,
+                Notification.read,
                 Notification.created_at < cutoff_date
             ).all()
             
