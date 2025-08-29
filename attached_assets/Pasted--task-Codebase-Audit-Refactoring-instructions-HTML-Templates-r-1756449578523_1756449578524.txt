@@ -1,0 +1,65 @@
+{
+  "task": "Codebase Audit & Refactoring",
+  "instructions": {
+    "HTML Templates": {
+      "refactor": [
+        "Ensure all dashboards and pages extend from base.html or base_dashboard.html.",
+        "Merge admin_base.html and other base-like templates into a single true base with {% block content %}.",
+        "Abstract repeated UI components (alerts, forms, buttons, modals, sidebars) into Jinja macros or partial includes.",
+        "Delete commented-out code and non-actionable TODOs.",
+        "Remove unused demo/test templates and any files not referenced in routes or documentation.",
+        "Keep 'Coming Soon' templates intact but exclude them from pruning."
+      ],
+      "documentation": [
+        "Create templates/README.md explaining purpose, extension hierarchy, and usage of each template."
+      ]
+    },
+    "Backend & Architecture": {
+      "performance": [
+        "Move blocking operations (email sending, PDF/Word generation, image processing) to a background task queue (Celery/RQ).",
+        "Refactor long route functions into service functions or utils.",
+        "Migrate approval workflow from JSON/dict blobs into DB tables for traceability."
+      ],
+      "database": [
+        "Add indexes on frequently filtered columns (role, status, report IDs, approval status).",
+        "Profile queries to eliminate redundancy and optimize ORM calls."
+      ],
+      "config": [
+        "Validate paths (uploads, submissions) at app startup.",
+        "Use logging at INFO/DEBUG for better diagnostics and integrate error monitoring (e.g., Sentry)."
+      ]
+    },
+    "Frontend & UI Consistency": {
+      "style": [
+        "Unify CSS into a single stylesheet with consistent :root variables.",
+        "Remove unused or duplicate CSS/JS references in base templates.",
+        "Refactor layouts to be responsive (use flex/grid)."
+      ],
+      "components": [
+        "Standardize flash/alert handling across all templates.",
+        "Use macros for buttons, form fields, and alerts to enforce consistent style."
+      ]
+    },
+    "Performance & Deployment": {
+      "frontend": [
+        "Use AJAX/fetch for dashboard updates instead of full-page reloads.",
+        "Implement pagination for long lists (users, reports)."
+      ],
+      "backend": [
+        "Run with Gunicorn/uWSGI and multiple workers in production.",
+        "Prefer PostgreSQL over SQLite for production use."
+      ],
+      "static": [
+        "Offload large static/media/report files to CDN or cloud storage (S3/GCP/Azure)."
+      ]
+    },
+    "Monitoring & Maintenance": {
+      "logging": [
+        "Add response time logging and monitor slow endpoints with Flask-MonitoringDashboard or similar."
+      ],
+      "hygiene": [
+        "Schedule regular 'template pruning' and code cleanup per release cycle."
+      ]
+    }
+  }
+}

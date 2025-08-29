@@ -1,0 +1,181 @@
+{# Reusable Jinja Macros for Common UI Components #}
+
+{# Alert/Flash Message Component #}
+{% macro render_flash_messages() %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <i class="fa fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+{% endmacro %}
+
+{# Navigation Link Component #}
+{% macro nav_link(href, icon, text, badge_count=0, active=false, featured=false) %}
+  <a href="{{ href }}" class="nav-link{% if active %} active{% endif %}{% if featured %} featured{% endif %}">
+    <i class="fa fa-{{ icon }}"></i>
+    <span>{{ text }}</span>
+    {% if badge_count > 0 %}
+      <span class="nav-badge">{{ badge_count }}</span>
+    {% endif %}
+  </a>
+{% endmacro %}
+
+{# User Avatar Component #}
+{% macro user_avatar(user, size='medium') %}
+  <div class="user-avatar user-avatar-{{ size }}">
+    {{ user.full_name[0] if user and user.full_name else 'U' }}
+  </div>
+{% endmacro %}
+
+{# Status Badge Component #}
+{% macro status_badge(status) %}
+  <span class="status-badge status-{{ status.lower().replace(' ', '-') }}">
+    {{ status }}
+  </span>
+{% endmacro %}
+
+{# Action Button Component #}
+{% macro action_button(href, text, icon=None, variant='primary', disabled=false) %}
+  {% if disabled %}
+    <button class="btn btn-{{ variant }}" disabled>
+      {% if icon %}<i class="fa fa-{{ icon }}"></i>{% endif %}
+      {{ text }}
+    </button>
+  {% else %}
+    <a href="{{ href }}" class="btn btn-{{ variant }}">
+      {% if icon %}<i class="fa fa-{{ icon }}"></i>{% endif %}
+      {{ text }}
+    </a>
+  {% endif %}
+{% endmacro %}
+
+{# Stat Card Component #}
+{% macro stat_card(icon, value, label, change_text=None, change_type='neutral', color_class='primary') %}
+  <div class="stat-card {{ color_class }}">
+    <div class="stat-icon">
+      <i class="fa fa-{{ icon }}"></i>
+    </div>
+    <div class="stat-value">{{ value }}</div>
+    <div class="stat-label">{{ label }}</div>
+    {% if change_text %}
+      <div class="stat-change {{ change_type }}">
+        <i class="fa fa-{% if change_type == 'positive' %}arrow-up{% elif change_type == 'negative' %}arrow-down{% else %}minus{% endif %}"></i>
+        {{ change_text }}
+      </div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{# Widget Card Component #}
+{% macro widget_card(title, icon=None, action_href=None, action_text=None) %}
+  <div class="widget-card">
+    <div class="widget-header">
+      <h3 class="widget-title">
+        {% if icon %}<i class="fa fa-{{ icon }}"></i>{% endif %}
+        {{ title }}
+      </h3>
+      {% if action_href and action_text %}
+        <a href="{{ action_href }}" class="widget-action">{{ action_text }}</a>
+      {% endif %}
+    </div>
+    <div class="widget-content">
+      {{ caller() }}
+    </div>
+  </div>
+{% endmacro %}
+
+{# Action Card Component #}
+{% macro action_card(href, icon, title, description, badge=None, disabled=false) %}
+  <a href="{{ href }}" class="action-card{% if disabled %} disabled{% endif %}"{% if disabled %} onclick="return false;"{% endif %}>
+    <div class="action-icon">
+      <i class="fa fa-{{ icon }}"></i>
+    </div>
+    <div class="action-content">
+      <h3>{{ title }}</h3>
+      <p>{{ description }}</p>
+    </div>
+    {% if badge %}
+      <div class="action-badge">{{ badge }}</div>
+    {% endif %}
+  </a>
+{% endmacro %}
+
+{# Empty State Component #}
+{% macro empty_state(icon, title, message, action_href=None, action_text=None, action_icon=None) %}
+  <div class="empty-state">
+    <i class="fa fa-{{ icon }}"></i>
+    <h3>{{ title }}</h3>
+    <p>{{ message }}</p>
+    {% if action_href and action_text %}
+      <a href="{{ action_href }}" class="empty-action">
+        {% if action_icon %}<i class="fa fa-{{ action_icon }}"></i>{% endif %}
+        {{ action_text }}
+      </a>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{# Table Component Wrapper #}
+{% macro data_table(headers) %}
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% for header in headers %}
+            <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {{ caller() }}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
+{# Form Field Component #}
+{% macro form_field(name, label, type='text', value='', required=false, placeholder='', help_text='') %}
+  <div class="form-group">
+    <label for="{{ name }}" class="form-label">
+      {{ label }}
+      {% if required %}<span class="required">*</span>{% endif %}
+    </label>
+    <input 
+      type="{{ type }}" 
+      id="{{ name }}" 
+      name="{{ name }}" 
+      class="form-control" 
+      value="{{ value }}"
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+    >
+    {% if help_text %}
+      <small class="form-help">{{ help_text }}</small>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{# Modal Component #}
+{% macro modal(id, title) %}
+  <div id="{{ id }}" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{ title }}</h2>
+        <button class="modal-close" onclick="closeModal('{{ id }}')">&times;</button>
+      </div>
+      <div class="modal-body">
+        {{ caller() }}
+      </div>
+    </div>
+  </div>
+{% endmacro %}

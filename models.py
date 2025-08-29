@@ -18,13 +18,12 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)  # Added index
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(30), nullable=True)  # Admin, Engineer, Automation Manager, PM
-    status = db.Column(db.String(20), default='Pending')  # Pending, Active, Disabled
+    role = db.Column(db.String(30), nullable=True, index=True)  # Added index for role filtering
+    status = db.Column(db.String(20), default='Pending', index=True)  # Added index for status filtering
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     requested_role = db.Column(db.String(20), nullable=True)
-    # username = db.Column(db.String(50), unique=True, nullable=True) # Removed username field
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -65,22 +64,26 @@ class SystemSettings(db.Model):
 
 class Report(db.Model):
     __tablename__ = 'reports'
+    __table_args__ = (
+        db.Index('idx_report_status_user', 'status', 'user_email'),  # Composite index
+        db.Index('idx_report_updated', 'updated_at'),  # Index for sorting
+    )
 
     id = db.Column(db.String(36), primary_key=True)  # UUID
-    type = db.Column(db.String(20), nullable=False)  # 'SAT', 'FDS', 'HDS', etc.
-    status = db.Column(db.String(20), default='DRAFT')  # 'DRAFT', 'PENDING', 'APPROVED', etc.
+    type = db.Column(db.String(20), nullable=False, index=True)  # Added index
+    status = db.Column(db.String(20), default='DRAFT', index=True)  # Added index
     document_title = db.Column(db.String(200), nullable=True)
     document_reference = db.Column(db.String(100), nullable=True)
-    project_reference = db.Column(db.String(100), nullable=True)
+    project_reference = db.Column(db.String(100), nullable=True, index=True)  # Added index
     client_name = db.Column(db.String(100), nullable=True)
     revision = db.Column(db.String(20), nullable=True)
     prepared_by = db.Column(db.String(100), nullable=True)
-    user_email = db.Column(db.String(120), nullable=False)  # Creator
-    version = db.Column(db.String(10), default='R0')  # Version tracking (R0, R1, R2, etc.)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_email = db.Column(db.String(120), nullable=False, index=True)  # Added index
+    version = db.Column(db.String(10), default='R0')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # Added index
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     locked = db.Column(db.Boolean, default=False)
-    approvals_json = db.Column(db.Text, nullable=True)  # JSON string for approval workflow
+    approvals_json = db.Column(db.Text, nullable=True)
     approval_notification_sent = db.Column(db.Boolean, default=False)
 
     # Relationships
@@ -405,16 +408,20 @@ class ModuleSpec(db.Model):
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
+    __table_args__ = (
+        db.Index('idx_notification_user_read', 'user_email', 'read'),  # Composite index for unread queries
+        db.Index('idx_notification_created', 'created_at'),  # Index for sorting
+    )
 
     id = db.Column(db.Integer, primary_key=True)
-    user_email = db.Column(db.String(120), nullable=False)  # Recipient
+    user_email = db.Column(db.String(120), nullable=False, index=True)  # Added index
     title = db.Column(db.String(200), nullable=False)
     message = db.Column(db.Text, nullable=False)
     type = db.Column(db.String(50), nullable=False)  # 'approval_request', 'status_update', 'completion', etc.
-    related_submission_id = db.Column(db.String(36), nullable=True)  # Link to report
-    read = db.Column(db.Boolean, default=False)
+    related_submission_id = db.Column(db.String(36), nullable=True, index=True)  # Added index
+    read = db.Column(db.Boolean, default=False, index=True)  # Added index
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    action_url = db.Column(db.String(500), nullable=True)  # Optional action link
+    action_url = db.Column(db.String(500), nullable=True)
 
     # Changed 'type' to 'notification_type' and 'related_submission_id' to 'submission_id' in to_dict for clarity
     def to_dict(self):

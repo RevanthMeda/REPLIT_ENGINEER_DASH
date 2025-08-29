@@ -1,0 +1,61 @@
+HTML Template Code Audit & Minimization Suggestions
+
+Summary of .html templates:
+
+There are templates for all core user-facing pages (base.html, base_dashboard.html, admin_base.html, dashboards, report views, registration/login, error/404, notification center, etc.).
+
+Some templates (SAT.html, io_builder.html) and others appear to be "coming soon" or have placeholder content.
+
+Macros and template inheritance blocks are used, but there is duplication across dashboards and bases.
+
+Recommendations to Minimize and Perfect Your Frontend:
+
+Remove Unused and Placeholder Templates:
+
+If features like io_builder.html or underused report templates (“wizard”, “submissions_list”, etc.) are not active or still “coming soon,” archive or delete them from the main codebase. Keep them in a legacy/ or experimental/ folder outside your deployable templates/ structure if needed.
+
+Delete demo files and unused HTML (e.g., any route only referenced in README).
+
+Refactor and Merge Similar Templates:
+
+Consolidate dashboards: Use one versatile base_dashboard.html (already exists) with extra {% block content %} or {% include %} for role-specific panels.
+
+Do not repeat layouts across admin_base.html, base_dashboard.html, etc. Merge shared parts into a true base, use template inheritance.
+
+Streamline UI Components:
+
+Abstract all repeated UI elements (alerts, cards, modals, sidebars, form groups) into partials and Jinja macros. Replace repeated code blocks in multiple templates by {% import 'macros/buttons.html' as btns %} and similar macros.
+
+Use a single stylesheet (form.css) and remove any outdated/duplicate style files.
+
+Remove “Coming Soon” UI and Comments:
+
+If any HTML file or block displays “Feature coming soon,” either implement it or remove it and its routes entirely. Dead UI distracts users and dilutes focus.
+
+Delete all commented-out code and large non-actionable TODO notes from templates.
+
+Audit Referenced Resources:
+
+Remove links to unused JavaScript/CSS files in the base templates. Ensure all assets (favicon, images, etc.) are actually referenced in the UI.
+
+404/Error Handling:
+
+Minimal 404.html is good. If any other error or info pages aren’t triggered by your codebase, consider removing or merging them into a generic handler.
+
+Make the Welcome Template Lean:
+
+The welcome page should focus only on unique landing content and import shared sections from the base.
+
+Document Remaining Templates:
+
+Keep a templates/README.md that states the purpose and required extension/usage for each HTML file.
+
+Best Practices for Ongoing Lean Frontend:
+
+Routinely archive/remove any template not referenced in routes or explicitly required for emails/errors.
+
+For all new features, hide inactive nav or sidebar links by not rendering them in templates until live.
+
+Schedule periodic “template pruning” as part of release hygiene.
+
+These steps will keep your app maintainable, fast to load, and more enjoyable for end users and developers alike! If you want recommendations for specific template files or sections, let me know.

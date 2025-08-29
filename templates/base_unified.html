@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Cully Report Generator{% endblock %}</title>
+    
+    {# Core Styles #}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% import 'macros.html' as macros %}
+    
+    {# Page Layout Wrapper #}
+    <div class="page-wrapper">
+        {% block page_header %}
+            {# Default Header - Can be overridden #}
+            {% if current_user.is_authenticated %}
+                <nav class="navbar">
+                    <div class="nav-container">
+                        <div class="nav-brand">
+                            <img src="{{ url_for('static', filename='img/cully.png') }}" alt="Cully Automation" class="logo">
+                            <span class="brand-text">Report Generator</span>
+                        </div>
+                        
+                        <div class="nav-menu">
+                            {% block navigation %}
+                                {# Default Navigation Links #}
+                                {{ macros.nav_link(url_for('dashboard.home'), 'home', 'Dashboard', active=(request.endpoint == 'dashboard.home')) }}
+                                {{ macros.nav_link(url_for('reports.new'), 'plus-circle', 'New Report', active=(request.endpoint == 'reports.new')) }}
+                                {{ macros.nav_link(url_for('dashboard.my_reports'), 'file-alt', 'My Reports', active=(request.endpoint == 'dashboard.my_reports')) }}
+                                {{ macros.nav_link(url_for('notifications.notification_center'), 'bell', 'Notifications', badge_count=unread_count if unread_count is defined else 0) }}
+                            {% endblock %}
+                        </div>
+                        
+                        <div class="nav-user">
+                            {% block user_menu %}
+                                {{ macros.user_avatar(current_user, 'small') }}
+                                <div class="user-details">
+                                    <span class="user-name">{{ current_user.full_name or 'User' }}</span>
+                                    <span class="user-role">{{ current_user.role }}</span>
+                                </div>
+                                <div class="user-actions">
+                                    {{ macros.nav_link(url_for('auth.change_password'), 'key', 'Settings') }}
+                                    {{ macros.nav_link(url_for('auth.logout'), 'sign-out-alt', 'Logout') }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </nav>
+            {% endif %}
+        {% endblock %}
+        
+        {# Main Content Area #}
+        <main class="main-content">
+            {# Flash Messages #}
+            {{ macros.render_flash_messages() }}
+            
+            {# Page Header Section #}
+            {% block content_header %}{% endblock %}
+            
+            {# Main Content #}
+            {% block content %}{% endblock %}
+        </main>
+        
+        {# Footer - Optional #}
+        {% block footer %}{% endblock %}
+    </div>
+    
+    {# Core JavaScript #}
+    <script>
+        // CSRF Token Setup
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fa fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="notification-close">
+                    <i class="fa fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        // Auto-dismiss flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.alert');
+            flashMessages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.animation = 'fadeOut 0.5s ease';
+                    setTimeout(() => msg.remove(), 500);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
